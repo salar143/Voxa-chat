@@ -29,7 +29,26 @@
 <section id="roomView" class="hidden">
 <button id="backRooms" class="secondary">← Rooms</button>
 <div class="panel"><span class="pill">ROOM</span><h2 id="roomTitle"></h2><p id="roomTopic" class="muted"></p><div id="roomStatus" class="status"></div><div id="seats" class="grid"></div>
-<div class="row"><button id="roomChat">Open chat</button><button id="joinVoice" class="secondary">Join voice (experimental)</button><button id="leaveVoice" class="secondary">Leave voice</button></div><div id="voiceStatus" class="status">Voice is not connected.</div><audio id="remoteAudio" autoplay playsinline></audio></div>
+<div class="row"><button id="roomChat">Open chat</button><button id="joinVoice" class="secondary">Join voice (experimental)</button><button id="leaveVoice" class="secondary">Leave voice</button></div><div id="voiceStatus" class="status">Voice is not connected.</div>
+<div class="panel" id="voiceModerationPanel">
+ <div class="sectionhead"><h3>🎙 Voice moderation</h3><span id="voiceModRole" class="pill">Member</span></div>
+ <p class="muted small">Room owner/admin controls. Members must keep this page open for client-enforced mute/kick commands. Server checks and RLS are required for production.</p>
+ <div id="voiceModRoster" class="grid"><p class="muted">Join the voice room to load members.</p></div>
+ <div id="voiceModStatus" class="status">Voice moderation is idle.</div>
+</div>
+<audio id="remoteAudio" autoplay playsinline></audio></div>
+<div class="panel" id="roomAdminPanel">
+ <div class="sectionhead"><h2>🛡️ Room Admins</h2><span id="adminCount" class="pill">Loading…</span></div>
+ <p class="muted" id="adminSummary">Room owner can appoint admins when the room has an active premium entitlement.</p>
+ <div id="adminOwnerTools" class="hidden">
+  <label for="adminUserId">Member user ID</label>
+  <input id="adminUserId" placeholder="Paste member UUID" autocomplete="off">
+  <div class="row"><button id="appointAdminBtn">Make Admin</button><button id="removeAdminBtn" class="secondary">Remove Admin</button></div>
+  <p class="hint small">Only the room owner can appoint or remove admins. Use the member's user ID from your trusted member list.</p>
+ </div>
+ <div id="roomAdminList" class="grid"><p class="muted">Loading room roles…</p></div>
+ <div id="adminStatus" class="status">Admin roles not loaded yet.</div>
+</div>
 <div class="panel" id="mediaPanel">
 <div class="sectionhead"><h2>🎧 Room Media</h2><span id="mediaRole" class="pill">Member</span></div>
 <p class="muted">🎬 Watch together: the room creator chooses the YouTube video and controls room playback. Everyone in the room sees the same selected video. Each member may need to tap Play once because of browser autoplay rules.</p>
@@ -62,7 +81,7 @@
 const SUPABASE_URL='https://opckvbeyupvkeojnvnej.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_hIRf-JGkAhWtldNYc3SBEw_5clrRwV7';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
-let user=null,profile=null,rooms=[],activeRoom=null,msgChannel=null,voiceChannel=null,peers=new Map(),localStream=null,authMode='login',mediaChannel=null,mediaState=null,mediaMode='audio',mediaIsAdmin=false,mediaPoll=null,mediaPlayer=null,mediaSyncing=false;
+let user=null,profile=null,rooms=[],activeRoom=null,msgChannel=null,voiceChannel=null,peers=new Map(),localStream=null,authMode='login',mediaChannel=null,mediaState=null,mediaMode='audio',mediaIsAdmin=false,mediaPoll=null,mediaPlayer=null,mediaSyncing=false,roomAdminRows=[],roomAdminLimit=null;
 const $=id=>document.getElementById(id);
 function status(id,msg,kind=''){const el=$(id);if(el){el.textContent=msg;el.className='status '+kind}}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -76,7 +95,9 @@ $('authToggle').onclick=()=>{if(user)showPage('profile');else $('auth').classLis
 $('modeToggle').onclick=()=>{authMode=authMode==='login'?'signup':'login';$('authTitle').textContent=authMode==='login'?'Welcome back':'Create your account';$('authSubmit').textContent=authMode==='login'?'Log in':'Sign up';$('modeToggle').textContent=authMode==='login'?'Create account':'Back to login';$('password').autocomplete=authMode==='login'?'current-password':'new-password';status('authStatus',authMode==='signup'?'A confirmation email may be required.':'Enter your login details.')};
 $('authSubmit').onclick=async()=>{let email=$('email').value.trim(),password=$('password').value;if(!email||password.length<6){status('authStatus','Enter a valid email and password (minimum 6 characters).','error');return}$('authSubmit').disabled=true;let result=authMode==='login'?await sb.auth.signInWithPassword({email,password}):await sb.auth.signUp({email,password});$('authSubmit').disabled=false;if(result.error){status('authStatus',result.error.message,'error');return}if(authMode==='signup'&&!result.data.session){status('authStatus','Account created. Check your email to confirm, then log in.','success');return}user=result.data.user;await startApp()};
 async function createRoom(){let name=prompt('Room name');if(!name?.trim())return;let topic=prompt('Room topic','Meet and chat')||'';let cap=Number(prompt('Capacity (2–50)','12'));cap=Math.max(2,Math.min(50,Number.isFinite(cap)?cap:12));let {data,error}=await sb.from('rooms').insert({name:name.trim(),topic:topic.trim(),capacity:cap,created_by:user.id}).select().single();if(error){alert('Could not create room: '+error.message);return}await loadRooms();openRoom(data)}
-async function openRoom(room){await cleanupMedia();activeRoom=room;$('roomTitle').textContent=room.name;$('roomTopic').textContent=room.topic||'';showPage('roomView');status('roomStatus','Joining room…');const {error}=await sb.from('room_members').upsert({room_id:room.id,user_id:user.id},{onConflict:'room_id,user_id'});if(error){status('roomStatus','Could not join room: '+error.message,'error');return}await loadSeats();await subscribeMessages(room);status('roomStatus','You joined this room.');await setupMedia(room)}
+async function openRoom(room){await cleanupMedia();activeRoom=room;$('roomTitle').textContent=room.name;$('roomTopic').textContent=room.topic||'';showPage('roomView');status('roomStatus','Joining room…');const banCheck=await sb.rpc('check_room_member_access',{p_room_id:room.id});
+ if(!banCheck.error && banCheck.data===false){status('roomStatus','You cannot rejoin this room because access was revoked.','error');return}
+ const {error}=await sb.from('room_members').upsert({room_id:room.id,user_id:user.id},{onConflict:'room_id,user_id'});if(error){status('roomStatus','Could not join room: '+error.message,'error');return}await loadSeats();await loadRoomAdmins();await subscribeMessages(room);status('roomStatus','You joined this room.');await setupMedia(room)}
 async function loadSeats(){if(!activeRoom)return;const {data,error}=await sb.from('room_members').select('user_id,joined_at,profiles(display_name)').eq('room_id',activeRoom.id).order('joined_at');if(error){$('seats').innerHTML='<p class="muted">Member list unavailable: '+esc(error.message)+'</p>';return}$('seats').innerHTML=(data||[]).map(m=>`<div class="seat">👤<br><b>${esc(m.profiles?.display_name||'Member')}</b><p class="muted">${m.user_id===user.id?'You':'Member'}</p></div>`).join('')||'<p class="muted">No members listed yet.</p>'}
 async function subscribeMessages(room){if(msgChannel){await sb.removeChannel(msgChannel);msgChannel=null}const {data,error}=await sb.from('voxa_messages').select('id,user_id,message,created_at').eq('room_id',room.id).order('created_at').limit(100);if(error){status('globalStatus','Messages unavailable: '+error.message,'error');return}renderMessages(data||[]);$('activeRoomLabel').textContent='Room: '+room.name;msgChannel=sb.channel('messages-'+room.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'voxa_messages',filter:'room_id=eq.'+room.id},payload=>{const el=$('messageList');if(!el.querySelector('[data-msg="'+payload.new.id+'"]'))appendMessage(payload.new)}).subscribe()}
 function appendMessage(m){const el=$('messageList'),div=document.createElement('div');div.className='msg';div.dataset.msg=m.id;div.innerHTML='<small>'+esc(m.user_id===user.id?(profile?.display_name||'You'):'Member')+' · '+esc(new Date(m.created_at).toLocaleTimeString())+'</small>'+esc(m.message);el.appendChild(div);el.scrollTop=el.scrollHeight}
@@ -89,8 +110,63 @@ $('heroRooms').onclick=()=>showPage('rooms');$('createBtn').onclick=createRoom;$
 document.addEventListener('click',e=>{let b=e.target.closest('[data-page]');if(b)showPage(b.dataset.page);let j=e.target.closest('[data-join]');if(j){let r=rooms.find(x=>x.id===j.dataset.join);if(r)openRoom(r)}});
 
 // Room media. Audio requires a direct media-file URL; video embeds YouTube and syncs room intent/state.
+
+// Room admin UI. Authorization and limits are enforced by Supabase RPCs, not this UI.
+function renderRoomAdmins(rows){
+ roomAdminRows=rows||[];
+ const owner=activeRoom?.created_by===user?.id;
+ $('adminOwnerTools').classList.toggle('hidden',!owner);
+ const max=roomAdminRows.length?Number(roomAdminRows[0].max_admins):Number(roomAdminLimit||0);
+ const count=roomAdminRows.length?Number(roomAdminRows[0].admin_count||0):0;
+ $('adminCount').textContent=(Number.isFinite(count)?count:0)+' / '+(Number.isFinite(max)?max:0);
+ $('adminSummary').textContent=owner
+  ? 'You own this room. Only you can appoint or remove admins.'
+  : 'The room owner manages admin appointments.';
+ const cards=roomAdminRows.map(r=>{
+   const role=r.is_owner?'👑 Owner':(r.is_admin?'🛡️ Admin':'👤 Member');
+   return `<div class="seat"><b>${esc(r.display_name||'Member')}</b><p class="muted">${role}</p><p class="small">${esc(r.user_id)}</p></div>`;
+ }).join('');
+ $('roomAdminList').innerHTML=cards||'<p class="muted">No room role data returned.</p>';
+}
+async function loadRoomAdmins(){
+ if(!activeRoom||!user)return;
+ status('adminStatus','Loading room roles…');
+ const {data,error}=await sb.rpc('get_room_admin_roster',{p_room_id:activeRoom.id});
+ if(error){status('adminStatus','Admin system is not installed/configured yet: '+error.message,'error');$('roomAdminList').innerHTML='<p class="muted">Run the supplied SQL migration in Supabase first.</p>';return}
+ const rows=data||[];
+ roomAdminLimit=rows.length?Number(rows[0].max_admins||0):0;
+ renderRoomAdmins(rows);
+ status('adminStatus',rows.length?'Room roles loaded.':'No members/roles returned.');
+}
+async function appointRoomAdmin(){
+ if(!activeRoom)return;
+ const memberId=$('adminUserId').value.trim();
+ if(!memberId)return status('adminStatus','Enter the member user UUID.','error');
+ $('appointAdminBtn').disabled=true;
+ const {error}=await sb.rpc('appoint_room_admin',{p_room_id:activeRoom.id,p_user_id:memberId});
+ $('appointAdminBtn').disabled=false;
+ if(error)return status('adminStatus','Could not appoint admin: '+error.message,'error');
+ $('adminUserId').value='';
+ status('adminStatus','Admin appointed.','success');
+ await loadRoomAdmins(); await loadSeats();
+}
+async function removeRoomAdmin(){
+ if(!activeRoom)return;
+ const memberId=$('adminUserId').value.trim();
+ if(!memberId)return status('adminStatus','Enter the admin user UUID to remove.','error');
+ $('removeAdminBtn').disabled=true;
+ const {error}=await sb.rpc('remove_room_admin',{p_room_id:activeRoom.id,p_user_id:memberId});
+ $('removeAdminBtn').disabled=false;
+ if(error)return status('adminStatus','Could not remove admin: '+error.message,'error');
+ $('adminUserId').value='';
+ status('adminStatus','Admin removed.','success');
+ await loadRoomAdmins(); await loadSeats();
+}
+$('appointAdminBtn').onclick=appointRoomAdmin;
+$('removeAdminBtn').onclick=removeRoomAdmin;
+
 async function setupMedia(room){
- mediaMode='audio';setMediaModeUI();mediaIsAdmin=room.created_by===user.id;
+ mediaMode='audio';setMediaModeUI();mediaIsAdmin=room.created_by===user.id; try{const ar=await sb.rpc('is_room_admin',{p_room_id:room.id});mediaIsAdmin=mediaIsAdmin||(!ar.error&&ar.data===true)}catch{}
  $('mediaRole').textContent=mediaIsAdmin?'Room admin':'Member';
  $('mediaControls').classList.toggle('hidden',!mediaIsAdmin);
  $('mediaAdminControls').classList.toggle('hidden',!mediaIsAdmin);
@@ -148,14 +224,14 @@ function renderMedia(s){
  $('mediaSeek').value=Math.min(100,Math.max(0,Number(s.position_seconds)||0));
 }
 async function savePlayback(patch){
- if(!activeRoom||!mediaIsAdmin)return status('mediaStatus','Only the room creator can control playback.','error');
+ if(!activeRoom||!mediaIsAdmin)return status('mediaStatus','Only the room owner or an appointed room admin can control playback.','error');
  const next={...(mediaState||{}),...patch,room_id:activeRoom.id,updated_by:user.id,updated_at:new Date().toISOString()};
  const {data,error}=await sb.from('room_media_state').upsert(next,{onConflict:'room_id'}).select().maybeSingle();
  if(error){status('mediaStatus','Playback update failed: '+error.message,'error');return}
  mediaState=data||next;
 }
 async function loadSelectedMedia(){
- if(!activeRoom||!mediaIsAdmin)return status('mediaStatus','Only the room creator can load media.','error');
+ if(!activeRoom||!mediaIsAdmin)return status('mediaStatus','Only the room owner or an appointed room admin can load media.','error');
  let url=$('mediaUrl').value.trim(),videoId=null;
  if(mediaMode==='video'){
   videoId=getYoutubeId(url);if(!videoId)return status('mediaStatus','Enter a valid YouTube URL or 11-character video ID.','error');
@@ -184,7 +260,7 @@ $('searchVideo').onclick=()=>{const q=prompt('What video are you looking for?');
 $('audioFile').addEventListener('change',()=>{const f=$('audioFile').files?.[0];$('selectedFileName').textContent=f?`Selected: ${f.name} (${(f.size/1024/1024).toFixed(1)} MB)`:'No song selected. Choose an audio file from your phone.';if(f&&!$('mediaTitle').value.trim())$('mediaTitle').value=f.name.replace(/\.[^.]+$/,'')});
 $('loadMedia').onclick=loadSelectedMedia;
 $('mediaPlay').onclick=async()=>{
- if(!mediaIsAdmin)return status('mediaStatus','Only the room creator can control playback.','error');
+ if(!mediaIsAdmin)return status('mediaStatus','Only the room owner or an appointed room admin can control playback.','error');
  let pos=Number(mediaState?.position_seconds)||0;
  if(mediaMode==='video'){
   const frame=$('ytFrame');
@@ -205,7 +281,7 @@ $('mediaPause').onclick=async()=>{
 };
 $('mediaNext').onclick=async()=>{if(!mediaIsAdmin)return; if(mediaPlayer)mediaPlayer.pause();$('mediaUrl').value='';$('audioFile').value='';$('selectedFileName').textContent='No song selected. Choose an audio file from your phone.';$('mediaTitle').value='';const {data,error}=await sb.from('room_media_state').upsert({room_id:activeRoom.id,mode:mediaMode,media_url:null,video_id:null,title:null,is_playing:false,position_seconds:0,updated_by:user.id,updated_at:new Date().toISOString()},{onConflict:'room_id'}).select().maybeSingle();if(error)return status('mediaStatus','Could not clear media: '+error.message,'error');mediaState=data;renderMedia(data);status('mediaStatus','Media cleared. Load another track or video.')};
 $('mediaSeek').onchange=async e=>{
- if(!mediaIsAdmin)return status('mediaStatus','Only the room creator can seek.','error');
+ if(!mediaIsAdmin)return status('mediaStatus','Only the room owner or an appointed room admin can seek.','error');
  const p=Number(e.target.value);
  if(mediaPlayer){try{mediaPlayer.currentTime=p}catch{}}
  if(mediaMode==='video'){
@@ -215,11 +291,77 @@ $('mediaSeek').onchange=async e=>{
  await savePlayback({position_seconds:p})
 };
 
+
+// Room voice moderation (test build). Authorization is verified with SQL RPC before commands are broadcast.
+async function isRoomModerator(roomId){
+ if(!user||!activeRoom)return false;
+ if(activeRoom.created_by===user.id)return true;
+ try{const {data,error}=await sb.rpc('is_room_admin',{p_room_id:roomId});return !error&&data===true}catch{return false}
+}
+async function refreshVoiceModRoster(){
+ if(!activeRoom||!user)return;
+ const {data,error}=await sb.rpc('get_room_admin_roster',{p_room_id:activeRoom.id});
+ // The admin roster RPC may not include non-admin members in older migrations; fallback to room_members.
+ const {data:members, error:memberErr}=await sb.from('room_members').select('user_id,joined_at,profiles(display_name)').eq('room_id',activeRoom.id).order('joined_at');
+ if(memberErr){status('voiceModStatus','Could not load members: '+memberErr.message,'error');return}
+ const moderator=await isRoomModerator(activeRoom.id);
+ $('voiceModRole').textContent=activeRoom.created_by===user.id?'Owner':moderator?'Room admin':'Member';
+ const roster=members||[];
+ $('voiceModRoster').innerHTML=roster.map(m=>{
+  const label=esc(m.profiles?.display_name||'Member');
+  const self=m.user_id===user.id;
+  const controls=moderator&&!self?`<div class="row"><button class="secondary" data-vmute="${m.user_id}">Mute</button><button class="secondary" data-vunmute="${m.user_id}">Unmute</button><button class="secondary" data-vkick="${m.user_id}">Kick</button></div>`:'';
+  return `<div class="seat"><b>${label}</b><p class="muted small">${self?'You':m.user_id.slice(0,8)}</p>${controls}</div>`;
+ }).join('')||'<p class="muted">No members in this room.</p>';
+ if(!moderator) status('voiceModStatus','Only the room owner and appointed admins can moderate voice.','');
+}
+async function moderateVoice(action,targetId){
+ if(!activeRoom||!voiceChannel)return status('voiceModStatus','Join voice first to send moderation commands.','error');
+ if(!(await isRoomModerator(activeRoom.id)))return status('voiceModStatus','Permission denied: owner/admin only.','error');
+ const {data:eventId,error}=await sb.rpc('moderate_room_member',{p_room_id:activeRoom.id,p_target_user_id:targetId,p_action:action});
+ if(error)return status('voiceModStatus','Moderation rejected by database: '+error.message,'error');
+ const sent=await voiceChannel.send({type:'broadcast',event:'moderation',payload:{room_id:activeRoom.id,target_id:targetId,action,moderator_id:user.id,event_id:eventId,at:Date.now()}});
+ if(sent==='error') return status('voiceModStatus','Database accepted command but voice broadcast failed.','error');
+ status('voiceModStatus',action==='kick'?'Kick command sent.':'Voice '+action+' command sent.','success');
+ if(action==='kick') await loadSeats();
+}
+document.addEventListener('click',e=>{
+ const b=e.target.closest('[data-vmute],[data-vunmute],[data-vkick]');
+ if(!b)return;
+ const action=b.hasAttribute('data-vmute')?'mute':b.hasAttribute('data-vunmute')?'unmute':'kick';
+ const id=b.getAttribute('data-vmute')||b.getAttribute('data-vunmute')||b.getAttribute('data-vkick');
+ if(id)moderateVoice(action,id);
+});
+async function handleVoiceModeration(payload){
+ if(!payload||payload.room_id!==activeRoom?.id||payload.target_id!==user?.id||!payload.event_id||!payload.moderator_id)return;
+ const {data:valid,error:verifyError}=await sb.rpc('verify_room_moderation_event',{p_event_id:payload.event_id,p_room_id:payload.room_id,p_actor_id:payload.moderator_id,p_target_user_id:payload.target_id,p_action:payload.action});
+ if(verifyError||valid!==true)return;
+ if(payload.action==='mute'){
+  voiceMutedByAdmin=true;
+  localStream?.getAudioTracks().forEach(t=>t.enabled=false);
+  status('voiceModStatus','Your microphone was muted by a room moderator.','error');
+ } else if(payload.action==='unmute'){
+  voiceMutedByAdmin=false;
+  localStream?.getAudioTracks().forEach(t=>t.enabled=true);
+  status('voiceModStatus','A room moderator unmuted your microphone.','success');
+ } else if(payload.action==='kick'){
+  voiceKicked=true;
+  await leaveVoice();
+  if(activeRoom){await sb.from('room_members').delete().eq('room_id',activeRoom.id).eq('user_id',user.id)}
+  status('roomStatus','You were removed from this room by a moderator.','error');
+  status('voiceModStatus','You were removed from the room.','error');
+  await cleanupMedia();
+  activeRoom=null;
+  $('roomView').classList.add('hidden');
+  showPage('rooms');
+ }
+}
+
 // Experimental mesh voice: requires Realtime Broadcast enabled and both users in same room.
-async function joinVoice(){if(!activeRoom)return;try{localStream=await navigator.mediaDevices.getUserMedia({audio:true});voiceChannel=sb.channel('voice-'+activeRoom.id,{config:{broadcast:{self:false}}});voiceChannel.on('broadcast',{event:'signal'},async({payload})=>{if(payload.to&&payload.to!==user.id)return;if(payload.from===user.id)return;let pc=peers.get(payload.from);if(!pc){pc=makePeer(payload.from);peers.set(payload.from,pc)}if(payload.description){await pc.setRemoteDescription(payload.description);if(payload.description.type==='offer'){await pc.setLocalDescription(await pc.createAnswer());sendSignal({to:payload.from,description:pc.localDescription})}}else if(payload.candidate){try{await pc.addIceCandidate(payload.candidate)}catch{}}});await voiceChannel.subscribe(async s=>{if(s!=='SUBSCRIBED')return;status('voiceStatus','Microphone enabled. Waiting for other room members; voice is experimental.');await voiceChannel.send({type:'broadcast',event:'signal',payload:{from:user.id,hello:true}})});status('voiceStatus','Microphone enabled. Browser permissions granted; voice connectivity is experimental.')}catch(e){status('voiceStatus','Voice could not start: '+e.message,'error')}}
+async function joinVoice(){if(!activeRoom)return;voiceKicked=false;voiceMutedByAdmin=false;try{localStream=await navigator.mediaDevices.getUserMedia({audio:true});voiceChannel=sb.channel('voice-'+activeRoom.id,{config:{broadcast:{self:false}}});voiceChannel.on('broadcast',{event:'moderation'},async({payload})=>{await handleVoiceModeration(payload)});voiceChannel.on('broadcast',{event:'signal'},async({payload})=>{if(payload.to&&payload.to!==user.id)return;if(payload.from===user.id)return;let pc=peers.get(payload.from);if(!pc){pc=makePeer(payload.from);peers.set(payload.from,pc)}if(payload.description){await pc.setRemoteDescription(payload.description);if(payload.description.type==='offer'){await pc.setLocalDescription(await pc.createAnswer());sendSignal({to:payload.from,description:pc.localDescription})}}else if(payload.candidate){try{await pc.addIceCandidate(payload.candidate)}catch{}}});await voiceChannel.subscribe(async s=>{if(s!=='SUBSCRIBED')return;status('voiceStatus','Microphone enabled. Waiting for other room members; voice is experimental.');await refreshVoiceModRoster();if(voiceModRefresh)clearInterval(voiceModRefresh);voiceModRefresh=setInterval(refreshVoiceModRoster,8000);await voiceChannel.send({type:'broadcast',event:'signal',payload:{from:user.id,hello:true}})});status('voiceStatus','Microphone enabled. Browser permissions granted; voice connectivity is experimental.')}catch(e){status('voiceStatus','Voice could not start: '+e.message,'error')}}
 function makePeer(id){let pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});localStream?.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.onicecandidate=e=>{if(e.candidate)sendSignal({to:id,candidate:e.candidate})};pc.ontrack=e=>{$('remoteAudio').srcObject=e.streams[0]};pc.onnegotiationneeded=async()=>{try{await pc.setLocalDescription(await pc.createOffer());sendSignal({to:id,description:pc.localDescription})}catch{}};return pc}
 function sendSignal(payload){voiceChannel?.send({type:'broadcast',event:'signal',payload:{...payload,from:user.id}})}
-async function leaveVoice(){if(voiceChannel){await sb.removeChannel(voiceChannel);voiceChannel=null}for(const p of peers.values())p.close();peers.clear();if(localStream)localStream.getTracks().forEach(t=>t.stop());localStream=null;$('remoteAudio').srcObject=null;status('voiceStatus','Voice disconnected.')}
+async function leaveVoice(){if(voiceModRefresh){clearInterval(voiceModRefresh);voiceModRefresh=null}if(voiceChannel){await sb.removeChannel(voiceChannel);voiceChannel=null}for(const p of peers.values())p.close();peers.clear();if(localStream)localStream.getTracks().forEach(t=>t.stop());localStream=null;$('remoteAudio').srcObject=null;status('voiceStatus','Voice disconnected.')}
 async function cleanupMedia(){if(mediaPoll){clearInterval(mediaPoll);mediaPoll=null}if(mediaChannel){await sb.removeChannel(mediaChannel);mediaChannel=null}if(mediaPlayer){try{mediaPlayer.pause()}catch{}mediaPlayer=null}$('mediaStage').innerHTML='';$('mediaStage').classList.add('hidden');mediaState=null}
 $('joinVoice').onclick=joinVoice;$('leaveVoice').onclick=leaveVoice;
 (async()=>{const {data:{session}}=await sb.auth.getSession();user=session?.user||null;sb.auth.onAuthStateChange((_event,session)=>{user=session?.user||null;setTimeout(()=>startApp(),0)});await startApp()})();
