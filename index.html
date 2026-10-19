@@ -6,7 +6,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{color-scheme:dark;--bg:#100d1c;--panel:#1d1730;--panel2:#29203f;--line:#413357;--purple:#8b5cf6;--gold:#f3c86a;--text:#faf7ff;--muted:#c1b7d3}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#281845 0,var(--bg) 55%);color:var(--text);font:16px system-ui,-apple-system,Segoe UI,sans-serif}header{position:sticky;top:0;z-index:3;background:#100d1cf2;border-bottom:1px solid var(--line);padding:14px max(16px,calc((100% - 900px)/2));display:flex;justify-content:space-between;align-items:center}.brand{font-size:25px;font-weight:850}.brand b{color:var(--gold)}main{max-width:900px;margin:auto;padding:20px 14px 90px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:17px;margin:12px 0}.hero{background:linear-gradient(125deg,#39235a,#1c1730);padding:24px}.hero h1{margin:0 0 8px;font-size:clamp(25px,6vw,38px)}.muted,.hint{color:var(--muted);font-size:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.row{display:flex;gap:8px;align-items:center}.row input{min-width:0;flex:1}button,input,textarea,select{font:inherit;border-radius:11px;padding:11px;border:1px solid var(--line)}button{background:var(--purple);color:white;border:0;font-weight:750;cursor:pointer}button.secondary{background:var(--panel2);border:1px solid var(--line)}button:disabled{opacity:.5}input,textarea,select{background:#100d1c;color:var(--text);width:100%;margin:5px 0 10px}label{font-size:13px;color:var(--muted)}.tabs{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0}.tabs button.active{background:var(--gold);color:#24172e}.hidden{display:none!important}.pill{font-size:12px;color:var(--gold);background:#3b2a50;border-radius:99px;padding:4px 9px;display:inline-block}.room h3{margin:9px 0 5px}.room p{color:var(--muted);font-size:14px}.room .row{margin-top:14px}.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:8px}.messages{height:300px;overflow:auto;display:flex;flex-direction:column;gap:8px;margin:12px 0}.msg{padding:10px 12px;background:var(--panel2);border-radius:12px;overflow-wrap:anywhere}.msg small{display:block;color:var(--gold);margin-bottom:3px}.status{background:#151124;border:1px solid var(--line);border-radius:12px;padding:10px;color:var(--muted);font-size:13px;margin:10px 0}.bottom{position:fixed;bottom:0;left:0;right:0;z-index:4;background:#100d1cf5;border-top:1px solid var(--line);display:flex;justify-content:center;gap:8px;padding:8px}.bottom button{width:22%;max-width:170px;padding:10px 3px}.seat{padding:12px;border:1px solid var(--line);border-radius:12px;text-align:center;background:var(--panel2)}.error{color:#ffb4b4}.success{color:#b8f5cd}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#281845 0,var(--bg) 55%);color:var(--text);font:16px system-ui,-apple-system,Segoe UI,sans-serif}header{position:sticky;top:0;z-index:3;background:#100d1cf2;border-bottom:1px solid var(--line);padding:14px max(16px,calc((100% - 900px)/2));display:flex;justify-content:space-between;align-items:center}.brand{font-size:25px;font-weight:850}.brand b{color:var(--gold)}main{max-width:900px;margin:auto;padding:20px 14px 90px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:17px;margin:12px 0}.hero{background:linear-gradient(125deg,#39235a,#1c1730);padding:24px}.hero h1{margin:0 0 8px;font-size:clamp(25px,6vw,38px)}.muted,.hint{color:var(--muted);font-size:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.row{display:flex;gap:8px;align-items:center}.row input{min-width:0;flex:1}button,input,textarea,select{font:inherit;border-radius:11px;padding:11px;border:1px solid var(--line)}button{background:var(--purple);color:white;border:0;font-weight:750;cursor:pointer}button.secondary{background:var(--panel2);border:1px solid var(--line)}button:disabled{opacity:.5}input,textarea,select{background:#100d1c;color:var(--text);width:100%;margin:5px 0 10px}label{font-size:13px;color:var(--muted)}.tabs{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0}.tabs button.active,.mode-btn.active{background:var(--gold);color:#24172e}.hidden{display:none!important}.pill{font-size:12px;color:var(--gold);background:#3b2a50;border-radius:99px;padding:4px 9px;display:inline-block}.room h3{margin:9px 0 5px}.room p{color:var(--muted);font-size:14px}.room .row{margin-top:14px}.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:8px}.messages{height:300px;overflow:auto;display:flex;flex-direction:column;gap:8px;margin:12px 0}.msg{padding:10px 12px;background:var(--panel2);border-radius:12px;overflow-wrap:anywhere}.msg small{display:block;color:var(--gold);margin-bottom:3px}.status{background:#151124;border:1px solid var(--line);border-radius:12px;padding:10px;color:var(--muted);font-size:13px;margin:10px 0}.bottom{position:fixed;bottom:0;left:0;right:0;z-index:4;background:#100d1cf5;border-top:1px solid var(--line);display:flex;justify-content:center;gap:8px;padding:8px}.bottom button{width:22%;max-width:170px;padding:10px 3px}.seat{padding:12px;border:1px solid var(--line);border-radius:12px;text-align:center;background:var(--panel2)}.error{color:#ffb4b4}.success{color:#b8f5cd}.media-player{width:100%;aspect-ratio:16/9;background:#08060e;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:12px 0}.media-player iframe,.media-player audio{width:100%;height:100%;border:0}.media-player audio{aspect-ratio:auto}.mode-row{display:flex;gap:8px;flex-wrap:wrap}.mode-row button{flex:1;min-width:120px}.small{font-size:12px}
 </style></head>
 <body>
 <header><div class="brand">Voxa<b>Chat</b> 💜</div><button id="authToggle" class="secondary">Login</button></header>
@@ -26,7 +26,34 @@
 <section id="rooms" class="hidden"><div class="sectionhead"><h2>All rooms</h2><button id="createBtn2">＋ Create</button></div><div id="allRooms" class="grid"></div></section>
 <section id="messages" class="hidden"><div class="panel"><h2>Room messages</h2><p id="activeRoomLabel" class="muted">Choose a room to load its messages.</p><div id="messageList" class="messages"></div><div class="row"><input id="messageText" placeholder="Write a message…" maxlength="2000"><button id="sendMessage">Send</button></div><div class="hint">Messages are stored in Supabase and updated live for subscribed members.</div></div></section>
 <section id="profile" class="hidden"><div class="panel"><h2>Your profile</h2><label>Display name</label><input id="displayName" maxlength="40" placeholder="Display name"><button id="saveProfile">Save profile</button><div id="profileStatus" class="status"></div><p id="userEmail" class="muted"></p><button id="logout" class="secondary">Log out</button></div></section>
-<section id="roomView" class="hidden"><button id="backRooms" class="secondary">← Rooms</button><div class="panel"><span class="pill">ROOM</span><h2 id="roomTitle"></h2><p id="roomTopic" class="muted"></p><div id="roomStatus" class="status"></div><div id="seats" class="grid"></div><div class="row"><button id="roomChat">Open chat</button><button id="joinVoice" class="secondary">Join voice (experimental)</button><button id="leaveVoice" class="secondary">Leave voice</button></div><div id="voiceStatus" class="status">Voice is not connected.</div><audio id="remoteAudio" autoplay playsinline></audio></div></section>
+<section id="roomView" class="hidden">
+<button id="backRooms" class="secondary">← Rooms</button>
+<div class="panel"><span class="pill">ROOM</span><h2 id="roomTitle"></h2><p id="roomTopic" class="muted"></p><div id="roomStatus" class="status"></div><div id="seats" class="grid"></div>
+<div class="row"><button id="roomChat">Open chat</button><button id="joinVoice" class="secondary">Join voice (experimental)</button><button id="leaveVoice" class="secondary">Leave voice</button></div><div id="voiceStatus" class="status">Voice is not connected.</div><audio id="remoteAudio" autoplay playsinline></audio></div>
+<div class="panel" id="mediaPanel">
+<div class="sectionhead"><h2>🎧 Room Media</h2><span id="mediaRole" class="pill">Member</span></div>
+<p class="muted">🎬 Watch together: the room creator chooses the YouTube video and controls room playback. Everyone in the room sees the same selected video. Each member may need to tap Play once because of browser autoplay rules.</p>
+<div class="mode-row"><button id="audioModeBtn" class="mode-btn active">🎵 Audio Mode</button><button id="videoModeBtn" class="mode-btn secondary">🎬 Video Mode</button></div>
+<div id="mediaControls" class="hidden">
+<div id="audioFilePicker">
+<label for="audioFile">Choose music from your phone</label>
+<input id="audioFile" type="file" accept="audio/mpeg,audio/mp4,audio/ogg,audio/aac,audio/wav,.mp3,.m4a,.ogg,.aac,.wav">
+<p class="hint small" id="selectedFileName">No song selected. Choose an audio file from your phone.</p>
+</div>
+<div id="videoUrlBox" class="hidden"><label id="mediaUrlLabel">YouTube video URL or video ID</label><input id="mediaUrl" type="url" placeholder="Paste a YouTube video URL"></div>
+<label id="mediaTitleLabel">Title (optional)</label><input id="mediaTitle" maxlength="160" placeholder="Track or video title">
+<div class="row"><button id="loadMedia">Load media</button><button id="searchVideo" class="secondary hidden">Search YouTube</button></div>
+<p class="hint" id="mediaHelp">Choose a song from your phone. It will upload to room storage so other room members can listen too.</p>
+</div>
+<div id="mediaStatus" class="status">Choose Audio or Video mode.</div>
+<div id="mediaStage" class="media-player hidden"></div>
+<div id="mediaAdminControls" class="hidden">
+<div class="row"><button id="mediaPlay">▶ Play</button><button id="mediaPause" class="secondary">⏸ Pause</button><button id="mediaNext" class="secondary">Next / Clear</button></div>
+<label for="mediaSeek">Playback position</label><input id="mediaSeek" type="range" min="0" max="100" value="0">
+<p class="hint small">Video selection and play/pause intent are shared with the room. YouTube/browser policies can prevent perfectly frame-accurate sync or automatic playback; members may need to press Play in the embedded player.</p>
+</div>
+</div>
+</section>
 </section>
 <div id="globalStatus" class="status">Initializing…</div>
 </main>
@@ -35,7 +62,7 @@
 const SUPABASE_URL='https://opckvbeyupvkeojnvnej.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_hIRf-JGkAhWtldNYc3SBEw_5clrRwV7';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
-let user=null,profile=null,rooms=[],activeRoom=null,msgChannel=null,voiceChannel=null,peers=new Map(),localStream=null,authMode='login',voicePeers=new Set();
+let user=null,profile=null,rooms=[],activeRoom=null,msgChannel=null,voiceChannel=null,peers=new Map(),localStream=null,authMode='login',mediaChannel=null,mediaState=null,mediaMode='audio',mediaIsAdmin=false,mediaPoll=null,mediaPlayer=null,mediaSyncing=false;
 const $=id=>document.getElementById(id);
 function status(id,msg,kind=''){const el=$(id);if(el){el.textContent=msg;el.className='status '+kind}}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -49,7 +76,7 @@ $('authToggle').onclick=()=>{if(user)showPage('profile');else $('auth').classLis
 $('modeToggle').onclick=()=>{authMode=authMode==='login'?'signup':'login';$('authTitle').textContent=authMode==='login'?'Welcome back':'Create your account';$('authSubmit').textContent=authMode==='login'?'Log in':'Sign up';$('modeToggle').textContent=authMode==='login'?'Create account':'Back to login';$('password').autocomplete=authMode==='login'?'current-password':'new-password';status('authStatus',authMode==='signup'?'A confirmation email may be required.':'Enter your login details.')};
 $('authSubmit').onclick=async()=>{let email=$('email').value.trim(),password=$('password').value;if(!email||password.length<6){status('authStatus','Enter a valid email and password (minimum 6 characters).','error');return}$('authSubmit').disabled=true;let result=authMode==='login'?await sb.auth.signInWithPassword({email,password}):await sb.auth.signUp({email,password});$('authSubmit').disabled=false;if(result.error){status('authStatus',result.error.message,'error');return}if(authMode==='signup'&&!result.data.session){status('authStatus','Account created. Check your email to confirm, then log in.','success');return}user=result.data.user;await startApp()};
 async function createRoom(){let name=prompt('Room name');if(!name?.trim())return;let topic=prompt('Room topic','Meet and chat')||'';let cap=Number(prompt('Capacity (2–50)','12'));cap=Math.max(2,Math.min(50,Number.isFinite(cap)?cap:12));let {data,error}=await sb.from('rooms').insert({name:name.trim(),topic:topic.trim(),capacity:cap,created_by:user.id}).select().single();if(error){alert('Could not create room: '+error.message);return}await loadRooms();openRoom(data)}
-async function openRoom(room){activeRoom=room;$('roomTitle').textContent=room.name;$('roomTopic').textContent=room.topic||'';showPage('roomView');status('roomStatus','Joining room…');const {error}=await sb.from('room_members').upsert({room_id:room.id,user_id:user.id},{onConflict:'room_id,user_id'});if(error){status('roomStatus','Could not join room: '+error.message,'error');return}await loadSeats();await subscribeMessages(room);status('roomStatus','You joined this room.');}
+async function openRoom(room){await cleanupMedia();activeRoom=room;$('roomTitle').textContent=room.name;$('roomTopic').textContent=room.topic||'';showPage('roomView');status('roomStatus','Joining room…');const {error}=await sb.from('room_members').upsert({room_id:room.id,user_id:user.id},{onConflict:'room_id,user_id'});if(error){status('roomStatus','Could not join room: '+error.message,'error');return}await loadSeats();await subscribeMessages(room);status('roomStatus','You joined this room.');await setupMedia(room)}
 async function loadSeats(){if(!activeRoom)return;const {data,error}=await sb.from('room_members').select('user_id,joined_at,profiles(display_name)').eq('room_id',activeRoom.id).order('joined_at');if(error){$('seats').innerHTML='<p class="muted">Member list unavailable: '+esc(error.message)+'</p>';return}$('seats').innerHTML=(data||[]).map(m=>`<div class="seat">👤<br><b>${esc(m.profiles?.display_name||'Member')}</b><p class="muted">${m.user_id===user.id?'You':'Member'}</p></div>`).join('')||'<p class="muted">No members listed yet.</p>'}
 async function subscribeMessages(room){if(msgChannel){await sb.removeChannel(msgChannel);msgChannel=null}const {data,error}=await sb.from('voxa_messages').select('id,user_id,message,created_at').eq('room_id',room.id).order('created_at').limit(100);if(error){status('globalStatus','Messages unavailable: '+error.message,'error');return}renderMessages(data||[]);$('activeRoomLabel').textContent='Room: '+room.name;msgChannel=sb.channel('messages-'+room.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'voxa_messages',filter:'room_id=eq.'+room.id},payload=>{const el=$('messageList');if(!el.querySelector('[data-msg="'+payload.new.id+'"]'))appendMessage(payload.new)}).subscribe()}
 function appendMessage(m){const el=$('messageList'),div=document.createElement('div');div.className='msg';div.dataset.msg=m.id;div.innerHTML='<small>'+esc(m.user_id===user.id?(profile?.display_name||'You'):'Member')+' · '+esc(new Date(m.created_at).toLocaleTimeString())+'</small>'+esc(m.message);el.appendChild(div);el.scrollTop=el.scrollHeight}
@@ -57,14 +84,143 @@ function renderMessages(list){$('messageList').innerHTML='';list.forEach(appendM
 $('sendMessage').onclick=async()=>{if(!activeRoom)return alert('Join a room first.');let text=$('messageText').value.trim();if(!text)return;const {error}=await sb.from('voxa_messages').insert({user_id:user.id,room_id:activeRoom.id,message:text});if(error){status('globalStatus','Message failed: '+error.message,'error');return}$('messageText').value=''};
 $('messageText').addEventListener('keydown',e=>{if(e.key==='Enter')$('sendMessage').click()});
 $('saveProfile').onclick=async()=>{let name=$('displayName').value.trim().slice(0,40);if(!name)return status('profileStatus','Enter a display name.','error');let {error}=await sb.from('profiles').upsert({id:user.id,display_name:name,updated_at:new Date().toISOString()});if(error){status('profileStatus','Profile save failed: '+error.message,'error');return}profile={...(profile||{}),id:user.id,display_name:name};status('profileStatus','Profile saved.','success')};
-$('logout').onclick=async()=>{await leaveVoice();await sb.auth.signOut();user=null;profile=null;startApp()};
+$('logout').onclick=async()=>{await leaveVoice();await cleanupMedia();await sb.auth.signOut();user=null;profile=null;startApp()};
 $('heroRooms').onclick=()=>showPage('rooms');$('createBtn').onclick=createRoom;$('createBtn2').onclick=createRoom;$('backRooms').onclick=()=>showPage('rooms');$('roomChat').onclick=()=>showPage('messages');
 document.addEventListener('click',e=>{let b=e.target.closest('[data-page]');if(b)showPage(b.dataset.page);let j=e.target.closest('[data-join]');if(j){let r=rooms.find(x=>x.id===j.dataset.join);if(r)openRoom(r)}});
+
+// Room media. Audio requires a direct media-file URL; video embeds YouTube and syncs room intent/state.
+async function setupMedia(room){
+ mediaMode='audio';setMediaModeUI();mediaIsAdmin=room.created_by===user.id;
+ $('mediaRole').textContent=mediaIsAdmin?'Room admin':'Member';
+ $('mediaControls').classList.toggle('hidden',!mediaIsAdmin);
+ $('mediaAdminControls').classList.toggle('hidden',!mediaIsAdmin);
+ $('mediaPanel').classList.remove('hidden');
+ const {data,error}=await sb.from('room_media_state').select('*').eq('room_id',room.id).maybeSingle();
+ if(error){status('mediaStatus','Playback state could not load: '+error.message,'error');return}
+ mediaState=data;
+ if(!data && mediaIsAdmin){
+  const ins=await sb.from('room_media_state').insert({room_id:room.id,mode:'audio',is_playing:false,position_seconds:0,updated_by:user.id}).select().maybeSingle();
+  if(ins.error){status('mediaStatus','Could not initialize media state: '+ins.error.message,'error');return}
+  mediaState=ins.data;
+ }
+ if(mediaState){mediaMode=mediaState.mode||'audio';setMediaModeUI();renderMedia(mediaState);status('mediaStatus',mediaState.title?('Loaded: '+mediaState.title):'No media selected. Admin can load a track or video.')}
+ if(mediaChannel)await sb.removeChannel(mediaChannel);
+ mediaChannel=sb.channel('media-state-'+room.id)
+ .on('postgres_changes',{event:'*',schema:'public',table:'room_media_state',filter:'room_id=eq.'+room.id},payload=>{
+  if(payload.new){mediaState=payload.new;mediaMode=payload.new.mode||mediaMode;setMediaModeUI();renderMedia(payload.new);status('mediaStatus',payload.new.title?('Now selected: '+payload.new.title):'No media selected.')}
+ }).subscribe();
+ if(mediaPoll)clearInterval(mediaPoll);
+ // Fallback poll in case Realtime table events are not enabled.
+ mediaPoll=setInterval(async()=>{if(!activeRoom||activeRoom.id!==room.id)return;const {data}=await sb.from('room_media_state').select('*').eq('room_id',room.id).maybeSingle();if(data&&(!mediaState||data.updated_at!==mediaState.updated_at)){mediaState=data;mediaMode=data.mode||'audio';setMediaModeUI();renderMedia(data)}},5000);
+}
+function setMediaModeUI(){
+ $('audioModeBtn').classList.toggle('active',mediaMode==='audio');$('videoModeBtn').classList.toggle('active',mediaMode==='video');
+ $('audioModeBtn').classList.toggle('secondary',mediaMode!=='audio');$('videoModeBtn').classList.toggle('secondary',mediaMode!=='video');
+ $('audioFilePicker').classList.toggle('hidden',mediaMode!=='audio');
+ $('videoUrlBox').classList.toggle('hidden',mediaMode!=='video');
+ $('mediaUrlLabel').textContent='YouTube video URL or video ID';
+ $('mediaUrl').placeholder='Paste a YouTube video URL';
+ $('mediaTitleLabel').textContent=mediaMode==='audio'?'Track title (optional)':'Video title (optional)';
+ $('searchVideo').classList.toggle('hidden',mediaMode!=='video');
+ $('mediaHelp').textContent=mediaMode==='audio'?'Choose a music file from your phone. The admin uploads it to room storage so members can listen.':'Paste a YouTube URL/video ID. Search opens YouTube results in a new tab; choose a video and paste its URL here.';
+}
+function getYoutubeId(value){let v=(value||'').trim();if(/^[\w-]{11}$/.test(v))return v;try{let u=new URL(v);if(u.hostname.includes('youtu.be'))return u.pathname.split('/').filter(Boolean)[0]||'';if(u.hostname.includes('youtube.com')){if(u.searchParams.get('v'))return u.searchParams.get('v');let p=u.pathname.split('/').filter(Boolean);let i=p.findIndex(x=>['embed','shorts','live'].includes(x));if(i>=0)return p[i+1]||''}}catch{}return ''}
+function renderMedia(s){
+ const stage=$('mediaStage');if(mediaPlayer){try{mediaPlayer.pause?.()}catch{}}
+ stage.innerHTML='';stage.classList.add('hidden');mediaPlayer=null;
+ if(!s||!s.media_url){$('mediaSeek').value=0;return}
+ stage.classList.remove('hidden');
+ if(s.mode==='video'){
+  const id=s.video_id||getYoutubeId(s.media_url);if(!id){stage.innerHTML='<p class="muted">Invalid YouTube URL.</p>';return}
+  const startAt=Math.max(0,Math.floor(Number(s.position_seconds)||0));
+  const autoplay=s.is_playing ? 1 : 0;
+  stage.innerHTML=`<iframe id="ytFrame" src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?enablejsapi=1&playsinline=1&controls=1&rel=0&start=${startAt}&autoplay=${autoplay}" title="${esc(s.title||'Room video')}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+  // The selected video and playback intent are shared in room_media_state. YouTube/browser
+  // autoplay policies can still require each member to tap Play in their own embedded player.
+ }else{
+  const audio=document.createElement('audio');audio.controls=true;audio.preload='metadata';audio.src=s.media_url;stage.appendChild(audio);mediaPlayer=audio;
+  audio.addEventListener('loadedmetadata',()=>{if(mediaState?.position_seconds>0)audio.currentTime=mediaState.position_seconds});
+  audio.addEventListener('play',()=>{if(!mediaSyncing&&mediaIsAdmin)savePlayback({is_playing:true,position_seconds:audio.currentTime})});
+  audio.addEventListener('pause',()=>{if(!mediaSyncing&&mediaIsAdmin)savePlayback({is_playing:false,position_seconds:audio.currentTime})});
+  audio.addEventListener('seeked',()=>{if(!mediaSyncing&&mediaIsAdmin)savePlayback({position_seconds:audio.currentTime})});
+  if(s.is_playing){audio.play().catch(()=>status('mediaStatus','Tap Play on the player if your browser blocks autoplay.'))}
+ }
+ $('mediaSeek').value=Math.min(100,Math.max(0,Number(s.position_seconds)||0));
+}
+async function savePlayback(patch){
+ if(!activeRoom||!mediaIsAdmin)return status('mediaStatus','Only the room creator can control playback.','error');
+ const next={...(mediaState||{}),...patch,room_id:activeRoom.id,updated_by:user.id,updated_at:new Date().toISOString()};
+ const {data,error}=await sb.from('room_media_state').upsert(next,{onConflict:'room_id'}).select().maybeSingle();
+ if(error){status('mediaStatus','Playback update failed: '+error.message,'error');return}
+ mediaState=data||next;
+}
+async function loadSelectedMedia(){
+ if(!activeRoom||!mediaIsAdmin)return status('mediaStatus','Only the room creator can load media.','error');
+ let url=$('mediaUrl').value.trim(),videoId=null;
+ if(mediaMode==='video'){
+  videoId=getYoutubeId(url);if(!videoId)return status('mediaStatus','Enter a valid YouTube URL or 11-character video ID.','error');
+ }else{
+  const file=$('audioFile').files?.[0];
+  if(!file)return status('mediaStatus','First choose a music file from your phone.','error');
+  const allowed=/\.(mp3|m4a|ogg|aac|wav)$/i.test(file.name);
+  if(!allowed)return status('mediaStatus','Choose an MP3, M4A, OGG, AAC, or WAV audio file.','error');
+  if(file.size>50*1024*1024)return status('mediaStatus','This file is over 50 MB. Choose a smaller song.','error');
+  status('mediaStatus','Uploading song to room storage… please wait.');
+  const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+  const path=`${activeRoom.id}/${Date.now()}_${safeName}`;
+  const {error:uploadError}=await sb.storage.from('room-music').upload(path,file,{contentType:file.type||'audio/mpeg',upsert:false});
+  if(uploadError)return status('mediaStatus','Song upload failed: '+uploadError.message+'. Check that the room-music bucket and its policies are set up.','error');
+  const {data:publicData}=sb.storage.from('room-music').getPublicUrl(path);url=publicData?.publicUrl;
+  if(!url)return status('mediaStatus','Could not create a song URL.','error');
+ }
+ const title=$('mediaTitle').value.trim()||(mediaMode==='video'?'YouTube video':($('audioFile').files?.[0]?.name||'Audio track'));
+ const {data,error}=await sb.from('room_media_state').upsert({room_id:activeRoom.id,mode:mediaMode,media_url:url,video_id:videoId,title,is_playing:false,position_seconds:0,updated_by:user.id,updated_at:new Date().toISOString()},{onConflict:'room_id'}).select().maybeSingle();
+ if(error){status('mediaStatus','Could not load media: '+error.message,'error');return}
+ mediaState=data;renderMedia(data);status('mediaStatus','Loaded '+title+'. Press Play to start for the room.','success');
+}
+$('audioModeBtn').onclick=()=>{mediaMode='audio';setMediaModeUI();if(mediaIsAdmin)status('mediaStatus','Audio mode selected. Load a direct audio file URL.')};
+$('videoModeBtn').onclick=()=>{mediaMode='video';setMediaModeUI();if(mediaIsAdmin)status('mediaStatus','Video mode selected. Paste a YouTube URL or search YouTube.')};
+$('searchVideo').onclick=()=>{const q=prompt('What video are you looking for?');if(q?.trim())window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(q.trim()),'_blank','noopener,noreferrer')};
+$('audioFile').addEventListener('change',()=>{const f=$('audioFile').files?.[0];$('selectedFileName').textContent=f?`Selected: ${f.name} (${(f.size/1024/1024).toFixed(1)} MB)`:'No song selected. Choose an audio file from your phone.';if(f&&!$('mediaTitle').value.trim())$('mediaTitle').value=f.name.replace(/\.[^.]+$/,'')});
+$('loadMedia').onclick=loadSelectedMedia;
+$('mediaPlay').onclick=async()=>{
+ if(!mediaIsAdmin)return status('mediaStatus','Only the room creator can control playback.','error');
+ let pos=Number(mediaState?.position_seconds)||0;
+ if(mediaMode==='video'){
+  const frame=$('ytFrame');
+  if(frame){try{frame.contentWindow.postMessage(JSON.stringify({event:'command',func:'playVideo',args:[]}), 'https://www.youtube-nocookie.com')}catch{}}
+ }else if(mediaPlayer){
+  try{mediaSyncing=true;await mediaPlayer.play();mediaSyncing=false;pos=mediaPlayer.currentTime}
+  catch{mediaSyncing=false;status('mediaStatus','Browser blocked autoplay. Tap Play on the audio player.')}
+ }
+ await savePlayback({is_playing:true,position_seconds:pos})
+};
+$('mediaPause').onclick=async()=>{
+ let pos=mediaPlayer?.currentTime??mediaState?.position_seconds??0;
+ if(mediaMode==='video'){
+  const frame=$('ytFrame');
+  if(frame){try{frame.contentWindow.postMessage(JSON.stringify({event:'command',func:'pauseVideo',args:[]}), 'https://www.youtube-nocookie.com')}catch{}}
+ }else if(mediaPlayer){pos=mediaPlayer.currentTime;mediaPlayer.pause()}
+ await savePlayback({is_playing:false,position_seconds:pos})
+};
+$('mediaNext').onclick=async()=>{if(!mediaIsAdmin)return; if(mediaPlayer)mediaPlayer.pause();$('mediaUrl').value='';$('audioFile').value='';$('selectedFileName').textContent='No song selected. Choose an audio file from your phone.';$('mediaTitle').value='';const {data,error}=await sb.from('room_media_state').upsert({room_id:activeRoom.id,mode:mediaMode,media_url:null,video_id:null,title:null,is_playing:false,position_seconds:0,updated_by:user.id,updated_at:new Date().toISOString()},{onConflict:'room_id'}).select().maybeSingle();if(error)return status('mediaStatus','Could not clear media: '+error.message,'error');mediaState=data;renderMedia(data);status('mediaStatus','Media cleared. Load another track or video.')};
+$('mediaSeek').onchange=async e=>{
+ if(!mediaIsAdmin)return status('mediaStatus','Only the room creator can seek.','error');
+ const p=Number(e.target.value);
+ if(mediaPlayer){try{mediaPlayer.currentTime=p}catch{}}
+ if(mediaMode==='video'){
+  const frame=$('ytFrame');
+  if(frame){try{frame.contentWindow.postMessage(JSON.stringify({event:'command',func:'seekTo',args:[p,true]}), 'https://www.youtube-nocookie.com')}catch{}}
+ }
+ await savePlayback({position_seconds:p})
+};
+
 // Experimental mesh voice: requires Realtime Broadcast enabled and both users in same room.
 async function joinVoice(){if(!activeRoom)return;try{localStream=await navigator.mediaDevices.getUserMedia({audio:true});voiceChannel=sb.channel('voice-'+activeRoom.id,{config:{broadcast:{self:false}}});voiceChannel.on('broadcast',{event:'signal'},async({payload})=>{if(payload.to&&payload.to!==user.id)return;if(payload.from===user.id)return;let pc=peers.get(payload.from);if(!pc){pc=makePeer(payload.from);peers.set(payload.from,pc)}if(payload.description){await pc.setRemoteDescription(payload.description);if(payload.description.type==='offer'){await pc.setLocalDescription(await pc.createAnswer());sendSignal({to:payload.from,description:pc.localDescription})}}else if(payload.candidate){try{await pc.addIceCandidate(payload.candidate)}catch{}}});await voiceChannel.subscribe(async s=>{if(s!=='SUBSCRIBED')return;status('voiceStatus','Microphone enabled. Waiting for other room members; voice is experimental.');await voiceChannel.send({type:'broadcast',event:'signal',payload:{from:user.id,hello:true}})});status('voiceStatus','Microphone enabled. Browser permissions granted; voice connectivity is experimental.')}catch(e){status('voiceStatus','Voice could not start: '+e.message,'error')}}
 function makePeer(id){let pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});localStream?.getTracks().forEach(t=>pc.addTrack(t,localStream));pc.onicecandidate=e=>{if(e.candidate)sendSignal({to:id,candidate:e.candidate})};pc.ontrack=e=>{$('remoteAudio').srcObject=e.streams[0]};pc.onnegotiationneeded=async()=>{try{await pc.setLocalDescription(await pc.createOffer());sendSignal({to:id,description:pc.localDescription})}catch{}};return pc}
 function sendSignal(payload){voiceChannel?.send({type:'broadcast',event:'signal',payload:{...payload,from:user.id}})}
 async function leaveVoice(){if(voiceChannel){await sb.removeChannel(voiceChannel);voiceChannel=null}for(const p of peers.values())p.close();peers.clear();if(localStream)localStream.getTracks().forEach(t=>t.stop());localStream=null;$('remoteAudio').srcObject=null;status('voiceStatus','Voice disconnected.')}
+async function cleanupMedia(){if(mediaPoll){clearInterval(mediaPoll);mediaPoll=null}if(mediaChannel){await sb.removeChannel(mediaChannel);mediaChannel=null}if(mediaPlayer){try{mediaPlayer.pause()}catch{}mediaPlayer=null}$('mediaStage').innerHTML='';$('mediaStage').classList.add('hidden');mediaState=null}
 $('joinVoice').onclick=joinVoice;$('leaveVoice').onclick=leaveVoice;
 (async()=>{const {data:{session}}=await sb.auth.getSession();user=session?.user||null;sb.auth.onAuthStateChange((_event,session)=>{user=session?.user||null;setTimeout(()=>startApp(),0)});await startApp()})();
 </script></body></html>
