@@ -1,4 +1,3 @@
-
 {
   "name": "Voxa Chat",
   "short_name": "VoxaChat",
@@ -8,9 +7,10 @@
   "theme_color": "#8b5cf6",
   "icons": [
     {
-      "src": "logo.png",
+      "src": "IMG-20261020-WA1032.jpg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/jpeg",
+      "purpose": "any"
     }
   ]
 }
