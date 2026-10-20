@@ -1,1 +1,16 @@
 
+{
+  "name": "Voxa Chat",
+  "short_name": "VoxaChat",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#100d1c",
+  "theme_color": "#8b5cf6",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
