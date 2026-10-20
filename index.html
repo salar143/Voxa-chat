@@ -31,7 +31,23 @@
 <section id="profile" class="hidden"><div class="panel"><h2>Your profile</h2><label>Display name</label><input id="displayName" maxlength="40" placeholder="Display name"><button id="saveProfile">Save profile</button><div id="profileStatus" class="status"></div><p id="userEmail" class="muted"></p><button id="logout" class="secondary">Log out</button></div></section>
 <section id="roomView" class="hidden">
 <button id="backRooms" class="secondary">← Rooms</button>
-<div class="panel"><span class="pill">ROOM</span><h2 id="roomTitle"></h2><p id="roomTopic" class="muted"></p><div id="roomStatus" class="status"></div><div id="seats" class="grid"></div>
+<div class="panel"><span class="pill">ROOM</span><h2 id="roomTitle"></h2><p id="roomTopic" class="muted"></p><div id="roomStatus" class="status"></div>
+<div class="panel" style="background:#3b2a00;border-color:#f3c86a">
+<div class="row">
+<label style="color:#f3c86a">Admin Seat Change:</label>
+<select id="changeSeatSelect" style="flex:1">
+<option value="2">2 Seat</option>
+<option value="10">8+2 Seat (10)</option>
+<option value="10">10 Seat</option>
+<option value="15">15 Seat</option>
+<option value="20">20 Seat</option>
+</select>
+<button onclick="changeSeatLive()">Change</button>
+<button id="coinBtn" class="secondary" onclick="toggleCoinCalc()">🪙 Coin Calculator: OFF</button>
+</div>
+<p class="small">Room khulne ke baad bhi Admin yahan se seat badal sakta hai - Live</p>
+</div>
+<div id="seats" class="grid"></div>
 <div class="row"><button id="roomChat">Open chat</button><button id="joinVoice" class="secondary">Join voice (experimental)</button><button id="leaveVoice" class="secondary">Leave voice</button></div><div id="voiceStatus" class="status">Voice is not connected.</div>
 <div class="panel" id="voiceModerationPanel">
  <div class="sectionhead"><h3>🎙 Voice moderation</h3><span id="voiceModRole" class="pill">Member</span></div>
@@ -97,7 +113,9 @@ $('auth').classList.add('hidden');$('app').classList.remove('hidden');$('bottomN
 $('authToggle').onclick=()=>{if(user)showPage('profile');else $('auth').classList.toggle('hidden')};
 $('modeToggle').onclick=()=>{authMode=authMode==='login'?'signup':'login';$('authTitle').textContent=authMode==='login'?'Welcome back':'Create your account';$('authSubmit').textContent=authMode==='login'?'Log in':'Sign up';$('modeToggle').textContent=authMode==='login'?'Create account':'Back to login';$('password').autocomplete=authMode==='login'?'current-password':'new-password';status('authStatus',authMode==='signup'?'A confirmation email may be required.':'Enter your login details.')};
 $('authSubmit').onclick=async()=>{let email=$('email').value.trim(),password=$('password').value;if(!email||password.length<6){status('authStatus','Enter a valid email and password (minimum 6 characters).','error');return}$('authSubmit').disabled=true;let result=authMode==='login'?await sb.auth.signInWithPassword({email,password}):await sb.auth.signUp({email,password});$('authSubmit').disabled=false;if(result.error){status('authStatus',result.error.message,'error');return}if(authMode==='signup'&&!result.data.session){status('authStatus','Account created. Check your email to confirm, then log in.','success');return}user=result.data.user;await startApp()};
-async function createRoom(){let name=prompt('Room name');if(!name?.trim())return;let topic=prompt('Room topic','Meet and chat')||'';let cap=Number(prompt('Capacity (2–50)','12'));cap=Math.max(2,Math.min(50,Number.isFinite(cap)?cap:12));let {data,error}=await sb.from('rooms').insert({name:name.trim(),topic:topic.trim(),capacity:cap,created_by:user.id}).select().single();if(error){alert('Could not create room: '+error.message);return}await loadRooms();openRoom(data)}
+async function createRoom(){let name=prompt('Room name');if(!name?.trim())return;let topic=prompt('Room topic','Meet and chat')||'';let capChoice = prompt('Seat Choose Karo:\n1 = 2 Seat\n2 = 8+2 Seat (10)\n3 = 10 Seat\n4 = 15 Seat\n5 = 20 Seat\n\n1-5 likho', '2');
+let map = {'1':2,'2':10,'3':10,'4':15,'5':20};
+let cap = map[capChoice] || 10;let {data,error}=await sb.from('rooms').insert({name:name.trim(),topic:topic.trim(),capacity:cap,created_by:user.id}).select().single();if(error){alert('Could not create room: '+error.message);return}await loadRooms();openRoom(data)}
 async function openRoom(room){await cleanupMedia();activeRoom=room;$('roomTitle').textContent=room.name;$('roomTopic').textContent=room.topic||'';showPage('roomView');status('roomStatus','Joining room…');const banCheck=await sb.rpc('check_room_member_access',{p_room_id:room.id});
  if(!banCheck.error && banCheck.data===false){status('roomStatus','You cannot rejoin this room because access was revoked.','error');return}
  const {error}=await sb.from('room_members').upsert({room_id:room.id,user_id:user.id},{onConflict:'room_id,user_id'});if(error){status('roomStatus','Could not join room: '+error.message,'error');return}await loadSeats();await loadRoomAdmins();await subscribeMessages(room);status('roomStatus','You joined this room.');await setupMedia(room)}
