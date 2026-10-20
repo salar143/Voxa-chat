@@ -365,4 +365,22 @@ async function leaveVoice(){if(voiceModRefresh){clearInterval(voiceModRefresh);v
 async function cleanupMedia(){if(mediaPoll){clearInterval(mediaPoll);mediaPoll=null}if(mediaChannel){await sb.removeChannel(mediaChannel);mediaChannel=null}if(mediaPlayer){try{mediaPlayer.pause()}catch{}mediaPlayer=null}$('mediaStage').innerHTML='';$('mediaStage').classList.add('hidden');mediaState=null}
 $('joinVoice').onclick=joinVoice;$('leaveVoice').onclick=leaveVoice;
 (async()=>{const {data:{session}}=await sb.auth.getSession();user=session?.user||null;sb.auth.onAuthStateChange((_event,session)=>{user=session?.user||null;setTimeout(()=>startApp(),0)});await startApp()})();
-</script></body></html>
+</script>
+<div id="roomBottomBar" class="hidden" style="position:fixed;bottom:0;left:0;right:0;z-index:10;background:#100d1cf5;border-top:1px solid #413357;display:flex;justify-content:space-around;padding:10px 15px 20px">
+<button onclick="toggleMute(this)" style="width:56px;height:56px;border-radius:50%;border:none;background:rgba(0,0,0,0.5);font-size:24px">🔊</button>
+<button onclick="document.getElementById('joinVoice').click()" style="width:56px;height:56px;border-radius:50%;border:none;background:rgba(0,0,0,0.5);font-size:24px">🎙️</button>
+<button onclick="showPage('messages')" style="width:56px;height:56px;border-radius:50%;border:none;background:rgba(0,0,0,0.5);font-size:24px">💬</button>
+<button onclick="toggleEmoji()" style="width:56px;height:56px;border-radius:50%;border:none;background:rgba(0,0,0,0.5);font-size:24px">😀</button>
+</div>
+<div id="emojiBox" class="hidden" style="position:fixed;bottom:95px;left:50%;transform:translateX(-50%);background:#1e1a2e;border:1px solid #3a3350;padding:12px;border-radius:20px;z-index:999;width:90%;max-width:360px;font-size:30px;text-align:center"></div>
+<script>
+const roomEmojis=['❤️','🔥','😂','🎉','👏','🌹','👑','😍','💎','🫶','😮','🥰','🤣','👍','😭','💋','😘','🥺','💖','✨'];
+const emojiBox=document.getElementById('emojiBox');
+emojiBox.innerHTML=roomEmojis.map(e=>`<span onclick="sendEmoji('${e}')" style="cursor:pointer;padding:5px">${e}</span>`).join('');
+function toggleEmoji(){emojiBox.classList.toggle('hidden')}
+function toggleMute(b){b.innerText=b.innerText=='🔊'?'🔇':'🔊'}
+function sendEmoji(e){emojiBox.classList.add('hidden');flyEmoji(e,'left');flyEmoji(e,'right')}
+function flyEmoji(e,s){const el=document.createElement('div');el.innerText=e;el.style.position='fixed';el.style.bottom='110px';el.style.fontSize='36px';el.style.zIndex='9999';if(s=='left')el.style.left='15px';else el.style.right='15px';document.body.appendChild(el);let t=110;const m=setInterval(()=>{t+=6;el.style.bottom=t+'px';el.style.opacity=1-t/400;if(t>400){clearInterval(m);el.remove()}},25)}
+const oldShow=showPage;showPage=function(n){oldShow(n);const bar=document.getElementById('roomBottomBar');if(n==='roomView'){bar.classList.remove('hidden');document.getElementById('bottomNav').classList.add('hidden')}else{bar.classList.add('hidden');if(user)document.getElementById('bottomNav').classList.remove('hidden')}}
+                       </script>
+</body></html>
