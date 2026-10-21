@@ -1,1 +1,41 @@
-0
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VoxaChat Login</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui;height:100vh;background:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900') center/cover;position:relative;color:#fff}
+body:before{content:'';position:absolute;inset:0;background:rgba(30,10,80,.75)}
+.wrap{position:relative;z-index:2;height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding:24px 20px 30px}
+.btn{width:100%;padding:14px;border-radius:99px;border:0;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0;cursor:pointer}
+.fb{background:#5b8dd9;color:#fff}.gg{background:#5b8dd9;color:#fff}
+.icon{width:32px;height:32px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;color:#1877f2}
+.icon.g{color:#000;font-size:18px}
+.divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:#ddd;font-size:14px}
+.divider:before,.divider:after{content:'';flex:1;height:1px;background:#ffffff55}
+.wa{width:60px;height:60px;border-radius:50%;background:#ffffff33;margin:10px auto;display:flex;align-items:center;justify-content:center;font-size:28px}
+.terms{display:flex;gap:8px;align-items:center;font-size:14px;margin-top:18px}
+.check{width:26px;height:26px;background:#2196f3;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.terms a{color:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+<button class="btn fb" onclick="login('Facebook')"><span class="icon">f</span> Sign in with Facebook</button>
+<button class="btn gg" onclick="login('Google')"><span class="icon g">G</span> Sign in with Google</button>
+<div class="divider">More ways to log in</div>
+<div class="wa" onclick="login('WhatsApp')">📞</div>
+<div class="terms"><span class="check">✓</span><span>Agree to <a href="#">Terms of use</a> and <a href="#">Privacy policy</a></span></div>
+<p id="msg" style="text-align:center"></p>
+</div>
+<script>
+function login(type){
+  document.getElementById('msg').innerHTML='✅ '+type+' Login Ho Gaya! Welcome to VoxaChat 💜';
+  alert(type+' Login Success! Welcome Bhai');
+  // yahan se home khulega
+}
+</script>
+</body>
+</html>
