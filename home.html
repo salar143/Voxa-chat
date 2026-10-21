@@ -1,4 +1,38 @@
-function doLogin(){
-  alert('Login Ho Gaya! Home khul raha hai...');
-  window.location.href = 'home.html';
-}
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VoxaChat Home</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#000;color:#fff;font-family:system-ui;padding-bottom:80px}
+.top{display:flex;gap:14px;padding:14px 16px;align-items:center;color:#888}
+.top b{color:#fff;border-bottom:3px solid #8b5cf6;padding-bottom:4px}
+.banner{margin:14px 16px;border-radius:20px;padding:28px 16px;background:linear-gradient(90deg,#7c2d12,#f59e0b,#ec4899);font-weight:800;font-size:18px}
+.cards{display:flex;gap:10px;padding:0 16px}
+.card{flex:1;border-radius:16px;padding:16px 6px;text-align:center;font-weight:800}
+.r{background:#1f1a1a;color:#f59e0b}.g{background:#6d28d9}.f{background:#0369a1}
+.pills{display:flex;gap:8px;padding:14px 16px;overflow:auto}
+.pill{background:#1e1e1e;padding:9px 16px;border-radius:99px;white-space:nowrap;color:#aaa}
+h3{padding:0 16px}
+.users{display:flex;gap:14px;padding:0 16px;overflow:auto}
+.u{text-align:center;font-size:13px}
+.u img{width:70px;height:70px;border-radius:50%;border:3px solid #7c3aed;object-fit:cover}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#111;display:flex;justify-content:space-around;padding:12px 0;text-align:center;font-size:12px;color:#888}
+</style>
+</head>
+<body>
+<div class="top"><span>Related</span><b>Explore</b><span>Event</span><span>Discover</span></div>
+<div class="banner">🔥 Street Fury Pack - 40% + 35% Extra Rebate</div>
+<div class="cards"><div class="card r">👑<br>Ranking</div><div class="card g">🎮<br>Game</div><div class="card f">🏰<br>Family</div></div>
+<div class="pills"><div class="pill">Blind date</div><div class="pill">Talent</div><div class="pill">Match Maker</div><div class="pill">Official</div></div>
+<h3>Recommend user in the room</h3>
+<div class="users">
+<div class="u"><img src="https://i.pravatar.cc/100?img=12"><br>Luck...</div>
+<div class="u"><img src="https://i.pravatar.cc/100?img=13"><br>AM...</div>
+<div class="u"><img src="https://i.pravatar.cc/100?img=47"><br>Priya</div>
+<div class="u"><img src="https://i.pravatar.cc/100?img=15"><br>Rider</div>
+</div>
+<div class="nav"><div>🏠<br>Home</div><div>🎉<br>Party</div><div>💬<br>Inbox</div><div>👤<br>Profile</div></div>
+</body>
+</html>
