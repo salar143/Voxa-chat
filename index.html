@@ -29,13 +29,12 @@ body:before{content:'';position:absolute;inset:0;background:rgba(30,10,80,.75)}
 <div class="wa" onclick="login('WhatsApp')">📞</div>
 <div class="terms"><span class="check">✓</span><span>Agree to <a href="#">Terms of use</a> and <a href="#">Privacy policy</a></span></div>
 <p id="msg" style="text-align:center"></p>
-</div>
-<script>
+</div><script>
 function login(type){
-  document.getElementById('msg').innerHTML='✅ '+type+' Login Ho Gaya! Welcome to VoxaChat 💜';
-  alert(type+' Login Success! Welcome Bhai');
-  // yahan se home khulega
+  document.getElementById('msg').innerHTML = type + ' Login Success! Welcome Bhai 💜';
+  setTimeout(function(){
+    window.location.href = 'home.html';
+  }, 800);
 }
 </script>
-</body>
 </html>
