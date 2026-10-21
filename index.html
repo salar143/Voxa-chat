@@ -1,40 +1,16 @@
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>VoxaChat Login</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;font-family:system-ui;height:100vh;background:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900') center/cover;position:relative;color:#fff}
-body:before{content:'';position:absolute;inset:0;background:rgba(30,10,80,.75)}
-.wrap{position:relative;z-index:2;height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding:24px 20px 30px}
-.btn{width:100%;padding:14px;border-radius:99px;border:0;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0;cursor:pointer}
-.fb{background:#5b8dd9;color:#fff}.gg{background:#5b8dd9;color:#fff}
-.icon{width:32px;height:32px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;color:#1877f2}
-.icon.g{color:#000;font-size:18px}
-.divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:#ddd;font-size:14px}
-.divider:before,.divider:after{content:'';flex:1;height:1px;background:#ffffff55}
-.wa{width:60px;height:60px;border-radius:50%;background:#ffffff33;margin:10px auto;display:flex;align-items:center;justify-content:center;font-size:28px}
-.terms{display:flex;gap:8px;align-items:center;font-size:14px;margin-top:18px}
-.check{width:26px;height:26px;background:#2196f3;border-radius:50%;display:flex;align-items:center;justify-content:center}
-.terms a{color:#fff}
-</style>
-</head>
-<body>
-<div class="wrap">
-<button class="btn fb" onclick="login('Facebook')"><span class="icon">f</span> Sign in with Facebook</button>
-<button class="btn gg" onclick="login('Google')"><span class="icon g">G</span> Sign in with Google</button>
-<div class="divider">More ways to log in</div>
-<div class="wa" onclick="login('WhatsApp')">📞</div>
-<div class="terms"><span class="check">✓</span><span>Agree to <a href="#">Terms of use</a> and <a href="#">Privacy policy</a></span></div>
-<p id="msg" style="text-align:center"></p>
-</div><script>
-function login(type){
-  document.getElementById('msg').innerHTML = type + ' Login Success! Welcome Bhai 💜';
-  setTimeout(function(){
-    window.location.href = 'home.html';
-  }, 800);
-}
-</script>
-</html>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VoxaChat - Real Login</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>body{margin:0;background:#0f0f0f;color:#fff;font-family:system-ui;display:flex;justify-content:center;padding:20px}.box{width:100%;max-width:360px;margin-top:60px;text-align:center}h1{color:#a855f7}input{width:100%;padding:14px;margin:8px 0;border-radius:12px;border:0;background:#1f1f1f;color:#fff;box-sizing:border-box}button{width:100%;padding:14px;border:0;border-radius:99px;background:#7c3aed;color:#fff;font-weight:700;margin-top:10px}.login{background:#fff;color:#000}#msg{font-size:13px;margin-top:12px;color:#fca5a5}</style>
+</head><body><div class="box">
+<h1>VOXA CHAT</h1><p style="color:#aaa">Real Account Login</p>
+<input id="email" placeholder="Email likho">
+<input id="pass" type="password" placeholder="Password">
+<button onclick="signup()">Create Account</button>
+<button class="login" onclick="login()">Login</button>
+<p id="msg"></p>
+</div>
+<script>
+const sb = supabase.createClient("https://mbjlcbygwpqbovmtzacbrtz.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ibGNieWdwcWJvZ210emFjYnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2MDg0OTIsImV4cCI6MjEwODE4NDQ5Mn0.7OpmnIoZKgGLTCj2gPZtNiZyXkgYPgrdyocbCkG6-Cg");
+async function signup(){let e=document.getElementById('email').value,p=document.getElementById('pass').value;let{error}=await sb.auth.signUp({email:e,password:p});document.getElementById('msg').innerText=error?error.message:"Account ban gaya! Ab Login dabao"}
+async function login(){let e=document.getElementById('email').value,p=document.getElementById('pass').value;let{error}=await sb.auth.signInWithPassword({email:e,password:p});if(error)document.getElementById('msg').innerText=error.message;else location.href='home.html'}
+</script></body></html>
