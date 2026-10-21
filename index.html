@@ -1,145 +1,16 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Voxa Chat</title>
-<link rel="icon" href="logo.png">
-<link rel="apple-touch-icon" href="logo.png">
-<link rel="Manifest" href="Manifest.json">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-:root{color-scheme:dark;--bg:#100d1c;--panel:#1d1730;--panel2:#29203f;--line:#413357;--purple:#8b5cf6;--gold:#f3c86a;--text:#faf7ff;--muted:#c1b7d3}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#281845 0,var(--bg) 55%);color:var(--text);font:16px system-ui,-apple-system,Segoe UI,sans-serif}header{position:sticky;top:0;z-index:3;background:#100d1cf2;border-bottom:1px solid var(--line);padding:14px max(16px,calc((100% - 900px)/2));display:flex;justify-content:space-between;align-items:center}.brand{font-size:25px;font-weight:850}.brand b{color:var(--gold)}main{max-width:900px;margin:auto;padding:20px 14px 90px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:17px;margin:12px 0}.hero{background:linear-gradient(125deg,#39235a,#1c1730);padding:24px}.hero h1{margin:0 0 8px;font-size:clamp(25px,6vw,38px)}.muted,.hint{color:var(--muted);font-size:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.row{display:flex;gap:8px;align-items:center}.row input{min-width:0;flex:1}button,input,textarea,select{font:inherit;border-radius:11px;padding:11px;border:1px solid var(--line)}button{background:var(--purple);color:white;border:0;font-weight:750;cursor:pointer}button.secondary{background:var(--panel2);border:1px solid var(--line)}button:disabled{opacity:.5}input,textarea,select{background:#100d1c;color:var(--text);width:100%;margin:5px 0 10px}label{font-size:13px;color:var(--muted)}.tabs{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0}.tabs button.active,.mode-btn.active{background:var(--gold);color:#24172e}.hidden{display:none!important}.pill{font-size:12px;color:var(--gold);background:#3b2a50;border-radius:99px;padding:4px 9px;display:inline-block}.room h3{margin:9px 0 5px}.room p{color:var(--muted);font-size:14px}.room .row{margin-top:14px}.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:8px}.messages{height:300px;overflow:auto;display:flex;flex-direction:column;gap:8px;margin:12px 0}.msg{padding:10px 12px;background:var(--panel2);border-radius:12px;overflow-wrap:anywhere}.msg small{display:block;color:var(--gold);margin-bottom:3px}.status{background:#151124;border:1px solid var(--line);border-radius:12px;padding:10px;color:var(--muted);font-size:13px;margin:10px 0}.bottom{position:fixed;bottom:0;left:0;right:0;z-index:4;background:#100d1cf5;border-top:1px solid var(--line);display:flex;justify-content:center;gap:8px;padding:8px}.bottom button{width:22%;max-width:170px;padding:10px 3px}.seat{padding:12px;border:1px solid var(--line);border-radius:12px;text-align:center;background:var(--panel2)}.error{color:#ffb4b4}.success{color:#b8f5cd}.media-player{width:100%;aspect-ratio:16/9;background:#08060e;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:12px 0}.media-player iframe,.media-player audio{width:100%;height:100%;border:0}.media-player audio{aspect-ratio:auto}.mode-row{display:flex;gap:8px;flex-wrap:wrap}.mode-row button{flex:1;min-width:120px}.small{font-size:12px}
-</style></head>
-<body>
-<header><div class="brand">Voxa<b>Chat</b> 💜</div><button id="authToggle" class="secondary">Login</button></header>
-<main>
-<section id="auth" class="panel">
-<div class="sectionhead"><h2 id="authTitle">Welcome back</h2><span class="pill">Account</span></div>
-<p class="muted">Use your email to sign in or create an account.</p>
-<label>Email</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com">
-<label>Password</label><input id="password" type="password" autocomplete="current-password" placeholder="At least 6 characters">
-<div class="row"><button id="authSubmit">Log in</button><button id="modeToggle" class="secondary">Create account</button></div>
-<div id="authStatus" class="status">Connect to sign in.</div>
-</section>
-<section id="app" class="hidden">
-<div class="hero panel"><h1>Find your people.</h1><p class="muted">Discover rooms and chat with your community.</p><button id="heroRooms">Explore rooms</button></div>
-<div class="tabs"><button class="active" data-page="home">Home</button><button data-page="rooms">Rooms</button><button data-page="messages">Messages</button><button data-page="profile">Profile</button></div>
-<section id="home"><div class="sectionhead"><h2>Discover rooms</h2><button id="createBtn">＋ Create</button></div><div id="homeRooms" class="grid"></div></section>
-<section id="rooms" class="hidden"><div class="sectionhead"><h2>All rooms</h2><button id="createBtn2">＋ Create</button></div><div id="allRooms" class="grid"></div></section>
-<section id="messages" class="hidden"><div class="panel"><h2>Room messages</h2><p id="activeRoomLabel" class="muted">Choose a room to load its messages.</p><div id="messageList" class="messages"></div><div class="row"><input id="messageText" placeholder="Write a message…" maxlength="2000"><button id="sendMessage">Send</button></div><div class="hint">Messages are stored in Supabase and updated live for subscribed members.</div></div></section>
-<section id="profile" class="hidden"><div class="panel"><h2>Your profile</h2><label>Display name</label><input id="displayName" maxlength="40" placeholder="Display name"><button id="saveProfile">Save profile</button><div id="profileStatus" class="status"></div><p id="userEmail" class="muted"></p><button id="logout" class="secondary">Log out</button></div></section>
-<section id="roomView" class="hidden">
-<button id="backRooms" class="secondary">← Rooms</button>
-<div class="panel"><span class="pill">ROOM</span><h2 id="roomTitle"></h2><p id="roomTopic" class="muted"></p><div id="roomStatus" class="status"></div>
-<div class="panel" style="background:#3b2a00;border-color:#f3c86a">
-<div class="row">
-<label style="color:#f3c86a">Admin Seat Change:</label>
-<select id="changeSeatSelect" style="flex:1">
-<option value="2">2 Seat</option>
-<option value="10">8+2 Seat (10)</option>
-<option value="10">10 Seat</option>
-<option value="15">15 Seat</option>
-<option value="20">20 Seat</option>
-</select>
-<button onclick="changeSeatLive()">Change</button>
-<button id="coinBtn" class="secondary" onclick="toggleCoinCalc()">🪙 Coin Calculator: OFF</button>
-</div>
-<p class="small">Room khulne ke baad bhi Admin yahan se seat badal sakta hai - Live</p>
-</div>
-<div id="seats" class="grid"></div>
-<div class="row"><button id="roomChat">Open chat</button><button id="joinVoice" class="secondary">Join voice (experimental)</button><button id="leaveVoice" class="secondary">Leave voice</button></div><div id="voiceStatus" class="status">Voice is not connected.</div>
-<div class="panel" id="voiceModerationPanel">
- <div class="sectionhead"><h3>🎙 Voice moderation</h3><span id="voiceModRole" class="pill">Member</span></div>
- <p class="muted small">Room owner/admin controls. Members must keep this page open for client-enforced mute/kick commands. Server checks and RLS are required for production.</p>
- <div id="voiceModRoster" class="grid"><p class="muted">Join the voice room to load members.</p></div>
- <div id="voiceModStatus" class="status">Voice moderation is idle.</div>
-</div>
-<audio id="remoteAudio" autoplay playsinline></audio></div>
-<div class="panel" id="roomAdminPanel">
- <div class="sectionhead"><h2>🛡️ Room Admins</h2><span id="adminCount" class="pill">Loading…</span></div>
- <p class="muted" id="adminSummary">Room owner can appoint admins when the room has an active premium entitlement.</p>
- <div id="adminOwnerTools" class="hidden">
-  <label for="adminUserId">Member user ID</label>
-  <input id="adminUserId" placeholder="Paste member UUID" autocomplete="off">
-  <div class="row"><button id="appointAdminBtn">Make Admin</button><button id="removeAdminBtn" class="secondary">Remove Admin</button></div>
-  <p class="hint small">Only the room owner can appoint or remove admins. Use the member's user ID from your trusted member list.</p>
- </div>
- <div id="roomAdminList" class="grid"><p class="muted">Loading room roles…</p></div>
- <div id="adminStatus" class="status">Admin roles not loaded yet.</div>
-</div>
-<div class="panel" id="mediaPanel">
-<div class="sectionhead"><h2>🎧 Room Media</h2><span id="mediaRole" class="pill">Member</span></div>
-<p class="muted">🎬 Watch together: the room creator chooses the YouTube video and controls room playback. Everyone in the room sees the same selected video. Each member may need to tap Play once because of browser autoplay rules.</p>
-<div class="mode-row"><button id="audioModeBtn" class="mode-btn active">🎵 Audio Mode</button><button id="videoModeBtn" class="mode-btn secondary">🎬 Video Mode</button></div>
-<div id="mediaControls" class="hidden">
-<div id="audioFilePicker">
-<label for="audioFile">Choose music from your phone</label>
-<input id="audioFile" type="file" accept="audio/mpeg,audio/mp4,audio/ogg,audio/aac,audio/wav,.mp3,.m4a,.ogg,.aac,.wav">
-<p class="hint small" id="selectedFileName">No song selected. Choose an audio file from your phone.</p>
-</div>
-<div id="videoUrlBox" class="hidden"><label id="mediaUrlLabel">YouTube video URL or video ID</label><input id="mediaUrl" type="url" placeholder="Paste a YouTube video URL"></div>
-<label id="mediaTitleLabel">Title (optional)</label><input id="mediaTitle" maxlength="160" placeholder="Track or video title">
-<div class="row"><button id="loadMedia">Load media</button><button id="searchVideo" class="secondary hidden">Search YouTube</button></div>
-<p class="hint" id="mediaHelp">Choose a song from your phone. It will upload to room storage so other room members can listen too.</p>
-</div>
-<div id="mediaStatus" class="status">Choose Audio or Video mode.</div>
-<div id="mediaStage" class="media-player hidden"></div>
-<div id="mediaAdminControls" class="hidden">
-<div class="row"><button id="mediaPlay">▶ Play</button><button id="mediaPause" class="secondary">⏸ Pause</button><button id="mediaNext" class="secondary">Next / Clear</button></div>
-<label for="mediaSeek">Playback position</label><input id="mediaSeek" type="range" min="0" max="100" value="0">
-<p class="hint small">Video selection and play/pause intent are shared with the room. YouTube/browser policies can prevent perfectly frame-accurate sync or automatic playback; members may need to press Play in the embedded player.</p>
-</div>
-</div>
-</section>
-</section>
-<div id="globalStatus" class="status">Initializing…</div>
-</main>
-<nav class="bottom hidden" id="bottomNav"><button class="secondary" data-page="home">🏠 Home</button><button class="secondary" data-page="rooms">🎙 Rooms</button><button class="secondary" data-page="messages">💬 Chat</button><button class="secondary" data-page="profile">👤 Me</button></nav>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VoxaChat - Nayi Wali</title><style>*{box-sizing:border-box}body{margin:0;background:#12001f;color:#fff;font:16px system-ui}header{padding:14px;background:#000;border-bottom:1px solid #8b5cf6;display:flex;justify-content:space-between;align-items:center} .brand{font-size:26px;font-weight:800}.brand b{color:#fbbf24}main{max-width:900px;margin:auto;padding:16px 12px} .panel{background:#1e1033;border:2px solid #8b5cf6;border-radius:20px;padding:20px;margin:12px 0}button,input{padding:12px;border-radius:12px;border:2px solid #8b5cf6;font:inherit}button{background:#8b5cf6;color:#fff;border:0;font-weight:700;cursor:pointer}button.secondary{background:#2a1a4a;color:#fff}input{background:#0f0a1e;color:#fff;width:100%;margin:5px 0 12px} .hidden{display:none!important}.muted{color:#c4b5fd;font-size:14px}.row{display:flex;gap:8px}.pill{background:#8b5cf6;padding:4px 10px;border-radius:99px;font-size:12px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.seat{width:70px;height:70px;border-radius:50%;background:#2a1a4a;border:2px solid #8b5cf6;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:auto}</style></head><body>
+<header><div class="brand">Voxa<b>Chat</b> 💜</div><div><span class="pill">💎 <span id="diamondBal">100000</span></span> <span class="pill" style="background:#fff;color:#8b5cf6">Receiver: 💎 <span id="receiverBal">0</span></span></div></header><main>
+<section id="auth" class="panel"><h2>Welcome back <span style="float:right;font-size:13px;background:#3b2a5a;padding:5px 10px;border-radius:99px;color:#fbbf24">Account</span></h2><p class="muted">Use your email to sign in or create an account.</p><label>Email</label><input id="email" placeholder="you@example.com" value="pmr329721@gmail.com"><label>Password</label><input type="password" placeholder="At least 6 characters"><div class="row"><button onclick="doLogin()">Log in</button><button class="secondary" onclick="doLogin()">Create account</button></div><p style="text-align:center" class="muted">OR LOGIN WITH</p><button style="width:100%;margin:4px 0" onclick="doLogin()">G Google Login</button><button style="width:100%;margin:4px 0" onclick="doLogin()">f Facebook Login</button><button style="width:100%;margin:4px 0" onclick="doLogin()">📱 Phone Login</button><p style="background:#2a1a4a;padding:10px;border-radius:10px;border:1px solid #8b5cf6">✅ Ready - Nayi Wali - No Initializing</p></section>
+<section id="app" class="hidden"><div class="panel"><h1>Find your people.</h1><p>💎 Gift bhejo - Receiver ko 30% Return milega</p><button onclick="showRooms()">Explore rooms</button></div><div id="homeRooms" class="grid"></div><div class="panel"><h2>Profile - 💎 <span id="profileDiamond">100000</span></h2><button onclick="buyPack(475000,1000)">475000 💎 - ₹1000</button> <button class="secondary" onclick="logout()">Log out</button></div><div class="panel"><h2>🎙 My World Room - Seats</h2><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><div class="seat"><span>👤</span><small>Seat 1</small></div><div class="seat"><span>👤</span><small>Seat 2</small></div><div class="seat"><span>👤</span><small>Seat 3</small></div><div class="seat"><span>👤</span><small>Seat 4</small></div><div class="seat"><span>👤</span><small>Seat 5</small></div></div><div class="row" style="margin-top:12px"><button onclick="openGift()">🎁 Gift</button><button class="secondary" onclick="alert('Voice Joined')">🎤 Join Voice</button></div><div id="giftBox" class="hidden" style="margin-top:12px"><button onclick="sendGift('Rose 🌹',10)">🌹 Rose - 10 💎</button> <button onclick="sendGift('Real Diamond 💎',1000)">💎 Real Diamond - 1000 💎</button></div><h3>💬 Room Chat</h3><div id="roomChatList"><div>Welcome! 👋</div></div><div class="row"><input id="roomChatInput" placeholder="Room me likho..."><button onclick="sendRoomChat()">Send</button></div></div></section></main>
 <script>
-const SUPABASE_URL='https://opckvbeyupvkeojnvnej.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY='sb_publishable_hIRf-JGkAhWtldNYc3SBEw_5clrRwV7';
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
-let user=null,profile=null,rooms=[],activeRoom=null,msgChannel=null,voiceChannel=null,peers=new Map(),localStream=null,authMode='login',mediaChannel=null,mediaState=null,mediaMode='audio',mediaIsAdmin=false,mediaPoll=null,mediaPlayer=null,mediaSyncing=false,roomAdminRows=[],roomAdminLimit=null;
-const $=id=>document.getElementById(id);
-function status(id,msg,kind=''){const el=$(id);if(el){el.textContent=msg;el.className='status '+kind}}
-function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function showPage(name){['home','rooms','messages','profile','roomView'].forEach(n=>$(n).classList.toggle('hidden',n!==name));document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));if(name==='rooms'||name==='home')loadRooms()}
-function renderRooms(){let cards=rooms.map(r=>`<article class="panel room"><span class="pill">${esc(r.capacity)} seats</span><h3>${esc(r.name)}</h3><p>${esc(r.topic||'Community room')}</p><p class="muted">Created ${new Date(r.created_at).toLocaleDateString()}</p><button data-join="${r.id}">Join room</button></article>`).join('')||'<p class="muted">No rooms yet. Create the first one.</p>';$('homeRooms').innerHTML=cards;$('allRooms').innerHTML=cards}
-async function loadRooms(){if(!user)return;const {data,error}=await sb.from('rooms').select('*').order('created_at',{ascending:false});if(error){status('globalStatus','Rooms failed to load: '+error.message,'error');return}rooms=data||[];renderRooms()}
-async function loadProfile(){let {data}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();profile=data;if(profile){$('displayName').value=profile.display_name||''}}
-async function startApp(){if(!user){$('auth').classList.remove('hidden');$('app').classList.add('hidden');$('bottomNav').classList.add('hidden');$('authToggle').textContent='Login';status('globalStatus','Please log in to use Voxa Chat.');return}
-$('auth').classList.add('hidden');$('app').classList.remove('hidden');$('bottomNav').classList.remove('hidden');$('authToggle').textContent='Account';$('userEmail').textContent=user.email||'';status('globalStatus','Signed in as '+(user.email||user.id));await loadProfile();await loadRooms()}
-$('authToggle').onclick=()=>{if(user)showPage('profile');else $('auth').classList.toggle('hidden')};
-$('modeToggle').onclick=()=>{authMode=authMode==='login'?'signup':'login';$('authTitle').textContent=authMode==='login'?'Welcome back':'Create your account';$('authSubmit').textContent=authMode==='login'?'Log in':'Sign up';$('modeToggle').textContent=authMode==='login'?'Create account':'Back to login';$('password').autocomplete=authMode==='login'?'current-password':'new-password';status('authStatus',authMode==='signup'?'A confirmation email may be required.':'Enter your login details.')};
-$('authSubmit').onclick=async()=>{let email=$('email').value.trim(),password=$('password').value;if(!email||password.length<6){status('authStatus','Enter a valid email and password (minimum 6 characters).','error');return}$('authSubmit').disabled=true;let result=authMode==='login'?await sb.auth.signInWithPassword({email,password}):await sb.auth.signUp({email,password});$('authSubmit').disabled=false;if(result.error){status('authStatus',result.error.message,'error');return}if(authMode==='signup'&&!result.data.session){status('authStatus','Account created. Check your email to confirm, then log in.','success');return}user=result.data.user;await startApp()};
-async function createRoom(){let name=prompt('Room name');if(!name?.trim())return;let topic=prompt('Room topic','Meet and chat')||'';let capChoice = prompt('Seat Choose Karo:\n1 = 2 Seat\n2 = 8+2 Seat (10)\n3 = 10 Seat\n4 = 15 Seat\n5 = 20 Seat\n\n1-5 likho', '2');
-let map = {'1':2,'2':10,'3':10,'4':15,'5':20};
-let cap = map[capChoice] || 10;let {data,error}=await sb.from('rooms').insert({name:name.trim(),topic:topic.trim(),capacity:cap,created_by:user.id}).select().single();if(error){alert('Could not create room: '+error.message);return}await loadRooms();openRoom(data)}
-async function openRoom(room){await cleanupMedia();activeRoom=room;$('roomTitle').textContent=room.name;$('roomTopic').textContent=room.topic||'';showPage('roomView');status('roomStatus','Joining room…');const banCheck=await sb.rpc('check_room_member_access',{p_room_id:room.id});
- if(!banCheck.error && banCheck.data===false){status('roomStatus','You cannot rejoin this room because access was revoked.','error');return}
- const {error}=await sb.from('room_members').upsert({room_id:room.id,user_id:user.id},{onConflict:'room_id,user_id'});if(error){status('roomStatus','Could not join room: '+error.message,'error');return}await loadSeats();await loadRoomAdmins();await subscribeMessages(room);status('roomStatus','You joined this room.');await setupMedia(room)}
-async function loadSeats(){if(!activeRoom)return;const {data,error}=await sb.from('room_members').select('user_id,joined_at,profiles(display_name)').eq('room_id',activeRoom.id).order('joined_at');if(error){$('seats').innerHTML='<p class="muted">Member list unavailable: '+esc(error.message)+'</p>';return}$('seats').innerHTML=(data||[]).map(m=>`<div class="seat">👤<br><b>${esc(m.profiles?.display_name||'Member')}</b><p class="muted">${m.user_id===user.id?'You':'Member'}</p></div>`).join('')||'<p class="muted">No members listed yet.</p>'}
-async function subscribeMessages(room){if(msgChannel){await sb.removeChannel(msgChannel);msgChannel=null}const {data,error}=await sb.from('voxa_messages').select('id,user_id,message,created_at').eq('room_id',room.id).order('created_at').limit(100);if(error){status('globalStatus','Messages unavailable: '+error.message,'error');return}renderMessages(data||[]);$('activeRoomLabel').textContent='Room: '+room.name;msgChannel=sb.channel('messages-'+room.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'voxa_messages',filter:'room_id=eq.'+room.id},payload=>{const el=$('messageList');if(!el.querySelector('[data-msg="'+payload.new.id+'"]'))appendMessage(payload.new)}).subscribe()}
-function appendMessage(m){const el=$('messageList'),div=document.createElement('div');div.className='msg';div.dataset.msg=m.id;div.innerHTML='<small>'+esc(m.user_id===user.id?(profile?.display_name||'You'):'Member')+' · '+esc(new Date(m.created_at).toLocaleTimeString())+'</small>'+esc(m.message);el.appendChild(div);el.scrollTop=el.scrollHeight}
-function renderMessages(list){$('messageList').innerHTML='';list.forEach(appendMessage)}
-$('sendMessage').onclick=async()=>{if(!activeRoom)return alert('Join a room first.');let text=$('messageText').value.trim();if(!text)return;const {error}=await sb.from('voxa_messages').insert({user_id:user.id,room_id:activeRoom.id,message:text});if(error){status('globalStatus','Message failed: '+error.message,'error');return}$('messageText').value=''};
-$('messageText').addEventListener('keydown',e=>{if(e.key==='Enter')$('sendMessage').click()});
-$('saveProfile').onclick=async()=>{let name=$('displayName').value.trim().slice(0,40);if(!name)return status('profileStatus','Enter a display name.','error');let {error}=await sb.from('profiles').upsert({id:user.id,display_name:name,updated_at:new Date().toISOString()});if(error){status('profileStatus','Profile save failed: '+error.message,'error');return}profile={...(profile||{}),id:user.id,display_name:name};status('profileStatus','Profile saved.','success')};
-$('logout').onclick=async()=>{await leaveVoice();await cleanupMedia();await sb.auth.signOut();user=null;profile=null;startApp()};
-$('heroRooms').onclick=()=>showPage('rooms');$('createBtn').onclick=createRoom;$('createBtn2').onclick=createRoom;$('backRooms').onclick=()=>showPage('rooms');$('roomChat').onclick=()=>showPage('messages');
-document.addEventListener('click',e=>{let b=e.target.closest('[data-page]');if(b)showPage(b.dataset.page);let j=e.target.closest('[data-join]');if(j){let r=rooms.find(x=>x.id===j.dataset.join);if(r)openRoom(r)}});
-
-// Room media. Audio requires a direct media-file URL; video embeds YouTube and syncs room intent/state.
-
-// Room admin UI. Authorization and limits are enforced by Supabase RPCs, not this UI.
-function renderRoomAdmins(rows){
- roomAdminRows=rows||[];
- const owner=activeRoom?.created_by===user?.id;
- $('adminOwnerTools').classList.toggle('hidden',!owner);
- const max=roomAdminRows.length?Number(roomAdminRows[0].max_admins):Number(roomAdminLimit||0);
- const count=roomAdminRows.length?Number(roomAdminRows[0].admin_count||0):0;
- $('adminCount').textContent=(Number.isFinite(count)?count:0)+' / '+(Number.isFinite(max)?max:0);
- $('adminSummary').textContent=owner
-  ? 'You own this room. Only you can appoint or remove admins.'
-  : 'The ro
+let diamonds=100000, receiverDiamonds=0;
+function doLogin(){document.getElementById('auth').classList.add('hidden');document.getElementById('app').classList.remove('hidden');renderRooms();}
+function showRooms(){document.getElementById('homeRooms').scrollIntoView();}
+function renderRooms(){document.getElementById('homeRooms').innerHTML=`<div class="panel"><h3>My World Room</h3><p>10 Seats • Sab Equal</p><button onclick="alert('Room Joined')">Join Room</button></div>`;}
+function buyPack(n,p){if(confirm(n+' 💎 - ₹'+p)){diamonds+=n;document.getElementById('diamondBal').textContent=diamonds;document.getElementById('profileDiamond').textContent=diamonds;alert('Added!');}}
+function openGift(){document.getElementById('giftBox').classList.toggle('hidden');}
+function sendGift(name,cost){if(diamonds<cost)return alert('Diamond kam hai');let ret=Math.floor(cost*0.3);diamonds-=cost;receiverDiamonds+=ret;document.getElementById('diamondBal').textContent=diamonds;document.getElementById('receiverBal').textContent=receiverDiamonds;alert(name+' bhej diya! Receiver ko '+ret+' 💎 back');}
+function sendRoomChat(){let i=document.getElementById('roomChatInput');if(!i.value)return;let d=document.createElement('div');d.textContent='You: '+i.value;document.getElementById('roomChatList').appendChild(d);i.value='';}
+function logout(){location.reload();}
+renderRooms();
+</script></body></html>
