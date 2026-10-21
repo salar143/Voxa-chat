@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VoxaChat Chat</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#000;color:#fff;font-family:system-ui}
+.head{display:flex;align-items:center;gap:12px;padding:14px;background:#111}
+.head img{width:40px;height:40px;border-radius:50%}
+.msgs{padding:16px;display:flex;flex-direction:column;gap:10px}
+.m{background:#1f1f1f;padding:10px 14px;border-radius:16px;max-width:75%}
+.me{background:#7c3aed;align-self:flex-end}
+.input{position:fixed;bottom:0;left:0;right:0;display:flex;padding:10px;background:#111;gap:8px}
+.input input{flex:1;padding:12px;border-radius:99px;border:0;background:#222;color:#fff}
+.input button{background:#7c3aed;border:0;color:#fff;padding:12px 18px;border-radius:99px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="head"><span onclick="history.back()">⬅</span><img src="https://i.pravatar.cc/100?img=47"><div><b>Priya</b><br><small style="color:#4ade80">● Online</small></div></div>
+<div class="msgs" id="box">
+<div class="m">Hi bhai! Kaise ho? 💜</div>
+<div class="m me">Badhiya! VoxaChat me welcome 🔥</div>
+</div>
+<div class="input"><input id="t" placeholder="Type message..."><button onclick="send()">Send</button></div>
+<script>
+function send(){
+let v=document.getElementById('t').value;
+if(!v) return;
+let d=document.createElement('div');d.className='m me';d.textContent=v;
+document.getElementById('box').appendChild(d);
+document.getElementById('t').value='';
+}
+</script>
+</body>
+</html>
