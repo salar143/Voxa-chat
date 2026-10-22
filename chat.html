@@ -23,6 +23,9 @@
 <div class="m me">Badhiya! VoxaChat me welcome 🔥</div>
 </div>
 <div class="input"><input id="t" placeholder="Type message..."><button onclick="send()">Send</button></div>
+const SUPABASE_URL = "https://mblcbygpqbogmtzacbtz.supabase.co";
+const SUPABASE_KEY = "sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 <script>
 function send(){
 let v=document.getElementById('t').value;
