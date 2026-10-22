@@ -1,0 +1,36 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VoxaChat - Real Login</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>body{margin:0;background:#0f0f0f;color:#fff;font-family:system-ui;display:flex;justify-content:center;padding:20px}.box{width:100%;max-width:360px;margin-top:20px;text-align:center}h1{color:#a855f7}input,select,textarea{width:100%;padding:13px;margin:6px 0;border-radius:12px;border:0;background:#1f1f1f;color:#fff;box-sizing:border-box}button{width:100%;padding:14px;border:0;border-radius:99px;background:#7c3aed;color:#fff;font-weight:700;margin-top:8px}.login{background:#fff;color:#000}.g{background:#fff;color:#000}.fb{background:#1877F2}#msg{font-size:13px;margin-top:10px;color:#fca5a5}</style>
+</head><body><div class="box">
+<h1>VOXA CHAT</h1><p style="color:#aaa">Real Account - Sab Kuch Real</p>
+<button class="g" onclick="oAuth('google')">Continue with Google</button>
+<button class="fb" onclick="oAuth('facebook')">Continue with Facebook</button>
+<p style="color:#666">OR</p>
+<input id="email" placeholder="Email likho">
+<input id="pass" type="password" placeholder="Password">
+<input id="nickname" placeholder="Nickname *">
+<input id="photo" type="file" accept="image/*">
+<select id="gender"><option value="">Gender *</option><option>Male</option><option>Female</option><option>Other</option></select>
+<input id="dob" type="date">
+<textarea id="bio" placeholder="Bio *"></textarea>
+<button onclick="signup()">Create New ID</button>
+<button class="login" onclick="login()">Login</button>
+<p id="msg"></p>
+</div>
+<script>
+const sb = supabase.createClient("https://mbjlcbygwpqbovmtzacbrtz.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ibGNieWdwcWJvZ210emFjYnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2MDg0OTIsImV4cCI6MjEwODE4NDQ5Mn0.7OpmnIoZKgGLTCj2gPZtNiZyXkgYPgrdyocbCkG6-Cg");
+async function oAuth(p){await sb.auth.signInWithOAuth({provider:p})}
+async function signup(){
+let e=email.value,p=pass.value,nick=nickname.value,g=gender.value,d=dob.value,b=bio.value,f=photo.files[0];
+if(!e||!p||!nick||!f||!g||!d||!b) return msg.innerText="Sab bharo bhai - Nickname, Photo, Gender, DOB, Bio";
+let{data:u,[STRIPPED] sb.auth.signUp({email:e,password:p});
+if(error) return msg.innerText=error.message;
+let uid=u.user.id;
+await sb.storage.from('avatars').upload(uid+'.jpg',f,{upsert:true});
+let url=sb.storage.from('avatars').getPublicUrl(uid+'.jpg').data.publicUrl;
+let{error:dbErr}=await sb.from('profiles').insert({id:uid,nickname:nick,profile_photo:url,gender:g,dob:d,bio:b});
+if(dbErr) return msg.innerText=dbErr.message;
+msg.innerText="ID Ban Gayi! Ab Login Dabao";
+}
+async function login(){let{error}=await sb.auth.signInWithPassword({email:email.value,password:pass.value});if(error)msg.innerText=error.message;else location.href='home.html'}
+</script></body></html>
