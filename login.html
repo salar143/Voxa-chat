@@ -18,7 +18,9 @@
 <p id="msg"></p>
 </div>
 <script>
-const sb = supabase.createClient("https://mblcbygpqbogmtzacbtz.supabase.co","sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV");
+const SUPABASE_URL = "https://mblcbygpqbogmtzacbtz.supabase.co";
+const SUPABASE_KEY = "sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 document.getElementById('bG').onclick = ()=> sb.auth.signInWithOAuth({provider:'google'});
 document.getElementById('bF').onclick = ()=> sb.auth.signInWithOAuth({provider:'facebook'});
 document.getElementById('bC').onclick = async ()=>{
