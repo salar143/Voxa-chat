@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoxaChat - Login</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
+body{min-height:100vh;background:linear-gradient(160deg,#0a0a12,#1a0b2e 55%,#000);color:#fff;display:flex;align-items:center;justify-content:center;padding:16px;position:relative;overflow:hidden}
+.hearts{position:fixed;inset:0;pointer-events:none;z-index:0}
+.heart{position:absolute;bottom:-40px;font-size:22px;opacity:.7;animation:fly linear infinite}
+@keyframes fly{0%{transform:translateY(0) scale(1);opacity:.7}100%{transform:translateY(-110vh) scale(1.3);opacity:0}}
+.wrap{max-width:420px;width:100%;position:relative;z-index:2}
+.card{background:rgba(255,255,255,.05);border:1px solid rgba(168,85,247,.3);border-radius:18px;padding:22px 18px;backdrop-filter:blur(6px)}
+h2{font-size:22px;margin-bottom:6px;text-align:center}
+p.sub{font-size:13px;color:#9ca3af;text-align:center;margin-bottom:16px}
+label{font-size:13px;color:#d8b4fe;display:block;margin-bottom:5px}
+input,select{width:100%;padding:12px;border-radius:11px;border:1px solid rgba(168,85,247,.35);background:rgba(255,255,255,.06);color:#fff;font-size:15px;outline:none;margin-bottom:12px}
+.btn{width:100%;padding:13px;border:0;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-weight:700;font-size:15px;cursor:pointer;margin-top:4px}
+.btn-ghost{background:transparent;border:1px solid rgba(168,85,247,.5);margin-top:10px}
+.err{display:none;background:rgba(239,68,68,.18);border:1px solid rgba(239,68,68,.5);color:#fecaca;padding:9px;border-radius:10px;font-size:13px;margin-bottom:10px}
+.note{font-size:11px;color:#6b7280;text-align:center;margin-top:12px}
+.step{display:none}.step.active{display:block}
+.oauth{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.obtn{display:flex;align-items:center;gap:10px;padding:13px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#fff;font-size:15px;cursor:pointer}
+.obtn .ic{font-size:20px}
+.gender{display:flex;gap:14px;justify-content:center;margin:16px 0}
+.gcard{width:130px;padding:18px 8px;border-radius:16px;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.15);text-align:center;cursor:pointer}
+.gcard.sel{border-color:#a855f7;background:rgba(168,85,247,.15)}
+.gcard .gi{font-size:44px}
+.gcard .gn{font-size:14px;margin-top:6px}
+.avatar{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#3b82f6);display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 10px;overflow:hidden;cursor:pointer}
+.avatar img{width:100%;height:100%;object-fit:cover}
+</style>
+</head>
+<body>
+<div class="hearts" id="hearts"></div>
+<div class="wrap">
+<div class="card">
+ <h2>💜 VoxaChat</h2>
+ <p class="sub" id="subTitle">Choose how you want to continue</p>
+ <div class="err" id="err"></div>
+
+ <div class="step active" id="s1">
+  <div class="oauth">
+   <button class="obtn" onclick="login('google')"><span class="ic">🔴</span> Continue with Google</button>
+   <button class="obtn" onclick="login('facebook')"><span class="ic">🔵</span> Continue with Facebook</button>
+   <button class="obtn" onclick="login('whatsapp')"><span class="ic">🟢</span> Continue with WhatsApp Number</button>
+  </div>
+  <p class="note">Tap any option to continue</p>
+ </div>
+
+ <div class="step" id="s4">
+  <p class="sub">Choose your avatar</p>
+  <div class="gender">
+   <div class="gcard" id="gF" onclick="pickGender('Female')"><div class="gi">👩</div><div class="gn">Female</div></div>
+   <div class="gcard" id="gM" onclick="pickGender('Male')"><div class="gi">👨</div><div class="gn">Male</div></div>
+  </div>
+  <button class="btn" onclick="saveGender()">Next</button>
+ </div>
+
+ <div class="step" id="s5">
+  <p class="sub">When is your birthday?</p>
+  <label>Day</label><select id="bday"></select>
+  <label>Month</label><select id="bmon"></select>
+  <label>Year</label><select id="byear"></select>
+  <button class="btn" onclick="saveBirthday()">Next</button>
+ </div>
+
+ <div class="step" id="s6">
+  <div class="avatar" id="av"><span>👤</span></div>
+  <label>Your Name</label>
+  <input id="name" placeholder="Enter your name">
+  <p class="note">Name can be edited only once every 24 hours.</p>
+  <button class="btn" onclick="saveName()">Finish & Open Profile</button>
+ </div>
+</div>
+</div>
+<script>
+const sb=supabase.createClient('https://mblcbygpqbogmtzacbtz.supabase.co','sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV');
+let gender='';
+const heartsDiv=document.getElementById('hearts');
+for(let i=0;i<25;i++){
+ const h=document.createElement('div');h.className='heart';h.textContent='💜';
+ h.style.left=Math.random()*100+'%';
+ h.style.fontSize=(14+Math.random()*20)+'px';
+ h.style.animationDuration=(8+Math.random()*10)+'s';
+ h.style.animationDelay=(Math.random()*10)+'s';
+ heartsDiv.appendChild(h);
+}
+function err(m){const e=document.getElementById('err');e.textContent=m;e.style.display='block'}
+function go(n){document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));document.getElementById('s'+n).classList.add('active');
+ document.getElementById('sub').textContent=['Choose how you want to continue','Choose your avatar','When is your birthday?','Set your name'][n-3];
+ document.getElementById('err').style.display='none'}
+function initBD(){const d=document.getElementById('bday'),m=document.getElementById('bmon'),y=document.getElementById('byear');
+ for(let i=1;i<=31;i++){const o=document.createElement('option');o.textContent=i;d.appendChild(o)}
+ ['January','February','March','April','May','June','July','August','September','October','November','December'].forEach(x=>{const o=document.createElement('option');o.textContent=x;m.appendChild(o)});
+ for(let i=2026;i>=1950;i--){const o=document.createElement('option');o.textContent=i;y.appendChild(o)}}
+function pickGender(g){gender=g;
+ document.getElementById('gF').classList.toggle('sel',g==='Female');
+ document.getElementById('gM').classList.toggle('sel',g==='Male')}
+// Login: agar pehle se onboarded hai to seedha profile2.html, warna gender page
+function login(method){
+ localStorage.setItem('voxa_login_method',method);
+ const onboarded=localStorage.getItem('voxa_onboarded');
+ if(onboarded==='true'){location.href='profile2.html';return}
+ go(4);
+}
+async function saveGender(){if(!gender){err('Choose Male or Female');return}
+ const {data:{user}}=await sb.auth.getUser();
+ if(user){await sb.from('profiles').upsert({id:user.id,gender:gender})}
+ go(5)}
+async function saveBirthday(){
+ const b=document.getElementById('bday').value+' '+document.getElementById('bmon').value+' '+document.getElementById('byear').value;
+ const {data:{user}}=await sb.auth.getUser();
+ if(user){await sb.from('profiles').upsert({id:user.id,school:b})}
+ go(6)}
+async function saveName(){
+ const n=document.getElementById('name').value.trim();
+ if(!n){err('Name required');return}
+ const {data:{user}}=await sb.auth.getUser();
+ if(user){
+  const {data:p}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();
+  if(p&&p.name_edit_at){const last=new Date(p.name_edit_at);const now=new Date();
+   if((now-last)<24*60*60*1000){err('Name can be edited only once every 24 hours.');return}}
+  await sb.from('profiles').upsert({id:user.id,name:n,name_edit_at:new Date().toISOString()});
+ }
+ localStorage.setItem('voxa_onboarded','true');
+ location.href='profile2.html';
+}
+initBD();
+</script>
+</body>
+</html>
