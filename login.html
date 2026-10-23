@@ -4,6 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VoxaChat - Login</title>
+ async function emailLogin(){
+  const email=document.getElementById('email').value.trim();
+  const password=document.getElementById('password').value;
+  if(!email||!password)return alert('Email और password डालें');
+  const{error}=await supabase.auth.signInWithPassword({email,password});
+  if(error)return alert(error.message);
+  window.location.href='profile2.html';
+}
+async function emailSignup(){
+  const email=document.getElementById('email').value.trim();
+  const password=document.getElementById('password').value;
+  if(!email||!password)return alert('Email और password डालें');
+  const{error}=await supabase.auth.signUp({email,password});
+  if(error)return alert(error.message);
+  alert('Account बन गया! अब login करो');
+}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
@@ -44,6 +60,10 @@ input,select{width:100%;padding:12px;border-radius:11px;border:1px solid rgba(16
 
  <div class="step active" id="s1">
   <div class="oauth">
+   <input type="email" id="email" placeholder="Email डालें">
+<input type="password" id="password" placeholder="Password डालें">
+<button onclick="emailLogin()">Email से Login</button>
+<button onclick="emailSignup()">नया Account बनाएं</button>
    <button class="obtn" onclick="login('google')"><span class="ic">🔴</span> Continue with Google</button>
    <button class="obtn" onclick="login('facebook')"><span class="ic">🔵</span> Continue with Facebook</button>
    <button class="obtn" onclick="login('whatsapp')"><span class="ic">🟢</span> Continue with WhatsApp Number</button>
