@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VoxaChat - Login</title>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
@@ -44,7 +43,7 @@ input,select{width:100%;padding:12px;border-radius:11px;border:1px solid rgba(16
 
  <div class="step active" id="s1">
   <div class="oauth">
-   <button class="obtn" onclick="login('google')"><span class="ic">🔴</span> Continue with Google</button>
+   <button class="obtn" id="googleBtn"><span class="ic">🔴</span> Continue with Google</button>
    <button class="obtn" disabled><span class="ic">🔵</span> Facebook — Coming soon</button>
    <button class="obtn" disabled><span class="ic">🟢</span> WhatsApp — Coming soon</button>
   </div>
@@ -79,185 +78,79 @@ input,select{width:100%;padding:12px;border-radius:11px;border:1px solid rgba(16
 </div>
 
 <script>
-let sb = null;
 let gender = '';
 
-function err(m) {
-  const e = document.getElementById('err');
-  e.textContent = m;
-  e.style.display = 'block';
-}
+function err(m){const e=document.getElementById('err');e.textContent=m;e.style.display='block';}
 
-// Supabase safely initialize
-try {
-  if (typeof supabase === 'undefined') {
-    throw new Error('Supabase script load nahi hua');
+// OLD WORKING LOGIN (same as purana index.html)
+document.getElementById('googleBtn').addEventListener('click', async () => {
+  document.getElementById('err').style.display='none';
+  try {
+    if (typeof window.supabase === 'undefined') {
+      throw new Error('Supabase library load nahi hui');
+    }
+    const supabase = window.supabase.createClient(
+      'https://mblcbygpqbogmtzacbtz.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ibGNieWdwcWJvZ210emFjYnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2MDg0OTIsImV4cCI6MjEwODE4NDQ5Mn0.7OpmnIoZKgGLTCj2gPZtNiZyXkgYPgrdyocbCkG6-Cg'
+    );
+    const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+    if (error) {
+      err('Error: ' + error.message);
+      alert('Login error: ' + error.message);
+    }
+  } catch (e) {
+    err('Error: ' + e.message);
+    alert('Error: ' + e.message);
   }
-
-  sb = supabase.createClient(
-    'https://mblcbygpqbogmtzacbtz.supabase.co',
-    'sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV'
-  );
-} catch (e) {
-  err('Supabase error: ' + e.message);
-}
+});
 
 // Hearts
-const heartsDiv = document.getElementById('hearts');
-for (let i = 0; i < 25; i++) {
-  const h = document.createElement('div');
-  h.className = 'heart';
-  h.textContent = '💜';
-  h.style.left = Math.random() * 100 + '%';
-  h.style.fontSize = (14 + Math.random() * 20) + 'px';
-  h.style.animationDuration = (8 + Math.random() * 10) + 's';
-  h.style.animationDelay = Math.random() * 10 + 's';
+const heartsDiv=document.getElementById('hearts');
+for(let i=0;i<25;i++){
+  const h=document.createElement('div');
+  h.className='heart';h.textContent='💜';
+  h.style.left=Math.random()*100+'%';
+  h.style.fontSize=(14+Math.random()*20)+'px';
+  h.style.animationDuration=(8+Math.random()*10)+'s';
+  h.style.animationDelay=Math.random()*10+'s';
   heartsDiv.appendChild(h);
 }
 
-function go(n) {
-  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-  document.getElementById('s' + n).classList.add('active');
-
-  const texts = {
-    4: 'Choose your avatar',
-    5: 'When is your birthday?',
-    6: 'Set your name'
-  };
-
-  document.getElementById('subTitle').textContent = texts[n];
-  document.getElementById('err').style.display = 'none';
+function go(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s'+n).classList.add('active');
+  document.getElementById('err').style.display='none';
 }
 
-function initBD() {
-  const d = document.getElementById('bday');
-  const m = document.getElementById('bmon');
-  const y = document.getElementById('byear');
-
-  for (let i = 1; i <= 31; i++) {
-    const o = document.createElement('option');
-    o.textContent = i;
-    d.appendChild(o);
-  }
-
-  ['January','February','March','April','May','June','July','August','September','October','November','December'].forEach(x => {
-    const o = document.createElement('option');
-    o.textContent = x;
-    m.appendChild(o);
-  });
-
-  for (let i = 2026; i >= 1950; i--) {
-    const o = document.createElement('option');
-    o.textContent = i;
-    y.appendChild(o);
-  }
+function pickGender(g){
+  gender=g;
+  document.getElementById('gF').classList.toggle('sel',g==='Female');
+  document.getElementById('gM').classList.toggle('sel',g==='Male');
 }
 
-function pickGender(g) {
-  gender = g;
-  document.getElementById('gF').classList.toggle('sel', g === 'Female');
-  document.getElementById('gM').classList.toggle('sel', g === 'Male');
-}
-
-async function login(method) {
-  alert('Google button working');
-
-  if (!sb) {
-    err('Supabase connect nahi hua. Page refresh karo.');
-    return;
-  }
-
-  localStorage.setItem('voxa_login_method', method);
-
-  if (method === 'google') {
-    try {
-      const { error } = await sb.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: window.location.origin + '/login.html'
-        }
-      });
-
-      if (error) {
-        err('Google login failed: ' + error.message);
-      }
-    } catch (e) {
-      err('Google login error: ' + e.message);
-    }
-    return;
-  }
-
-  err(method + ' login abhi available nahi hai.');
-}
-
-async function saveGender() {
-  if (!gender) {
-    err('Choose Male or Female');
-    return;
-  }
-
-  const { data: { user } } = await sb.auth.getUser();
-
-  if (user) {
-    await sb.from('profiles').upsert({
-      id: user.id,
-      gender: gender
-    });
-  }
-
+async function saveGender(){
+  if(!gender){err('Choose Male or Female');return;}
   go(5);
 }
 
-async function saveBirthday() {
-  const b = document.getElementById('bday').value + ' ' +
-            document.getElementById('bmon').value + ' ' +
-            document.getElementById('byear').value;
-
-  const { data: { user } } = await sb.auth.getUser();
-
-  if (user) {
-    await sb.from('profiles').upsert({
-      id: user.id,
-      school: b
-    });
-  }
-
+async function saveBirthday(){
   go(6);
 }
 
-async function saveName() {
-  const n = document.getElementById('name').value.trim();
+async function saveName(){
+  const n=document.getElementById('name').value.trim();
+  if(!n){err('Name required');return;}
+  localStorage.setItem('voxa_onboarded','true');
+  window.location.href='/profile2.html';
+}
 
-  if (!n) {
-    err('Name required');
-    return;
-  }
-
-  const { data: { user } } = await sb.auth.getUser();
-
-  if (user) {
-    const { data: p } = await sb
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (p && p.name_edit_at) {
-      const last = new Date(p.name_edit_at);
-      const now = new Date();
-
-      if ((now - last) < 24 * 60 * 60 * 1000) {
-        err('Name can be edited only once every 24 hours.');
-        return;
-      }
-    }
-
-    await sb.from('profiles').upsert({
-      id: user.id,
-      name: n,
-      name_edit_at: new Date().toISOString()
-    });
-  }
-
-  localStorage.setItem('voxa_onboarded', 'true');
-  loca
+// Birthday dropdowns
+(function(){
+  const d=document.getElementById('bday'),m=document.getElementById('bmon'),y=document.getElementById('byear');
+  for(let i=1;i<=31;i++){const o=document.createElement('option');o.textContent=i;d.appendChild(o);}
+  ['January','February','March','April','May','June','July','August','September','October','November','December'].forEach(x=>{const o=document.createElement('option');o.textContent=x;m.appendChild(o);});
+  for(let i=2026;i>=1950;i--){const o=document.createElement('option');o.textContent=i;y.appendChild(o);}
+})();
+</script>
+</body>
+</html>
