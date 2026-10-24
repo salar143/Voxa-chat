@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voxa Chat - Home</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
+body{min-height:100vh;background:linear-gradient(160deg,#0a0a12,#1a0b2e 55%,#000);color:#fff;padding:14px;padding-bottom:110px;position:relative;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.heart{position:absolute;font-size:56px;opacity:.75;animation:float 4s linear infinite;filter:drop-shadow(0 0 18px rgba(168,85,247,.9))}
+.spark{position:absolute;width:5px;height:5px;border-radius:50%;opacity:.8;animation:twinkle 1.8s infinite;box-shadow:0 0 10px currentColor}
+@keyframes float{0%{transform:translateY(110vh) scale(.9) rotate(0deg);opacity:0}10%{opacity:.85}90%{opacity:.6}100%{transform:translateY(-180px) scale(1.4) rotate(30deg);opacity:0}}
+@keyframes twinkle{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1.4)}}
+.wrap{max-width:480px;margin:0 auto;position:relative;z-index:2}
+.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.logo{font-size:24px;font-weight:900;background:linear-gradient(90deg,#f87171,#fbbf24,#34d399,#60a5fa,#c084fc,#f472b6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.head-right{display:flex;gap:10px;align-items:center}
+.bell{width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid rgba(168,85,247,.5);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;position:relative}
+.bell .badge{position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:9px;font-weight:800;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 8px rgba(239,68,68,.9)}
+.chest{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#78350f,#fbbf24,#f59e0b);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;box-shadow:0 0 18px rgba(251,191,36,.8);border:2px solid rgba(251,191,36,.9);position:relative;animation:glow 2s infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 12px rgba(251,191,36,.6)}50%{box-shadow:0 0 24px rgba(251,191,36,1)}}
+.overlay{display:none;position:fixed;inset:0;background:rgba(10,10,18,.97);z-index:100;padding:20px;overflow-y:auto}
+.overlay.open{display:block}
+.overlay .ohead{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.overlay .back{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(168,85,247,.5);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer}
+.overlay h1{font-size:20px;font-weight:900;background:linear-gradient(90deg,#c084fc,#f472b6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.overlay .sub{font-size:11px;color:#9ca3af;margin-bottom:16px}
+.notif-item{background:rgba(255,255,255,.06);border:1px solid rgba(168,85,247,.35);border-radius:16px;padding:14px;margin-bottom:12px;display:flex;gap:12px;align-items:center;cursor:pointer}
+.notif-item .ni{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.notif-item .nt{flex:1}
+.notif-item .nt b{font-size:13px;display:block}
+.notif-item .nt span{font-size:11px;color:#9ca3af}
+.notif-item .ntag{font-size:9px;padding:4px 8px;border-radius:10px;font-weight:700;flex-shrink:0}
+.diamonds{background:rgba(255,255,255,.06);backdrop-filter:blur(12px);border:1px solid rgba(168,85,247,.4);border-radius:16px;padding:14px;text-align:center;margin-bottom:18px}
+.diamonds b{font-size:22px;color:#22d3ee}
+.diamonds span{font-size:11px;color:#9ca3af;display:block;margin-top:4px}
+.task{background:rgba(255,255,255,.06);backdrop-filter:blur(12px);border:1px solid rgba(168,85,247,.35);border-radius:16px;padding:14px;margin-bottom:12px;display:flex;gap:12px;align-items:center;cursor:pointer}
+.task .ti{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.task .tt{flex:1}
+.task .tt b{font-size:13px;display:block}
+.task .tt span{font-size:11px;color:#9ca3af}
+.task .reward{font-size:12px;font-weight:800;color:#22d3ee;padding:6px 10px;border-radius:10px;background:rgba(34,211,238,.15);border:1px solid rgba(34,211,238,.4);flex-shrink:0}
+.task.done{opacity:.5}
+.task.done .reward{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.4);color:#22c55e}
+.avatars{display:flex;gap:10px;margin-bottom:16px}
+.av{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;border:2px solid;position:relative;animation:pulse 1.2s infinite}
+.av1{background:linear-gradient(135deg,#7c3aed,#3b82f6);border-color:#60a5fa}
+.av2{background:linear-gradient(135deg,#ec4899,#f97316);border-color:#fb923c}
+.av3{background:linear-gradient(135deg,#22c55e,#14b8a6);border-color:#2dd4bf}
+.av4{background:linear-gradient(135deg,#facc15,#f97316);border-color:#fde047}
+.av5{background:linear-gradient(135deg,#a855f7,#ec4899);border-color:#f472b6}
+.av::after{content:'💗';position:absolute;bottom:-5px;right:-5px;font-size:13px;animation:pulse .8s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+.matchbar{background:rgba(255,255,255,.07);backdrop-filter:blur(14px);border-radius:20px;padding:20px 16px;text-align:center;margin-bottom:16px;box-shadow:0 0 28px rgba(168,85,247,.4);position:relative}
+.matchbar::before{content:'';position:absolute;inset:-2px;border-radius:22px;background:linear-gradient(90deg,#ec4899,#f59e0b,#22c55e,#3b82f6,#a855f7);z-index:-1;filter:blur(6px);opacity:.7}
+.matchbar h2{font-size:21px;font-weight:900;background:linear-gradient(90deg,#f472b6,#fbbf24,#34d399,#60a5fa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hearts{margin-top:8px;font-size:13px;color:#ec4899;font-weight:800}
+.hearts .h{display:inline-block;animation:pulse .7s infinite}
+.rooms{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px}
+.room{border-radius:20px;padding:18px 14px;cursor:pointer;border:2px solid rgba(255,255,255,.3);position:relative;overflow:hidden;transition:transform .2s}
+.room:active{transform:scale(.96)}
+.room.big{grid-column:1/3;text-align:center;padding:24px 16px;background:linear-gradient(135deg,#7c3aed,#ec4899 50%,#f97316)}
+.room.big .ic{font-size:56px;display:block;margin-bottom:10px}
+.room b{font-size:15px}
+.room.small1{background:linear-gradient(135deg,#0ea5e9,#22c55e);min-height:140px;display:flex;flex-direction:column;justify-content:flex-end}
+.room.small2{background:linear-gradient(135deg,#f59e0b,#ef4444);min-height:140px;display:flex;flex-direction:column;justify-content:flex-end}
+.room .ic{font-size:38px;display:block;margin-bottom:10px}
+.room small{font-size:10px;color:rgba(255,255,255,.85);display:block;margin-top:4px}
+.sec-title{font-size:17px;font-weight:900;margin:22px 0 12px;display:flex;align-items:center;gap:8px}
+.sec-title .bar{width:5px;height:20px;border-radius:3px;background:linear-gradient(180deg,#ec4899,#a855f7)}
+.posts{display:flex;flex-direction:column;gap:14px;margin-bottom:26px}
+.post{background:rgba(255,255,255,.06);backdrop-filter:blur(12px);border:1px solid rgba(168,85,247,.35);border-radius:18px;overflow:hidden;cursor:pointer}
+.post .ph{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.post .pa{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.post .pt{flex:1}
+.post .pt b{font-size:13px;display:block}
+.post .pt span{font-size:10px;color:#9ca3af}
+.post .pbody{padding:0 14px 12px;font-size:13px;line-height:1.5;color:#e5e7eb}
+.post .pimg{height:150px;display:flex;align-items:center;justify-content:center;font-size:60px}
+.post .pfoot{display:flex;justify-content:space-around;padding:10px 14px;border-top:1px solid rgba(255,255,255,.1);font-size:12px;color:#d8b4fe}
+.events{display:flex;flex-direction:column;gap:10px;margin-bottom:26px}
+.event{background:rgba(255,255,255,.06);backdrop-filter:blur(12px);border:1px solid rgba(168,85,247,.4);border-radius:16px;padding:14px;display:flex;gap:12px;align-items:center;cursor:pointer}
+.event .ei{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.event .et{flex:1}
+.event .et b{font-size:13px;display:block}
+.event .et span{font-size:11px;color:#d8b4fe}
+.event .etag{font-size:10px;padding:4px 8px;border-radius:10px;font-weight:700}
+.games{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:26px}
+.game{border-radius:18px;padding:16px 12px;cursor:pointer;border:2px solid rgba(255,255,255,.3);position:relative;overflow:hidden;min-height:130px;display:flex;flex-direction:column;justify-content:flex-end}
+.game .gi{font-size:34px;display:block;margin-bottom:8px}
+.game b{font-size:13px}
+.game small{font-size:9px;color:rgba(255,255,255,.85);display:block;margin-top:3px}
+.game .players{position:absolute;top:10px;right:10px;font-size:9px;background:rgba(0,0,0,.4);padding:3px 7px;border-radius:8px;font-weight:700}
+.ludo{background:linear-gradient(135deg,#dc2626,#f59e0b)}
+.ludo .board{position:absolute;top:12px;left:12px;width:56px;height:56px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px}
+.ludo .board div{border-radius:6px}
+.ludo .b1{background:#ef4444}.ludo .b2{background:#22c55e}.ludo .b3{background:#3b82f6}.ludo .b4{background:#facc15}
+.carrom{background:linear-gradient(135deg,#0d9488,#22d3ee)}
+.snake{background:linear-gradient(135deg,#16a34a,#84cc16)}
+.teenpatti{background:linear-gradient(135deg,#7c2d12,#f59e0b)}
+.chess{background:linear-gradient(135deg,#334155,#94a3b8)}
+.bingo{background:linear-gradient(135deg,#a855f7,#ec4899)}
+.domino{background:linear-gradient(135deg,#1d4ed8,#60a5fa)}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:26px}
+.qitem{border-radius:18px;padding:16px 10px;text-align:center;cursor:pointer;border:2px solid rgba(255,255,255,.3)}
+.q1{background:linear-gradient(135deg,#8b5cf6,#3b82f6)}
+.q2{background:linear-gradient(135deg,#10b981,#22d3ee)}
+.q3{background:linear-gradient(135deg,#f43f5e,#f97316)}
+.q4{background:linear-gradient(135deg,#facc15,#f43f5e)}
+.qitem .qi{font-size:30px;display:block;margin-bottom:6px}
+.qitem span{font-size:11px;color:#fff;font-weight:700}
+.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,18,.85);backdrop-filter:blur(16px);border-top:1px solid rgba(168,85,247,.4);display:flex;justify-content:space-around;padding:12px 0;z-index:10}
+.nav button{background:none;border:0;color:#9ca3af;font-size:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+.nav button.active{color:#c084fc}
+.nav .ic{font-size:22px}
+</style>
+</head>
+<body>
+
+<div class="bg">
+ <span class="heart" style="left:5%;animation-duration:4s;color:#a855f7">💜</span>
+ <span class="heart" style="left:15%;animation-duration:4.6s;color:#6b21a8">💜</span>
+ <span class="heart" style="left:25%;animation-duration:4.5s;color:#ec4899">💗</span>
+ <span class="heart" style="left:35%;animation-duration:4.8s;color:#c084fc">💜</span>
+ <span class="heart" style="left:45%;animation-duration:3.5s;color:#a855f7">💜</span>
+ <span class="heart" style="left:55%;animation-duration:4.4s;color:#f472b6">💗</span>
+ <span class="heart" style="left:65%;animation-duration:4.2s;color:#ec4899">💗</span>
+ <span class="heart" style="left:75%;animation-duration:4.9s;color:#7e22ce">💜</span>
+ <span class="heart" style="left:85%;animation-duration:4s;color:#a855f7">💜</span>
+ <span class="spark" style="left:15%;top:20%;color:#f472b6"></span>
+ <span class="spark" style="left:40%;top:35%;color:#fbbf24;animation-delay:.5s"></span>
+ <span class="spark" style="left:65%;top:15%;color:#34d399;animation-delay:1s"></span>
+ <span class="spark" style="left:85%;top:40%;color:#60a5fa;animation-delay:1.5s"></span>
+</div>
+
+<!-- Notifications Overlay -->
+<div class="overlay" id="notifOverlay">
+ <div class="ohead">
+  <div class="back" onclick="closeOverlay('notifOverlay')">←</div>
+  <div>
+   <h1>🔔 Notifications</h1>
+   <div class="sub">All your likes, comments, follows & more</div>
+  </div>
+ </div>
+ <div id="notifList"></div>
+</div>
+
+<!-- Tasks Overlay -->
+<div class="overlay" id="taskOverlay">
+ <div class="ohead">
+  <div class="back" onclick="closeOverlay('taskOverlay')">←</div>
+  <div>
+   <h1>🎁 Daily Tasks</h1>
+   <div class="sub">Complete tasks & earn diamonds 💎</div>
+  </div>
+ </div>
+ <div class="diamonds">
+  <b>💎 <span id="diamondCount">0</span></b>
+  <span>Your Diamonds</span>
+ </div>
+ <div id="taskList"></div>
+</div>
+
+<div class="wrap">
+ <div class="head">
+  <div class="logo">Voxa Chat 💯</div>
+  <div class="head-right">
+   <div class="bell" onclick="openOverlay('notifOverlay')">🔔<span class="badge" id="notifCount">3</span></div>
+   <div class="chest" onclick="openOverlay('taskOverlay')">🎁</div>
+  </div>
+ </div>
+</div>
+
+<div class="wrap">
+ <div class="avatars">
+  <div class="av av1">👩</div>
+  <div class="av av2">👨</div>
+  <div class="av av3">🧑</div>
+  <div class="av av4">🐱</div>
+  <div class="av av5">🦊</div>
+ </div>
+
+ <div class="matchbar">
+  <h2>Match & Date Now 💯</h2>
+  <div class="hearts"><span class="h">💗</span> 342,500 Hearts Active Now 💯</div>
+ </div>
+
+ <div class="rooms">
+  <div class="room big" onclick="alert('Party Room ban raha hai — jaldi connect hoga!')">
+   <span class="ic">🎙️</span>
+   <b>Voice Party Room 💯</b>
+   <small>Join live voice rooms</small>
+  </div>
+  <div class="room small1" onclick="alert('Party Room ban raha hai — jaldi connect hoga!')">
+   <span class="ic">💌</span>
+   <b>Blind Date Chat 💯</b>
+   <small>Mystery love letters</small>
+  </div>
+  <div class="room small2" onclick="alert('Party Room ban raha hai — jaldi connect hoga!')">
+   <span class="ic">🍾</span>
+   <b>Truth & Dare 💯</b>
+   <small>Spin the bottle</small>
+  </div>
+ </div>
+
+ <div class="sec-title"><span class="bar"></span>Game Rooms 🎮</div>
+ <div class="games">
+  <div class="game ludo" onclick="alert('Party Room ban raha hai — jaldi connect hoga!')">
+   <div class="board"><div class="b1"></div><div class="b2"></div><div class="b3"></div><div class="b4"></div></div>
+   <span class="players">👥 2.4K playing</span>
+   <span class="gi">🎲</span>
+   <b>Ludo Room 💯</b>
+   <small>Classic 4 player Ludo</small>
+  </div>
+  <div class="game carrom" onclick="alert('Party Room ban raha hai — jaldi connect hoga!')">
+   <span class="players">👥 1.8K playing</span>
+   <span class="gi">🎱</span>
+   <b>Carrom Club 💯</b>
+   <small>Strike & pocket coins</small>
+  </div>
+  <div class="game snake" onclick="alert('Party Room ban raha hai — jaldi connect hoga!')">
+   <span class="players">👥 950 playing</span>
+   <span class="gi">🐍</span>
+   <b>Snake & Ladder 💯</b>
+   <small>Climb to 100 first</small>
+  </div>
+  <div class="game teenpatti" onclick="alert('Party Room ban raha hai — jaldi connect hoga!')">
+   <span class="players">👥 3.1K playing</span>
+   <span class="gi">🃏</span>
+   <b>Teen Patti 💯</b>
+   <small>3 cards showdown</small>
+  </div>
+  <div class="game chess" onclick="alert('Party Room ban raha hai — jaldi connect hoga!')">
+   <span class="players">👥 720 playing</span>
+   <span class="gi">♟️</span>
+   <b>Chess Master 💯</b>
+   <small>Checkmate your rival</small>
+  </div>
+  <div class="game bingo" onclick="alert('Party Room ban raha hai — jaldi connect hoga!')">
+   <span class="players">👥 1.2K playing</span>
+   <span class="gi">🔔</span>
+   <b>Bingo Blast 💯</b>
+   <small>Mark 5 & shout Bingo</small>
+  </div>
+  <div class="game domino" onclick="alert('Party Room ban raha hai — jaldi connect hoga!')">
+   <span class="players">👥 640 playing</span>
+   <span class="gi">🁣</span>
+   <b>Domino Duel 💯</b>
+   <small>Match the tiles</small>
+  </div>
+  <div class="game" style="background:linear-gradient(135deg,#8b5cf6,#3b82f6)" onclick="alert('Party Room ban raha hai — jaldi connect hoga!')">
+   <span class="players">👥 2.0K playing</span>
+   <span class="gi">🧠</span>
+   <b>Trivia Quiz 💯</b>
+   <small>Answer & win coins</small>
+  </div>
+ </div>
+
+ <div class="sec-title"><span class="bar"></span>Events 🎉</div>
+ <div class="events">
+  <div class="event" onclick="alert('Event details coming soon!')">
+   <div class="ei" style="background:linear-gradient(135deg,#ec4899,#f97316)">🎤</div>
+   <div class="et"><b>Voice Party Night</b><span>Tonight 8 PM • 2.4K interested</span></div>
+   <div class="etag" style="background:#ec4899">Live</div>
+  </div>
+  <div class="event" onclick="alert('Event details coming soon!')">
+   <div class="ei" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🎲</div>
+   <div class="et"><b>Ludo Championship</b><span>Tomorrow 7 PM • Win 5000 coins</span></div>
+   <div class="etag" style="background:#f59e0b">Tournament</div>
+  </div>
+  <div class="event" onclick="alert('Event details coming soon!')">
+   <div class="ei" style="background:linear-gradient(135deg,#a855f7,#ec4899)">💘</div>
+   <div class="et"><b>Valentine Voice Match</b><span>This Weekend • Find your match</span></div>
+   <div class="etag" style="background:#a855f7">Special</div>
+  </div>
+  <div class="event" onclick="alert('Event details coming soon!')">
+   <div class="ei" style="background:linear-gradient(135deg,#0ea5e9,#22c55e)">🎱</div>
+   <div class="et"><b>Carrom Masters Cup</b><span>Sunday 6 PM • 1.8K players</span></div>
+   <div class="etag" style="background:#22c55e">Game</div>
+  </div>
+ </div>
+
+ <div class="sec-title"><span class="bar"></span>Movements 📝</div>
+ <div class="posts" id="postsFeed"></div>
+
+ <div class="quick">
+  <div class="qitem q1" onclick="alert('Party Room ban raha hai — jaldi connect hoga!')"><span class="qi">💘</span><span>Voice Match 💯</span></div>
+  <div class="qitem q2" onclick="alert('Party Room ban raha hai — jaldi connect hoga!')"><span class="qi">💖</span><span>Love Test 💯</span></div>
+  <div class="qitem q3" onclick="alert('Party Room ban raha hai — jaldi connect hoga!')"><span class="qi">🎡</span><span>Spin & Win 💯</span></div>
+  <div class="qitem q4" onclick="alert('Party Room ban raha hai — jaldi connect hoga!')"><span class="qi">🏆</span><span>Leaderboard 💯</span></div>
+ </div>
+</div>
+
+<div class="nav">
+ <button class="active" onclick="location.href='homefile3.html'"><span class="ic">🏠</span>Home</button>
+ <button onclick="alert('Party Room ban raha hai — jaldi connect hoga!')"><span class="ic">🎉</span>Party Room</button>
+ <button onclick="alert('Inbox coming soon!')"><span class="ic">📥</span>Inbox</button>
+ <button onclick="location.href='profile2.html'"><span class="ic">👤</span>Profile</button>
+</div>
+
+<script>
+function openOverlay(id){document.getElementById(id).classList.add('open');}
+function closeOverlay(id){document.getElementById(id).classList.remove('open');}
+
+const sampleNotifs=[
+ {ic:'💗',grad:'linear-gradient(135deg,#ec4899,#f97316)',txt:'Riya Sharma ne aapki post ko like kiya',sub:'2 min ago • Voice Party Room post',tag:'Like',c:'#ec4899'},
+ {ic:'💬',grad:'linear-gradient(135deg,#3b82f6,#60a5fa)',txt:'Arjun Verma ne aapki post pe comment kiya',sub:'8 min ago • "Bhai mast game tha!"',tag:'Comment',c:'#3b82f6'},
+ {ic:'👤',grad:'linear-gradient(135deg,#a855f7,#ec4899)',txt:'Sneha Patel ne aapko follow kiya',sub:'15 min ago • New follower',tag:'Follow',c:'#a855f7'},
+ {ic:'💗',grad:'linear-gradient(135deg,#f43f5e,#f97316)',txt:'Priya Nair ne aapko 10 Hearts bheje',sub:'22 min ago • Voice Match',tag:'Love',c:'#f43f5e'},
+ {ic:'🎲',grad:'linear-gradient(135deg,#f59e0b,#ef4444)',txt:'Vikram Singh ne aapko Ludo challenge kiya',sub:'30 min ago • Ludo Room',tag:'Game',c:'#f59e0b'},
+ {ic:'👤',grad:'linear-gradient(135deg,#22c55e,#14b8a6)',txt:'Priya Nair ne aapko follow kiya',sub:'1 hour ago • New follower',tag:'Follow',c:'#22c55e'},
+ {ic:'💬',grad:'linear-gradient(135deg,#8b5cf6,#3b82f6)',txt:'Rahul Mehta ne aapki post pe comment kiya',sub:'2 hours ago • "Kya baat hai!"',tag:'Comment',c:'#8b5cf6'},
+ {ic:'💗',grad:'linear-gradient(135deg,#facc15,#f97316)',txt:'Aapki post ko 500 naye likes mile',sub:'3 hours ago • Ludo Championship post',tag:'Like',c:'#facc15'}
+];
+function loadNotifs(){
+ let notifs=[];
+ try{notifs=JSON.parse(localStorage.getItem('voxa_notifications'))||[];}catch(e){notifs=[];}
+ if(!notifs.length){notifs=sampleNotifs;}
+ document.getElementById('notifCount').textContent=notifs.length;
+ document.getElementById('notifList').innerHTML=notifs.map(n=>`
+  <div class="notif-item" onclick="alert('Opening notification...')">
+   <div class="ni" style="background:${n.grad||'linear-gradient(135deg,#7c3aed,#3b82f6)'}">${n.ic||'🔔'}</div>
+   <div class="nt"><b>${n.txt||''}</b><span>${n.sub||''}</span></div>
+   <div class="ntag" style="background:${n.c||'#a855f7'}">${n.tag||'Info'}</div>
+  </div>`).join('');
+}
+
+const tasks=[
+ {ic:'👤',grad:'linear-gradient(135deg,#a855f7,#ec4899)',txt:'Follow 1 new person',sub:'Follow anyone & get reward',reward:20},
+ {ic:'💗',grad:'linear-gradient(135deg,#ec4899,#f97316)',txt:'Send 5 Hearts',sub:'Send hearts in Voice Match',reward:10},
+ {ic:'🎲',grad:'linear-gradient(135deg,#f59e0b,#ef4444)',txt:'Play 1 Ludo Game',sub:'Join & finish a Ludo match',reward:9},
+ {ic:'🎙️',grad:'linear-gradient(135deg,#7c3aed,#3b82f6)',txt:'Join 1 Voice Party Room',sub:'Spend 5 min in a room',reward:8}
+];
+let diamonds=0,done=[];
+try{diamonds=parseInt(localStorage.getItem('voxa_diamonds'))||0;done=JSON.parse(localStorage.getItem('voxa_tasks_done'))||[];}catch(e){}
+function loadTasks(){
+ document.getElementById('diamondCount').textContent=diamonds;
+ document.getElementById('taskList').innerHTML=tasks.map((t,i)=>`
+  <div class="task ${done.includes(i)?'done':''}" onclick="claim(${i})">
+   <div class="ti" style="background:${t.grad}">${t.ic}</div>
+   <div class="tt"><b>${t.txt}</b><span>${t.sub}</span></div>
+   <div class="reward">💎 ${t.reward}</div>
+  </div>`).join('');
+}
+function claim(i){
+ if(done.includes(i)){alert('Ye task already complete hai!');return;}
+ done.push(i);
+ diamonds+=tasks[i].reward;
+ localStorage.setItem('voxa_diamonds',diamonds);
+ localStorage.setItem('voxa_tasks_done',JSON.stringify(done));
+ loadTasks();
+ alert('💎 '+tasks[i].reward+' diamonds mil gaye!');
+}
+
+const samplePosts=[
+ {name:'Riya Sharma',time:'2 min ago',emoji:'👩',grad:'linear-gradient(135deg,#ec4899,#f97316)',pimg:'linear-gradient(135deg,#7c3aed,#ec4899)',pic:'🎤🎶',text:'Aaj raat Voice Party Room mein mast music aur masti! Join karo sab log 💯🔥',likes:'1.2K',comments:'86'},
+ {name:'Arjun Verma',time:'8 min ago',emoji:'👨',grad:'linear-gradient(135deg,#f59e0b,#ef4444)',pimg:'linear-gradient(135deg,#dc2626,#f59e0b)',pic:'🎲🏆',text:'Ludo Championship jeet liya! +500 coins mila 🎉 Koi challenge karega? 💯',likes:'890',comments:'42'},
+ {name:'Sneha Patel',time:'15 min ago',emoji:'🧑',grad:'linear-gradient(135deg,#a855f7,#ec4899)',pimg:'linear-gradient(135deg,#a855f7,#ec4899)',pic:'💘💖',text:'Voice Match pe 3 naye matches mile! Kitna cute hai ye app 💯💗',likes:'2.1K',comments:'134'}
+];
+function loadPosts(){
+ const feed=document.getElementById('postsFeed');
+ let posts=[];
+ try{posts=JSON.parse(localStorage.getItem('voxa_posts'))||[];}catch(e){posts=[];}
+ if(!posts.length){posts=samplePosts;}
+ feed.innerHTML=posts.map(p=>`
+  <div class="post" onclick="alert('Opening post...')">
+   <div class="ph">
+    <div class="pa" style="background:${p.grad||'linear-gradient(135deg,#7c3aed,#3b82f6)'}">${p.emoji||'👤'}</div>
+    <div class="pt"><b>${p.name||'User'}</b><span>${p.time||'Just now'}</span></div>
+   </div>
+   ${p.pic?`<div class="pimg" style="background:${p.pimg||'linear-gradient(135deg,#7c3aed,#ec4899)'}">${p.pic}</div>`:''}
+   <div class="pbody">${p.text||''}</div>
+   <div class="pfoot"><span>💗 ${p.likes||'0'}</span><span>💬 ${p.comments||'0'}</span><span>↗️ Share</span></div>
+  </div>`).join('');
+}
+loadNotifs();
+loadTasks();
+loadPosts();
+</script>
+</body>
+</html>
