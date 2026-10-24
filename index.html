@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VoxaChat Login</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: sans-serif; background:#0f172a; color:#fff; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; }
+    .box { background:#1e293b; padding:32px; border-radius:16px; text-align:center; }
+    button { background:#4285F4; color:#fff; border:none; padding:12px 24px; border-radius:8px; font-size:16px; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>VoxaChat</h1>
+    <p>Google से login करो</p>
+    <button onclick="loginWithGoogle()">Sign in with Google</button>
+  </div>
+
+  <script>
+    const supabase = window.supabase.createClient(
+      'YOUR_SUPABASE_URL',
+      'YOUR_SUPABASE_ANON_KEY'
+    );
+
+    async function loginWithGoogle() {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google'
+      });
+      if (error) alert('Login error: ' + error.message);
+    }
+  </script>
+</body>
+</html>
