@@ -20,21 +20,24 @@
   </div>
 
   <script>
-    const supabase = window.supabase.createClient(
-      'https://mblcbygpqbogmtzacbtz.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ibGNieWdwcWJvZ210emFjYnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2MDg0OTIsImV4cCI6MjEwODE4NDQ5Mn0.7OpmnIoZKgGLTCj2gPZtNiZyXkgYPgrdyocbCkG6-Cg'
-    );
-
     document.getElementById('googleBtn').addEventListener('click', async () => {
       document.getElementById('status').innerText = 'Google खुल रहा है...';
       try {
+        if (typeof window.supabase === 'undefined') {
+          throw new Error('Supabase library load nahi hui');
+        }
+        const supabase = window.supabase.createClient(
+          'https://mblcbygpqbogmtzacbtz.supabase.co',
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ibGNieWdwcWJvZ210emFjYnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2MDg0OTIsImV4cCI6MjEwODE4NDQ5Mn0.7OpmnIoZKgGLTCj2gPZtNiZyXkgYPgrdyocbCkG6-Cg'
+        );
         const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
         if (error) {
           document.getElementById('status').innerText = 'Error: ' + error.message;
           alert('Login error: ' + error.message);
         }
       } catch (e) {
-        alert('JS error: ' + e.message);
+        document.getElementById('status').innerText = 'Error: ' + e.message;
+        alert('Error: ' + e.message);
       }
     });
   </script>
