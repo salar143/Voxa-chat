@@ -29,6 +29,10 @@ h3{font-size:14px;margin-bottom:9px;color:#d8b4fe}
 .pinfo h2{font-size:24px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
 .uid{font-size:14px;color:#a855f7}
 .meta{font-size:12px;color:#9ca3af;margin-top:2px}
+<div style="text-align:left;margin:8px 0">
+  <p style="font-size:14px;margin:2px 0" id="pName3">VoxaUser</p>
+  <p style="font-size:14px;margin:2px 0">ID: <span id="pUid3">—</span></p>
+</div>
 .lvlboxes{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}
 .lbox{width:46px;border-radius:7px;padding:3px 2px;text-align:center;cursor:pointer;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14)}
 .lbox svg{width:13px;height:13px;display:block;margin:0 auto 1px}
@@ -287,7 +291,7 @@ input,textarea,select{width:100%;padding:11px;border-radius:11px;border:1px soli
  <div class="srow" onclick="show('accountPage')"><span>👤</span> Account <span>›</span></div>
  <div class="srow" onclick="clearCache()"><span>🧹</span> Clear Cache <span>›</span></div>
  <div class="srow" onclick="deleteID()"><span>🗑️</span> ID Delete <span>›</span></div>
-</div>
+ <div class="srow" onclick="logoutUser()"><span>🚪</span> Logout <span>›</span></div>
 </div>
 
 <div class="screen" id="reportPage">
@@ -662,6 +666,14 @@ async function logout(){
   await supabase.auth.signOut();
   window.location.href = '/index.html';
 }
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  const supabase = window.supabase.createClient(
+    'https://mblcbygpqbogmtzacbtz.supabase.co',
+    'sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV'
+  );
+  await supabase.auth.signOut();
+  location.href = 'login2.html';
+});
 </script>
 </body>
  
