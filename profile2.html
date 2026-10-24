@@ -672,7 +672,12 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
   location.href = 'login2.html';
 });
 </script>
-
+<div class="nav">
+ <button onclick="show('profilePage');location.href='index.html'"><span class="ic">🏠</span>Home</button>
+ <button onclick="show('profilePage');location.href='rooms.html'"><span class="ic">🎉</span>Party</button>
+ <button onclick="show('profilePage');location.href='inbox.html'"><span class="ic">📥</span>Inbox</button>
+ <button class="active" onclick="show('profilePage')"><span class="ic">👤</span>Profile</button>
+</div>
 </body>
  
 </html>
