@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoxaChat - Inbox</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{margin:0;font-family:Arial;background:#0a0a12;color:#fff;padding:16px}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.back{background:none;border:1px solid #a855f7;color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer}
+h2{margin:0}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{background:rgba(255,255,255,.06);border:1px solid rgba(168,85,247,.3);padding:14px;border-radius:12px}
+.empty{color:#9ca3af;text-align:center;margin-top:40px}
+</style>
+</head>
+<body>
+<div class="top">
+  <button class="back" onclick="location.href='profile2.html'">←</button>
+  <h2>Inbox</h2>
+</div>
+
+<div class="list" id="list"></div>
+<p class="empty" id="empty">Abhi koi message nahi hai.</p>
+
+<script>
+const sb = supabase.createClient(
+  'https://mblcbygpqbogmtzacbtz.supabase.co',
+  'sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV'
+);
+
+window.addEventListener('DOMContentLoaded', async () => {
+  const { data: { session } } = await sb.auth.getSession();
+
+  if (!session) {
+    location.href = 'login.html';
+    return;
+  }
+
+  const userId = session.user.id;
+
+  const { data: messages, error } = await sb
+    .from('messages')
+    .select('*')
+    .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    document.getElementById('empty').textContent = 'Error: ' + error.message;
+    return;
+  }
+
+  if (!messages || messages.length === 0) return;
+
+  document.getElementById('empty').style.display = 'none';
+
+  const list = document.getElementById('list');
+
+  messages.forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'item';
+    div.textContent = m.content;
+    list.appendChild(div);
+  });
+});
+</script>
+</body>
+</html>
