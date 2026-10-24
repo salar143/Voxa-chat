@@ -79,6 +79,16 @@ input,select{width:100%;padding:12px;border-radius:11px;border:1px solid rgba(16
 
 <script>
 let gender = '';
+ window.addEventListener('load', async () => {
+  const supabase = window.supabase.createClient(
+    'https://mblcbygpqbogmtzacbtz.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ibGNieWdwcWJvZ210emFjYnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2MDg0OTIsImV4cCI6MjEwODE4NDQ5Mn0.7OpmnIoZKgGLTCj2gPZtNiZyXkgYPgrdyocbCkG6-Cg'
+  );
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    window.location.href = '/profile2.html';
+  }
+});
 
 function err(m){const e=document.getElementById('err');e.textContent=m;e.style.display='block';}
 
@@ -93,7 +103,10 @@ document.getElementById('googleBtn').addEventListener('click', async () => {
       'https://mblcbygpqbogmtzacbtz.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ibGNieWdwcWJvZ210emFjYnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2MDg0OTIsImV4cCI6MjEwODE4NDQ5Mn0.7OpmnIoZKgGLTCj2gPZtNiZyXkgYPgrdyocbCkG6-Cg'
     );
-    const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+    const { error } = await supabase.auth.signInWithOAuth({
+  provider: 'google',
+  options: { redirectTo: window.location.origin + '/profile2.html' }
+});
     if (error) {
       err('Error: ' + error.message);
       alert('Login error: ' + error.message);
