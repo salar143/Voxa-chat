@@ -19,7 +19,6 @@ p.sub{font-size:13px;color:#9ca3af;text-align:center;margin-bottom:16px}
 label{font-size:13px;color:#d8b4fe;display:block;margin-bottom:5px}
 input,select{width:100%;padding:12px;border-radius:11px;border:1px solid rgba(168,85,247,.35);background:rgba(255,255,255,.06);color:#fff;font-size:15px;outline:none;margin-bottom:12px}
 .btn{width:100%;padding:13px;border:0;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-weight:700;font-size:15px;cursor:pointer;margin-top:4px}
-.btn-ghost{background:transparent;border:1px solid rgba(168,85,247,.5);margin-top:10px}
 .err{display:none;background:rgba(239,68,68,.18);border:1px solid rgba(239,68,68,.5);color:#fecaca;padding:9px;border-radius:10px;font-size:13px;margin-bottom:10px}
 .note{font-size:11px;color:#6b7280;text-align:center;margin-top:12px}
 .step{display:none}.step.active{display:block}
@@ -33,7 +32,6 @@ input,select{width:100%;padding:12px;border-radius:11px;border:1px solid rgba(16
 .gcard .gi{font-size:44px}
 .gcard .gn{font-size:14px;margin-top:6px}
 .avatar{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#3b82f6);display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 10px;overflow:hidden;cursor:pointer}
-.avatar img{width:100%;height:100%;object-fit:cover}
 </style>
 </head>
 <body>
@@ -81,13 +79,30 @@ input,select{width:100%;padding:12px;border-radius:11px;border:1px solid rgba(16
 </div>
 
 <script>
-const sb = supabase.createClient(
-  'https://mblcbygpqbogmtzacbtz.supabase.co',
-  'sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV'
-);
-
+let sb = null;
 let gender = '';
 
+function err(m) {
+  const e = document.getElementById('err');
+  e.textContent = m;
+  e.style.display = 'block';
+}
+
+// Supabase safely initialize
+try {
+  if (typeof supabase === 'undefined') {
+    throw new Error('Supabase script load nahi hua');
+  }
+
+  sb = supabase.createClient(
+    'https://mblcbygpqbogmtzacbtz.supabase.co',
+    'sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV'
+  );
+} catch (e) {
+  err('Supabase error: ' + e.message);
+}
+
+// Hearts
 const heartsDiv = document.getElementById('hearts');
 for (let i = 0; i < 25; i++) {
   const h = document.createElement('div');
@@ -98,12 +113,6 @@ for (let i = 0; i < 25; i++) {
   h.style.animationDuration = (8 + Math.random() * 10) + 's';
   h.style.animationDelay = Math.random() * 10 + 's';
   heartsDiv.appendChild(h);
-}
-
-function err(m) {
-  const e = document.getElementById('err');
-  e.textContent = m;
-  e.style.display = 'block';
 }
 
 function go(n) {
@@ -151,18 +160,29 @@ function pickGender(g) {
 }
 
 async function login(method) {
+  alert('Google button working');
+
+  if (!sb) {
+    err('Supabase connect nahi hua. Page refresh karo.');
+    return;
+  }
+
   localStorage.setItem('voxa_login_method', method);
 
   if (method === 'google') {
-    const { error } = await sb.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin + '/login.html'
-      }
-    });
+    try {
+      const { error } = await sb.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + '/login.html'
+        }
+      });
 
-    if (error) {
-      err('Google login failed: ' + error.message);
+      if (error) {
+        err('Google login failed: ' + error.message);
+      }
+    } catch (e) {
+      err('Google login error: ' + e.message);
     }
     return;
   }
@@ -240,24 +260,4 @@ async function saveName() {
   }
 
   localStorage.setItem('voxa_onboarded', 'true');
-  location.href = 'profile2.html';
-}
-
-window.addEventListener('DOMContentLoaded', async () => {
-  const { data } = await sb.auth.getSession();
-
-  if (data.session) {
-    const onboarded = localStorage.getItem('voxa_onboarded');
-
-    if (onboarded === 'true') {
-      location.href = 'profile2.html';
-    } else {
-      go(4);
-    }
-  }
-});
-
-initBD();
-</script>
-</body>
-</html>
+  loca
