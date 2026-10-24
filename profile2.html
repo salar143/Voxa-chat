@@ -115,6 +115,7 @@ input,textarea,select{width:100%;padding:11px;border-radius:11px;border:1px soli
 <div class="head">
  <div class="headleft"><span>💎 <b id="wD">0</b></span><span>🪙 <b id="wC">0</b></span></div>
  <div class="gear" onclick="show('settingsPage')">⚙️</div>
+ <div class="srow" onclick="logout()"><span>🚪</span> Logout <span>›</span></div>
 </div>
 <div class="err" id="err"></div>
 
@@ -653,6 +654,14 @@ async function addMoment(){const t=momentInput.value.trim();if(!t)return;
  await save({moments});me.moments=moments;momentInput.value='';render();show('profilePage');alert('✅ Moment posted!')}
 async function logout(){await sb.auth.signOut();location.href='index.html'}
 init();
+async function logout(){
+  const supabase = window.supabase.createClient(
+    'https://mblcbygpqbogmtzacbtz.supabase.co',
+    'sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV'
+  );
+  await supabase.auth.signOut();
+  window.location.href = '/index.html';
+}
 </script>
 </body>
  
