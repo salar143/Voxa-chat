@@ -76,7 +76,8 @@ h3{margin:14px 0 8px}
 <script>
 const sb=supabase.createClient('https://mblcbygpqbgomtzacbtz.supabase.co','sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV');
 const $=id=>document.getElementById(id);
-let me=null,activeChat=null;
+let me=null,activeChat=null
+sb.auth.getUser().then(({data})={me=data.user||{id:'test-user'};loadAll();}); 
 sb.auth.getUser().then(({data})=>{me=data.user;if(!me){alert('Login karo pehle');return;}loadAll();});
 async function loadAll(){loadRequests();loadUsers();loadRooms();loadRecommended();loadOnline();loadContacts();}
 $('chatsTab').onclick=()=>{$('chats').hidden=false;$('contacts').hidden=true;$('chatsTab').classList.add('active');$('contactsTab').classList.remove('active');};
