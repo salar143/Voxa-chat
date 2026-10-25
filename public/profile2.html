@@ -275,4 +275,176 @@ input,textarea,select{width:100%;padding:11px;border-radius:11px;border:1px soli
 
 <div class="screen" id="settingsPage">
 <div class="subpage">
- <button class="back" onclick
+ <button class="back" onclick="show('profilePage')">← Back to Profile</button>
+ <h3 style="font-size:20px;margin-bottom:14px">⚙️ Settings & Support</h3>
+ <div class="srow" onclick="show('reportPage')"><span>🚩</span> Report <span>›</span></div>
+ <div class="srow" onclick="show('feedbackPage')"><span>📝</span> Feedback <span>›</span></div>
+ <div class="srow" onclick="show('blockPage')"><span>🚫</span> Block List <span>›</span></div>
+ <div class="srow"><span>🔔</span> App Notifications <button class="btn-ghost btn-sm" style="margin-left:auto;background:transparent;border:1px solid rgba(168,85,247,.5);color:#fff;border-radius:20px;cursor:pointer" onclick="toggleNotif(this,'App')">ON</button></div>
+ <div class="srow"><span>💬</span> Message Notifications <button class="btn-ghost btn-sm" style="margin-left:auto;background:transparent;border:1px solid rgba(168,85,247,.5);color:#fff;border-radius:20px;cursor:pointer" onclick="toggleNotif(this,'Message')">ON</button></div>
+ <div class="srow" onclick="shareApp()"><span>📤</span> Share App <span>›</span></div>
+ <div class="srow" onclick="checkUpdate()"><span>⬆️</span> Check for Updates <span>›</span></div>
+ <div class="srow" onclick="alert('Match Switch: ON')"><span>🔀</span> Match Switch <span>›</span></div>
+ <div class="srow" onclick="show('accountPage')"><span>👤</span> Account <span>›</span></div>
+ <div class="srow" onclick="clearCache()"><span>🧹</span> Clear Cache <span>›</span></div>
+ 
+ <div class="srow" onclick="logout()"><span>🚪</span> Logout <span>›</span></div>
+</div>
+</div>
+ 
+
+<div class="screen" id="reportPage">
+<div class="subpage">
+ <button class="back" onclick="show('settingsPage')">← Back to Settings</button>
+ <h3 style="font-size:20px;margin-bottom:14px">🚩 Report</h3>
+ <div class="card">
+  <h3>How to Report</h3>
+  <div class="expl">1. Open the user's profile<br>2. Tap the ⋯ (three dots)<br>3. Select <b>Report</b><br>4. Choose reason<br>5. Submit — team reviews within 24 hours.</div>
+ </div>
+ <div class="card">
+  <h3>Submit Report</h3>
+  <label>Reason</label>
+  <select><option>Spam</option><option>Abuse / Harassment</option><option>Fake Account</option><option>Inappropriate Content</option><option>Other</option></select>
+  <label>Evidence Screenshot (optional)</label>
+  <input type="file" accept="image/*">
+  <label>Details (up to 1000 words)</label>
+  <textarea rows="6" maxlength="6000" placeholder="Describe the issue..."></textarea>
+  <button class="btn" onclick="alert('Report submitted! Team will review within 24 hours.')">Submit Report</button>
+ </div>
+</div>
+</div>
+
+<div class="screen" id="feedbackPage">
+<div class="subpage">
+ <button class="back" onclick="show('settingsPage')">← Back to Settings</button>
+ <h3 style="font-size:20px;margin-bottom:14px">📝 Feedback</h3>
+ <div class="card">
+  <h3>What problem are you facing?</h3>
+  <label>Reason</label>
+  <select><option>Bug / Error</option><option>App Crash</option><option>Feature Request</option><option>Payment Issue</option><option>Other</option></select>
+  <label>Evidence Screenshot (optional)</label>
+  <input type="file" accept="image/*">
+  <label>Feedback (up to 1000 words)</label>
+  <textarea rows="8" maxlength="6000" placeholder="Describe your feedback in detail..."></textarea>
+  <button class="btn" onclick="alert('Feedback submitted! Thank you.')">Submit Feedback</button>
+ </div>
+</div>
+</div>
+
+<div class="screen" id="blockPage">
+<div class="subpage">
+ <button class="back" onclick="show('settingsPage')">← Back to Settings</button>
+ <h3 style="font-size:20px;margin-bottom:14px">🚫 Block List</h3>
+ <div class="card"><div class="empty">No blocked users yet.</div></div>
+</div>
+</div>
+
+<div class="screen" id="accountPage">
+<div class="subpage">
+ <button class="back" onclick="show('settingsPage')">← Back to Settings</button>
+ <h3 style="font-size:20px;margin-bottom:14px">👤 Account</h3>
+ <div class="srow" onclick="document.getElementById('photoInput').click()"><span>🖼️</span> Change Profile Photo <span>›</span></div>
+ <div class="srow" onclick="changeAvatar()"><span>👤</span> Change Avatar <span>›</span></div>
+ <div class="srow" onclick="changeName()"><span>✏️</span> Change Name / Nickname <span>›</span></div>
+ <div class="srow" onclick="document.getElementById('bgInput').click()"><span>🌄</span> Change Background Picture <span>›</span></div>
+ <div class="srow" onclick="editBio()"><span>📝</span> Edit Bio / About Me <span>›</span></div>
+ <div class="srow" onclick="alert('Email: '+(me?me.email||'—':'—'))"><span>📧</span> Gmail / Email <span>›</span></div>
+</div>
+</div>
+
+<div class="screen" id="followingPage">
+<div class="subpage">
+ <button class="back" onclick="show('profilePage')">← Back to Profile</button>
+ <h3 style="font-size:20px;margin-bottom:14px">👥 Following</h3>
+ <div class="card"><div class="empty">No one you follow yet.</div></div>
+</div>
+</div>
+
+<div class="screen" id="followersPage">
+<div class="subpage">
+ <button class="back" onclick="show('profilePage')">← Back to Profile</button>
+ <h3 style="font-size:20px;margin-bottom:14px">👥 Followers</h3>
+ <div class="card"><div class="empty">No followers yet.</div></div>
+</div>
+</div>
+
+<div class="screen" id="visitorsPage">
+<div class="subpage">
+ <button class="back" onclick="show('profilePage')">← Back to Profile</button>
+ <h3 style="font-size:20px;margin-bottom:14px">👀 Visitors</h3>
+ <div class="card"><div class="empty">No visitors yet.</div></div>
+</div>
+</div>
+
+<div class="screen" id="lvlPage">
+ <button class="back" onclick="show('profilePage')">← Back to Profile</button>
+ <div class="ringwrap">
+  <div class="bigring">
+   <svg width="230" height="230">
+    <defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fde047"/><stop offset="100%" stop-color="#f59e0b"/></linearGradient></defs>
+    <circle cx="115" cy="115" r="100" stroke="rgba(255,255,255,.1)" stroke-width="14" fill="none"/>
+    <circle id="prog" cx="115" cy="115" r="100" stroke="url(#gold)" stroke-width="14" fill="none" stroke-linecap="round" stroke-dasharray="628" stroke-dashoffset="628"/>
+   </svg>
+   <div class="ringcenter"><div class="rn" id="bigLvl">L10</div><div class="ru" id="ringUser">VoxaUser</div><div class="rv" id="ringNeed">0 / 500 gifting</div></div>
+  </div>
+  <div class="lvltrack" id="lvlTrack"></div>
+ </div>
+ <div class="expl" id="lvlExpl"></div>
+ <div class="lvlpreview blue" id="lvlPreview"><div class="pvavatar">👤</div><div class="pvname">VoxaUser</div><div class="pveffect">Profile glow + entrance</div></div>
+ <div class="unlock" id="lvlUnlock"></div>
+</div>
+
+<div class="panel" id="editPanel"><div class="inner"><button class="close" onclick="closePanels()">✕</button><h3>⋯ Edit Profile</h3>
+ <div class="srow" onclick="document.getElementById('photoInput').click()"><span>🖼️</span> Change Profile Photo <span>›</span></div>
+ <div class="srow" onclick="changeAvatar()"><span>👤</span> Change Avatar <span>›</span></div>
+ <div class="srow" onclick="changeName()"><span>✏️</span> Change Name / Nickname <span>›</span></div>
+ <div class="srow" onclick="document.getElementById('bgInput').click()"><span>🌄</span> Change Background Picture <span>›</span></div>
+ <div class="srow" onclick="alert('Email: '+(me?me.email||'—':'—'))"><span>📧</span> Gmail / Email <span>›</span></div>
+</div></div>
+
+<div class="panel" id="invitePanel"><div class="inner"><button class="close" onclick="closePanels()">✕</button><h3>👥 Invite Friends</h3>
+ <div class="expl">Invite your friends to VoxaChat. Any rewards or bonuses are subject to the app's <b>Invite Policy</b> and may change anytime.</div>
+ <div class="card" style="margin-top:10px">
+  <h3>Your Invite Link</h3>
+  <input id="inviteLink" readonly style="font-size:12px">
+  <button class="btn btn-sm" onclick="copyInvite()">Copy Link</button>
+  <button class="btn btn-sm btn-ghost" style="margin-top:6px" onclick="shareInvite()">Share</button>
+ </div>
+ <div class="card">
+  <h3>Invite Policy</h3>
+  <div class="expl">1. Share your invite link<br>2. Friend signs up using your link<br>3. Any reward/bonus depends on the app's <b>Invite Policy</b><br>4. Policy can change anytime — check this page for updates.</div>
+ </div>
+</div></div>
+
+<div class="panel" id="listPanel"><div class="inner"><button class="close" onclick="closePanels()">✕</button><h3 id="listTitle">List</h3><div class="empty" id="listBody">Nothing here yet.</div></div></div>
+
+<div class="nav">
+ <button onclick="show('profilePage');location.href='index.html'"><span class="ic">🏠</span>Home</button>
+ <button onclick="show('profilePage');location.href='rooms.html'"><span class="ic">🎉</span>Party</button>
+ <button onclick="show('profilePage');location.href='inbox.html'"><span class="ic">📥</span>Inbox</button>
+ <button class="active" onclick="show('profilePage')"><span class="ic">👤</span>Profile</button>
+</div>
+
+<script>
+const sb=supabase.createClient('https://mblcbygpqbogmtzacbtz.supabase.co','sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV');
+let me=null,curType='active';
+const NEED=[0,500,1500,3000,5000,8000,12000,17000,23000,30000,38000];
+const UNLOCKS=[
+ ['L10','Shiny blue diamond leaf','Profile glow + entrance'],
+ ['L20','Green premium leaf','Green entrance effect'],
+ ['L30','Purple mix flower','Purple badge + frame'],
+ ['L40','Pink diamond flower','Pink premium frame'],
+ ['L50','Gold diamond bloom','Gold effects'],
+ ['L60','Orange ruby rose','Orange premium entrance'],
+ ['L70','Red crystal rose','Red exclusive badge'],
+ ['L80','Cyan sapphire bloom','Cyan animated frame'],
+ ['L90','Rainbow diamond blossom','Rainbow luxury effects'],
+ ['L100','Legendary crown flower','Legendary prestige']
+];
+const COUNTRIES={
+'Afghanistan':['Kabul','Kandahar','Herat','Mazar-i-Sharif'],
+'Algeria':['Algiers','Oran','Constantine'],
+'Argentina':['Buenos Aires','Cordoba','Rosario','Mendoza'],
+'Australia':['Sydney','Melbourne','Brisbane','Perth','Adelaide','Canberra','Gold Coast'],
+'Austria':['Vienna','Graz','Salzburg','Innsbruck'],
+'Bangladesh':['Dhaka','Chittagong','Khulna','Rajshahi','Sylhet','Rangpur'],
