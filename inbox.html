@@ -114,3 +114,113 @@ dialog::backdrop{background:#0005}
 #callModal .actions{justify-content:center}
 </style>
 </head>
+<body>
+
+<header>
+  <div class="top">
+    <button class="tab active" id="chatsTab">Chats</button>
+    <button class="tab" id="contactsTab">Contacts</button>
+
+    <input
+      id="search"
+      type="search"
+      placeholder="⌕ User ID"
+      aria-label="Search user ID"
+    >
+
+    <button id="requests" aria-label="Friend requests">
+      ♙+<span id="badge" hidden></span>
+    </button>
+  </div>
+
+  <p class="small" id="myId">Loading…</p>
+  <div id="status" class="status" role="status"></div>
+</header>
+
+<main>
+  <section id="searchSection" hidden>
+    <h3>Search result</h3>
+    <div id="results"></div>
+  </section>
+
+  <section id="chats">
+    <h3>Online users</h3>
+    <div id="online"></div>
+  </section>
+
+  <section id="contacts" hidden></section>
+</main>
+
+<nav>
+  <a href="index.html"><span>⌂</span>Home</a>
+  <a href="party.html"><span>🎉</span>Party</a>
+  <a href="inbox.html" class="selected"><span>💬</span>Chat</a>
+  <a href="profile2.html"><span>👤</span>Profile</a>
+</nav>
+
+<dialog id="listModal">
+  <div class="modalTop">
+    <h3 id="listTitle"></h3>
+    <button class="close" data-close="listModal">✕</button>
+  </div>
+  <div id="listBody"></div>
+</dialog>
+
+<dialog id="chatModal">
+  <div class="modalTop">
+    <h3 id="chatTitle"></h3>
+    <button id="callButton" aria-label="Voice call">📞</button>
+    <button class="close" data-close="chatModal">✕</button>
+  </div>
+
+  <div id="messages"></div>
+
+  <div id="attachment" hidden>
+    <img id="previewImage" alt="Selected photo">
+    <button
+      id="removePhoto"
+      class="close"
+      type="button"
+      aria-label="Remove selected photo"
+    >✕</button>
+  </div>
+
+  <form id="sendForm">
+    <button
+      type="button"
+      id="photoButton"
+      class="alt"
+      aria-label="Attach photo"
+    >+</button>
+
+    <input
+      id="message"
+      placeholder="Message or caption…"
+      maxlength="2000"
+    >
+
+    <button id="sendButton" type="submit">Send</button>
+  </form>
+
+  <div id="chatNote" class="status" role="status"></div>
+</dialog>
+
+<input
+  type="file"
+  id="file"
+  accept="image/jpeg,image/png,image/webp"
+  hidden
+>
+
+<dialog id="callModal">
+  <h3 id="callName">Voice call</h3>
+  <p id="callState"></p>
+
+  <div class="actions">
+    <button id="acceptCall">Accept</button>
+    <button id="muteCall" class="alt">Mute</button>
+    <button id="endCall">End call</button>
+  </div>
+</dialog>
+
+<audio id="remoteAudio" autoplay playsinline></audio>
