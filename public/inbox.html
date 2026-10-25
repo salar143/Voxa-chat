@@ -7,28 +7,50 @@
 <style>
 body{background:#0f172a;color:#fff;font-family:sans-serif;padding:16px}
 .tabs{display:flex;gap:8px;margin-bottom:12px;align-items:center}
-.tabs button{background:none;border:none;color:#94a3b8;padding:6px}
+.tabs button{background:none;border:none;color:#94a3b8;padding:6px;cursor:pointer}
 .tabs button.active{color:#3b82f6;font-weight:bold}
 .tabs input{flex:1;padding:10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#fff}
+input{width:100%;padding:10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#fff;margin-bottom:8px}
+h3{margin:14px 0 8px}
 .card{background:#1e293b;border-radius:12px;padding:12px;margin-bottom:10px;display:flex;gap:10px;align-items:center}
 .actions button{background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer}
-h3{margin:14px 0 8px}
+.actions button.alt{background:#475569}
+.muted{color:#94a3b8;font-size:13px}
+.chat-screen{position:fixed;inset:0;background:#0f172a;display:flex;flex-direction:column;z-index:10}
+.chat-head{display:flex;gap:10px;padding:12px;background:#1e293b;align-items:center}
+#messages{flex:1;overflow-y:auto;padding:12px}
+.msg{max-width:75%;background:#1e293b;padding:8px 12px;border-radius:12px;margin-bottom:8px}
+.msg.me{background:#3b82f6;margin-left:auto}
+.chat-input{display:flex;gap:6px;padding:10px;background:#1e293b}
+.chat-input button,.chat-tools button{background:#334155;color:#fff;border:none;border-radius:8px;padding:10px;cursor:pointer}
+.chat-input input{flex:1;margin:0}
+#sendBtn{background:#3b82f6}
+.chat-tools{display:flex;gap:10px;justify-content:center;padding:10px;background:#1e293b}
 </style>
 </head>
 <body>
 <div class="tabs">
 <button id="chatsTab" class="active">Chat</button>
 <button id="contactsTab">Contacts</button>
-<input id="idSearch" placeholder="🔍 Search ID">
+<input id="historySearch" placeholder="🔍 Search chat history">
 <button id="addFriend">👤+</button>
 </div>
+
+<div id="addSection" hidden>
+<h3>🔍 Search User ID</h3>
+<input id="idSearchBox" placeholder="User ID likho…">
+<div id="idResults"></div>
+<h3>🆕 New Friend Requests</h3>
+<div id="reqList"></div>
+</div>
+
 <div id="chats">
-<h3>🆕 New Friend Requests</h3><div id="reqList"></div>
 <h3>👥 All Users</h3><div id="allUsers"></div>
 <h3>🔥 Online Rooms</h3><div id="rooms"></div>
 <h3>✨ Recommended Users</h3><div id="recommended"></div>
 <h3>Online users…</h3><div id="online"></div>
 </div>
+
 <div id="contacts" hidden>
 <h3>Family group</h3><div id="famGroup"></div>
 <h3>Friends</h3><div id="friends"></div>
@@ -36,22 +58,91 @@ h3{margin:14px 0 8px}
 <h3>Following</h3><div id="following"></div>
 <h3>Family</h3><div id="family"></div>
 </div>
-<script>const sb=supabase.createClient('https://mblcbygpqbgomtzacbtz.supabase.co','sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV');
+</div>
+
+<div id="chatScreen" class="chat-screen" hidden>
+<div class="chat-head">
+<button id="backBtn">←</button><div id="chatName"></div>
+</div>
+<div id="messages"></div>
+<div class="chat-input">
+<button id="picBtn">📷</button><button id="emojiBtn">😀</button>
+<input id="msgInput" placeholder="Type message…">
+<button id="sendBtn">Send</button>
+</div>
+<div class="chat-tools">
+<button id="voiceBtn">🎤</button><button id="giftBtn">🎁</button><button id="callBtn">📞</button>
+</div>
+<input type="file" id="picFile" accept="image/*" hidden>
+</div>
+<script>
+const sb=supabase.createClient('https://mblcbygpqbgomtzacbtz.supabase.co','sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV');
 const $=id=>document.getElementById(id);
-let me=null;
-sb.auth.getUser().then(({data})=>{me=data.user;if(!me)location.href='/';else loadAll();});
-async function loadAll(){loadRooms();loadUsers();loadRecommended();}
+let me=null,activeChat=null;
+sb.auth.getUser().then(({data})=>{me=data.user;if(!me){alert('Login karo pehle');return;}loadAll();});
+async function loadAll(){loadRequests();loadUsers();loadRooms();loadRecommended();loadOnline();loadContacts();}
+$('chatsTab').onclick=()=>{$('chats').hidden=false;$('contacts').hidden=true;$('chatsTab').classList.add('active');$('contactsTab').classList.remove('active');};
+$('contactsTab').onclick=()=>{$('contacts').hidden=false;$('chats').hidden=true;$('contactsTab').classList.add('active');$('chatsTab').classList.remove('active');};
+$('addFriend').onclick=()=>{$('addSection').hidden=!$('addSection').hidden;loadRequests();};
+$('idSearchBox').oninput=async e=>{
+const q=e.target.value.trim();if(!q)return $('idResults').innerHTML='';
+const{data}=await sb.from('profiles').select('*').eq('id',q);
+$('idResults').innerHTML=(data||[]).map(u=>`<div class="card">${u.username}<button onclick="sendReq('${u.id}')">Add</button></div>`).join('')||'<p class="muted">User nahi mila</p>';};
+async function sendReq(toId){await sb.from('friend_requests').insert({from_id:me.id,to_id:toId,status:'pending'});alert('Request sent!');}
+async function loadRequests(){
+const{data}=await sb.from('friend_requests').select('*,profiles!friend_requests_from_id_fkey(username)').eq('to_id',me.id).eq('status','pending');
+$('reqList').innerHTML=(data||[]).map(r=>`<div class="card">${r.profiles.username}<button onclick="acceptReq('${r.id}')">Accept</button><button class="alt" onclick="rejectReq('${r.id}')">Reject</button></div>`).join('')||'<p class="muted">No requests</p>';}
+async function acceptReq(id){await sb.from('friend_requests').update({status:'accepted'}).eq('id',id);loadRequests();loadContacts();}
+async function rejectReq(id){await sb.from('friend_requests').update({status:'rejected'}).eq('id',id);loadRequests();}
 function loadRooms(){
-$('rooms').innerHTML=['General Room','Gaming Room','Music Room']
-.map(r=>`<div class="card">${r}<button onclick="joinRoom('${r}')">Join</button></div>`).join('');}
-function joinRoom(n){alert('Joining '+n);}
+$('rooms').innerHTML=['General Room','Gaming Room','Music Room'].map(r=>`<div class="card">${r}<button onclick="joinRoom('${r}')">Join</button></div>`).join('');}
+function joinRoom(n){openChat('room:'+n,n);}
 async function loadUsers(){
-const{data}=await sb.from('profiles').select('*').neq('id',me.id).limit(10);
-$('allUsers').innerHTML=(data||[]).map(u=>`<div class="card">${u.username}<button onclick="openChat('${u.id}')">Chat</button></div>`).join('');}
+const{data}=await sb.from('profiles').select('*').neq('id',me.id).limit(20);
+$('allUsers').innerHTML=(data||[]).map(u=>`<div class="card">${u.username}<button onclick="openChat('${u.id}','${u.username}')">Chat</button></div>`).join('');}
 async function loadRecommended(){
 const{data}=await sb.from('profiles').select('*').neq('id',me.id).limit(5);
-$('recommended').innerHTML=(data||[]).map(u=>`<div class="card">${u.username} 🟢<button onclick="openChat('${u.id}')">Chat</button></div>`).join('');}
-function openChat(id){alert('Chat: '+id);}
+$('recommended').innerHTML=(data||[]).map(u=>`<div class="card">${u.username} 🟢<button onclick="openChat('${u.id}','${u.username}')">Chat</button></div>`).join('');}
+async function loadOnline(){
+const{data}=await sb.from('profiles').select('*').eq('online',true).neq('id',me.id);
+$('online').innerHTML=(data||[]).map(u=>`<div class="card">${u.username} 🟢<button onclick="openChat('${u.id}','${u.username}')">Chat</button></div>`).join('')||'<p class="muted">No online users</p>';}
+async function loadContacts(){
+const{data}=await sb.from('friends').select('*,profiles!friends_friend_id_fkey(username,type)').eq('user_id',me.id);
+const list=(data||[]).map(f=>f.profiles).filter(Boolean);
+const render=el=>el.length?el.map(u=>`<div class="card">${u.username}<button onclick="openChat('${u.id}','${u.username}')">Chat</button></div>`).join(''):'<p class="muted">Empty</p>';
+$('famGroup').innerHTML=render(list.filter(u=>u.type==='family_group'));
+$('friends').innerHTML=render(list.filter(u=>u.type==='friend'));
+$('followers').innerHTML=render(list.filter(u=>u.type==='follower'));
+$('following').innerHTML=render(list.filter(u=>u.type==='following'));
+$('family').innerHTML=render(list.filter(u=>u.type==='family'));}
+function openChat(id,name){activeChat=id;$('chatName').textContent=name;$('chatScreen').hidden=false;loadMessages();}
+$('backBtn').onclick=()=>{$('chatScreen').hidden=true;activeChat=null;};
+async function loadMessages(){
+if(!activeChat)return;
+const{data}=await sb.from('messages').select('*').or(`from_id.eq.${me.id},to_id.eq.${me.id}`).order('created_at');
+$('messages').innerHTML=(data||[]).filter(m=>m.to_id===activeChat||m.from_id===activeChat).map(m=>`<div class="msg ${m.from_id===me.id?'me':''}">${m.content}</div>`).join('');
+$('messages').scrollTop=99999;}
+$('sendBtn').onclick=async()=>{const t=$('msgInput').value.trim();if(!t||!activeChat)return;await sb.from('messages').insert({from_id:me.id,to_id:activeChat,content:t});$('msgInput').value='';loadMessages();};
+$('emojiBtn').onclick=()=>{$('msgInput').value+='😀';};
+$('picBtn').onclick=()=>$('picFile').click();
+$('picFile').onchange=async e=>{
+const f=e.target.files[0];if(!f||!activeChat)return;
+const{data}=await sb.storage.from('chat-pics').upload(`${me.id}/${Date.now()}`,f);
+const url=sb.storage.from('chat-pics').getPublicUrl(data.path).data.publicUrl;
+await sb.from('messages').insert({from_id:me.id,to_id:activeChat,content:`<img src="${url}" width="200">`});loadMessages();};
+let rec=false,mr=null,ch=[];
+$('voiceBtn').onclick=async()=>{
+if(!rec){const s=await navigator.mediaDevices.getUserMedia({audio:true});mr=new MediaRecorder(s);ch=[];
+mr.ondataavailable=e=>ch.push(e.data);
+mr.onstop=async()=>{const b=new Blob(ch,{type:'audio/webm'});
+const{data}=await sb.storage.from('chat-voice').upload(`${me.id}/${Date.now()}.webm`,b);
+const url=sb.storage.from('chat-voice').getPublicUrl(data.path).data.publicUrl;
+await sb.from('messages').insert({from_id:me.id,to_id:activeChat,content:`<audio controls src="${url}">`});loadMessages();};
+mr.start();rec=true;$('voiceBtn').textContent='⏹';}
+else{mr.stop();rec=false;$('voiceBtn').textContent='🎤';}};
+$('giftBtn').onclick=async()=>{if(!activeChat)return;await sb.from('messages').insert({from_id:me.id,to_id:activeChat,content:'🎁 Gift sent!'});loadMessages();};
+$('callBtn').onclick=()=>alert('Voice call starting…');
+sb.channel('inbox').on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},()=>loadMessages()).subscribe();
 </script>
 </body>
 </html>
