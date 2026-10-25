@@ -448,3 +448,238 @@ const COUNTRIES={
 'Australia':['Sydney','Melbourne','Brisbane','Perth','Adelaide','Canberra','Gold Coast'],
 'Austria':['Vienna','Graz','Salzburg','Innsbruck'],
 'Bangladesh':['Dhaka','Chittagong','Khulna','Rajshahi','Sylhet','Rangpur'],
+'Belgium':['Brussels','Antwerp','Ghent','Bruges'],
+'Brazil':['Sao Paulo','Rio de Janeiro','Brasilia','Salvador','Fortaleza','Recife'],
+'Canada':['Toronto','Vancouver','Montreal','Calgary','Ottawa','Edmonton','Quebec City'],
+'Chile':['Santiago','Valparaiso','Concepcion'],
+'China':['Beijing','Shanghai','Guangzhou','Shenzhen','Chengdu','Hangzhou','Xi\'an'],
+'Colombia':['Bogota','Medellin','Cali','Cartagena'],
+'Denmark':['Copenhagen','Aarhus','Odense'],
+'Egypt':['Cairo','Alexandria','Giza','Luxor'],
+'Ethiopia':['Addis Ababa','Dire Dawa'],
+'Finland':['Helsinki','Espoo','Tampere'],
+'France':['Paris','Marseille','Lyon','Toulouse','Nice','Bordeaux'],
+'Germany':['Berlin','Munich','Hamburg','Frankfurt','Cologne','Stuttgart','Dusseldorf'],
+'Ghana':['Accra','Kumasi'],
+'Greece':['Athens','Thessaloniki','Patras'],
+'Hong Kong':['Hong Kong'],
+'Hungary':['Budapest','Debrecen','Szeged'],
+'India':['Mumbai','Delhi','Bangalore','Hyderabad','Chennai','Kolkata','Pune','Ahmedabad','Jaipur','Lucknow','Surat','Bhopal','Indore','Patna','Kochi','Coimbatore','Vadodara','Nagpur','Noida','Gurugram','Chandigarh','Goa'],
+'Indonesia':['Jakarta','Surabaya','Bandung','Medan','Semarang','Bali'],
+'Iran':['Tehran','Mashhad','Isfahan','Shiraz'],
+'Iraq':['Baghdad','Basra','Mosul','Erbil'],
+'Ireland':['Dublin','Cork','Galway'],
+'Israel':['Tel Aviv','Jerusalem','Haifa'],
+'Italy':['Rome','Milan','Naples','Turin','Florence','Venice'],
+'Japan':['Tokyo','Osaka','Yokohama','Nagoya','Sapporo','Kyoto','Fukuoka'],
+'Kenya':['Nairobi','Mombasa','Kisumu'],
+'Kuwait':['Kuwait City'],
+'Malaysia':['Kuala Lumpur','Penang','Johor Bahru','Malacca'],
+'Mexico':['Mexico City','Guadalajara','Monterrey','Cancun'],
+'Morocco':['Casablanca','Rabat','Marrakesh','Fez'],
+'Myanmar':['Yangon','Mandalay'],
+'Nepal':['Kathmandu','Pokhara','Lalitpur','Biratnagar','Birgunj','Bharatpur','Janakpur','Dharan','Butwal','Hetauda'],
+'Netherlands':['Amsterdam','Rotterdam','The Hague','Utrecht'],
+'New Zealand':['Auckland','Wellington','Christchurch','Hamilton'],
+'Nigeria':['Lagos','Abuja','Kano','Ibadan'],
+'Norway':['Oslo','Bergen','Trondheim'],
+'Oman':['Muscat','Salalah','Sohar'],
+'Pakistan':['Karachi','Lahore','Islamabad','Rawalpindi','Faisalabad','Multan','Peshawar','Quetta','Hyderabad'],
+'Peru':['Lima','Arequipa','Cusco'],
+'Philippines':['Manila','Cebu','Davao','Quezon City'],
+'Poland':['Warsaw','Krakow','Gdansk','Wroclaw'],
+'Portugal':['Lisbon','Porto','Braga'],
+'Qatar':['Doha','Al Rayyan'],
+'Romania':['Bucharest','Cluj-Napoca','Timisoara'],
+'Russia':['Moscow','Saint Petersburg','Novosibirsk','Kazan'],
+'Saudi Arabia':['Riyadh','Jeddah','Mecca','Medina','Dammam','Khobar','Taif'],
+'Singapore':['Singapore'],
+'South Africa':['Johannesburg','Cape Town','Durban','Pretoria'],
+'South Korea':['Seoul','Busan','Incheon','Daegu'],
+'Spain':['Madrid','Barcelona','Valencia','Seville','Bilbao'],
+'Sri Lanka':['Colombo','Kandy','Galle'],
+'Sweden':['Stockholm','Gothenburg','Malmo'],
+'Switzerland':['Zurich','Geneva','Basel','Bern'],
+'Taiwan':['Taipei','Kaohsiung','Taichung'],
+'Thailand':['Bangkok','Chiang Mai','Phuket','Pattaya'],
+'Turkey':['Istanbul','Ankara','Izmir','Antalya','Bursa'],
+'Ukraine':['Kyiv','Kharkiv','Odessa','Lviv'],
+'United Arab Emirates':['Dubai','Abu Dhabi','Sharjah','Ajman','Al Ain','Fujairah'],
+'United Kingdom':['London','Manchester','Birmingham','Liverpool','Glasgow','Edinburgh','Bristol','Leeds','Sheffield','Newcastle'],
+'United States':['New York','Los Angeles','Chicago','Houston','Phoenix','Philadelphia','San Antonio','San Diego','Dallas','San Jose','Austin','Seattle','Miami','Boston','Atlanta','San Francisco'],
+'Uzbekistan':['Tashkent','Samarkand','Bukhara'],
+'Venezuela':['Caracas','Maracaibo','Valencia'],
+'Vietnam':['Hanoi','Ho Chi Minh City','Da Nang','Hai Phong']
+};
+const CITY_ALL=[].concat(...Object.values(COUNTRIES));
+const UNI_ALL=['IIT Bombay','IIT Delhi','IIT Madras','IIT Kanpur','IIT Kharagpur','IIM Ahmedabad','IIM Bangalore','Delhi University','Mumbai University','Anna University','Jadavpur University','Banaras Hindu University','VIT','SRM','Amity University','Tribhuvan University','Kathmandu University','Pokhara University','Purbanchal University','NUST','LUMS','FAST-NU','UET Lahore','COMSATS','University of Dhaka','NSU','BRAC University','BUET','MIT','Stanford University','Harvard University','UC Berkeley','UCLA','NYU','University of Chicago','Georgia Tech','University of Oxford','University of Cambridge','Imperial College London','UCL','University of Edinburgh','University of Manchester','Khalifa University','United Arab Emirates University','American University of Sharjah','King Saud University','KAUST','King Abdulaziz University','University of Toronto','UBC','McGill','University of Waterloo','University of Melbourne','University of Sydney','Monash University','ANU','TU Munich','RWTH Aachen','Heidelberg University','Sorbonne University','Ecole Polytechnique','University of Tokyo','Kyoto University','University of Sao Paulo','University of Cape Town','Bogazici University','University of Malaya','University of Indonesia','University of the Philippines','Chulalongkorn University','Qatar University','Kuwait University','Sultan Qaboos University','University of Bahrain'];
+const FOODS=['Pizza','Burger','Biryani','Momos','Chowmein','Sushi','Pasta','Tandoori Chicken','Paneer Tikka','Masala Dosa','Chaat','Kebab','Shawarma','Fried Rice','Noodles','Ramen','Ice Cream','Cake','Chocolate','Salad','Seafood','Steak','Tacos','Pancakes','Coffee','Tea','Mango','Fruit Chaat','Dumplings','Curry','Sandwich','Hot Dog','French Fries','Fried Chicken','Spring Rolls','Samosa','Pakora','Vada Pav','Pav Bhaji','Rajma Chawal','Dal Makhani','Butter Chicken','Chole Bhature','Pani Puri','Dhokla','Idli','Uttapam','Poha','Khichdi','Halwa','Kheer','Gulab Jamun','Jalebi','Lassi','Milkshake','Juice','Smoothie'];
+const ACTS=['Cricket','Football','Hockey','Volleyball','Basketball','Badminton','Tennis','Table Tennis','Swimming','Cycling','Running','Gym & Fitness','Yoga','Boxing','Kabaddi','Kho-Kho','Chess','Carrom','Ludo','Cards','Singing','Dancing','Gaming','Traveling','Photography','Reading','Cooking','Shopping','Movies','Music','Painting','Coding','Camping','Hiking','Volunteering','Writing','Fashion','Fishing','Skating','Martial Arts','Podcasts','Gardening','Pets','DIY Crafts'];
+function err(m){const e=document.getElementById('err');e.textContent=m;e.style.display='block'}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0)}
+function fillAllDropdowns(){
+ country.innerHTML='<option>— Select Country —</option>';
+ Object.keys(COUNTRIES).forEach(c=>{const o=document.createElement('option');o.textContent=c;country.appendChild(o)});
+ citySel.innerHTML='<option>— Select City —</option>';
+ CITY_ALL.forEach(x=>{const o=document.createElement('option');o.textContent=x;citySel.appendChild(o)});
+ uniSel.innerHTML='<option>— Select University —</option>';
+ UNI_ALL.forEach(x=>{const o=document.createElement('option');o.textContent=x;uniSel.appendChild(o)});
+ foodSel.innerHTML='<option>— Select Food —</option>';
+ FOODS.forEach(x=>{const o=document.createElement('option');o.textContent=x;foodSel.appendChild(o)});
+ actSel.innerHTML='<option>— Select Activity —</option>';
+ ACTS.forEach(x=>{const o=document.createElement('option');o.textContent=x;actSel.appendChild(o)});
+}
+async function init(){
+ fillAllDropdowns();
+ const {data:{user},error:ue}=await sb.auth.getUser();
+ if(ue){err(ue.message);return}
+ if(!user){err('Please login first — go to the login page.');return}
+ let {data:p,error:pe}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();
+ if(pe){err(pe.message+' — create "profiles" table in Supabase.');return}
+ if(!p){
+  const uid='5633'+Math.floor(100000+Math.random()*899999);
+  const ins=await sb.from('profiles').insert({id:user.id,uid,name:'VoxaUser',dp:'👤',gender:'—',diamonds:0,coins:0,frame:0,active_level:0,wealth_level:0,charm_level:0,game_level:0,followers:0,following:0,visitors:0,moments:[],zodiac:'',country:'',city:'',uni:'',food:'',activity:'',school:'',photo:null,bg:null,bio:'',hobbies:[]}).select().single();
+  if(ins.error){err(ins.error.message);return}
+  p=ins.data;
+ }
+ me=p;render();
+ const urlParams=new URLSearchParams(location.search);
+ const ref=urlParams.get('ref');
+ if(ref&&ref!==me.uid){localStorage.setItem('voxa_ref',ref)}
+}
+function wallet(){wD.textContent=me.diamonds;wC.textContent=me.coins}
+function soulCount(){const l=me.active_level||0;return l>=30?12:l>=20?9:l>=10?6:3}
+function render(){
+ if(me.photo){pAv.innerHTML='<img src="'+me.photo+'">'}else{pAv.textContent=me.dp||'👤'}
+ pName.textContent=me.name;pUid.textContent=me.uid;
+ pMeta.textContent=me.bio||'Welcome to VoxaChat! 🎉';
+ sFo.textContent=me.following||0;sF.textContent=me.followers||0;sV.textContent=me.visitors||0;
+ wallet();
+ document.getElementById('ring').className='ring'+(me.frame===1?' rainbow':me.frame===2?' crown':'');
+ if(me.bg){pbg.innerHTML='<img src="'+me.bg+'">'}
+ else{pbg.innerHTML='<div class="bgavatar">'+(me.gender==='Female'?'👩':'🧑')+'</div>'}
+ const sc=soulCount();
+ const sl=document.getElementById('soulSlots');sl.innerHTML='';
+ for(let i=0;i<sc;i++){const d=document.createElement('div');d.className='sslot';d.innerHTML='<span class="fi">💞</span>'+(i===0?'Add':'Locked');d.onclick=()=>alert('Send a soulmate gift in a Party Room to unlock');sl.appendChild(d)}
+ bioInput.value=me.bio||'';
+ country.value=me.country||'— Select Country —';
+ citySel.value=me.city||'— Select City —';
+ uniSel.value=me.uni||'— Select University —';
+ foodSel.value=me.food||'— Select Food —';actSel.value=me.activity||'— Select Activity —';
+ zodiac.value=me.zodiac||'—';
+ document.querySelectorAll('#hobbies .tag').forEach(t=>{t.classList.toggle('sel',(me.hobbies||[]).includes(t.textContent))});
+ const ml=document.getElementById('momentList');ml.innerHTML='';
+ const moments=me.moments||[];
+ if(!moments.length){ml.innerHTML='<div class="empty">No moments yet — create your first post! 📸</div>';return}
+ moments.slice().reverse().forEach(m=>{const d=document.createElement('div');d.className='moment';
+ d.innerHTML='<div class="mh"><b>'+me.name+'</b> • '+m.at+'</div>'+m.t+(m.video?'<video src="'+m.video+'" controls style="width:100%;border-radius:10px;margin-top:6px"></video>':'');ml.appendChild(d)});
+}
+function tab(n,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
+ document.querySelectorAll('.tabc').forEach(c=>c.classList.remove('active'));document.getElementById('t-'+n).classList.add('active')}
+function copyID(){navigator.clipboard.writeText(me.uid);alert('ID copied')}
+function playVoice(){alert(me.voice?'▶ Playing…':'Record with 🎤 first')}
+function recordVoice(){alert('Voice recording — real mic coming in next update')}
+function closePanels(){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('open'))}
+function openEdit(){editName.value=me.name;editDp.value=me.dp||'👤';show('editPage')}
+function showList(t){document.getElementById('listTitle').textContent=t;document.getElementById('listBody').textContent='Nothing here yet.';document.getElementById('listPanel').classList.add('open')}
+function toggleNotif(btn,type){const on=btn.textContent==='ON';btn.textContent=on?'OFF':'ON';alert(type+' Notifications: '+(on?'OFF':'ON'))}
+function openInvite(){inviteLink.value=location.origin+location.pathname+'?ref='+(me?me.uid:'');document.getElementById('invitePanel').classList.add('open')}
+function copyInvite(){navigator.clipboard.writeText(inviteLink.value);alert('Invite link copied!')}
+function shareInvite(){if(navigator.share){navigator.share({title:'VoxaChat Invite',text:'Join me on VoxaChat!',url:inviteLink.value})}else{copyInvite()}}
+function shareApp(){if(navigator.share){navigator.share({title:'VoxaChat',text:'Join me on VoxaChat!',url:location.href})}else{navigator.clipboard.writeText(location.href);alert('Link copied — share it!')}}
+function checkUpdate(){alert('You are on the latest version (v1.0.0)')}
+function clearCache(){if(confirm('Clear cache?')){localStorage.clear();alert('Cache cleared!')}}
+function deleteID(){
+ const ok=confirm('ID Delete request bhejna hai?');
+ if(ok)alert('Request submitted.');
+}
+async function saveName(){const n=editName.value.trim();if(!n){alert('Name required');return}me.name=n;await save({name:n});alert('✅ Name saved!');render();show('profilePage')}
+async function saveDp(){const d=editDp.value.trim();if(!d){alert('Avatar required');return}me.dp=d;await save({dp:d});alert('✅ Avatar saved!');render();show('profilePage')}
+function editBio(){const b=prompt('Edit Bio / About Me:',me.bio||'');if(b!==null){me.bio=b;save({bio:b});render()}}
+function changeAvatar(){const d=prompt('Avatar emoji (👩 👨 🧑 🐱 🦊):',me.dp||'👤');if(d&&d.trim()){me.dp=d.trim();save({dp:me.dp});render()}}
+function changeName(){const n=prompt('Name / Nickname:',me.name);if(n&&n.trim()){me.name=n.trim();save({name:me.name});render()}}
+function uploadPhoto(input,kind){
+ const f=input.files[0];if(!f)return;
+ const r=new FileReader();
+ r.onload=async()=>{const dataUrl=r.result;
+  if(kind==='photo'){me.photo=dataUrl;await save({photo:dataUrl})}
+  else{me.bg=dataUrl;await save({bg:dataUrl})}
+  render()};
+ r.readAsDataURL(f);
+}
+async function saveBio(){
+ const words=bioInput.value.trim().split(/\s+/).filter(Boolean).length;
+ if(words>100){err('Bio can be up to 100 words.');return}
+ await save({bio:bioInput.value});me.bio=bioInput.value;alert('✅ Bio saved!');render();
+}
+function toggleHobby(el){el.classList.toggle('sel')}
+async function saveInfo(){
+ const hobbies=[...document.querySelectorAll('#hobbies .tag.sel')].map(t=>t.textContent);
+ await save({zodiac:zodiac.value,country:country.value,city:citySel.value,uni:uniSel.value,food:foodSel.value,activity:actSel.value,hobbies});
+ me.zodiac=zodiac.value;me.country=country.value;me.city=citySel.value;me.uni=uniSel.value;me.food=foodSel.value;me.activity=actSel.value;me.hobbies=hobbies;
+ alert('✅ Saved!');render();
+}
+function openLevels(type){
+ curType=type;
+ const titles={active:'⚡ User ID Level',charm:'💖 Receiving Level',wealth:'💎 Sending Level',game:'🎮 Gaming Level'};
+ const how={active:'Level up by using the app and joining rooms.',charm:'Level up by receiving gifts.',wealth:'Level up by sending gifts and using diamonds.',game:'Level up by playing and winning diamond games.'};
+ document.getElementById('lvlExpl').innerHTML='<b>'+titles[type]+'</b><br>'+how[type]+'<br><br>Each level shows the gifting/points needed in the gold ring above — complete the ring to unlock the next level.';
+ let u='<b style="color:#fde047">Level Unlocks:</b>';
+ UNLOCKS.forEach(x=>{u+='<span>'+x[0]+' · '+x[1]+' — '+x[2]+'</span>'});
+ document.getElementById('lvlUnlock').innerHTML=u;
+ renderLevel(10);
+ show('lvlPage');
+}
+function renderLevel(mile){
+ const idx=Math.max(1,Math.round(mile/10));
+ document.getElementById('bigLvl').textContent='L'+mile;
+ document.getElementById('ringUser').textContent=me?me.name:'VoxaUser';
+ const need=NEED[Math.min(idx,NEED.length-1)];const prev=NEED[idx-1]||0;
+ document.getElementById('ringNeed').textContent=prev+' / '+need+' gifting';
+ document.getElementById('prog').style.strokeDashoffset=628-(628*8/100);
+ const tr=document.getElementById('lvlTrack');tr.innerHTML='';
+ [10,20,30,40,50,60,70,80,90,100].forEach(m=>{
+  const c=document.createElement('div');c.className='lchip'+(m<mile?' done':m===mile?' cur':'');
+  c.textContent='L'+m;c.onclick=()=>renderLevel(m);tr.appendChild(c)});
+ const un=UNLOCKS[Math.min(idx-1,UNLOCKS.length-1)];
+ document.getElementById('lvlExpl').innerHTML='<b>L'+mile+' — '+un[1]+'</b><br>'+un[2]+' will unlock.<br><br>Level '+mile+' requires <b>'+need+'</b> gifting points.';
+ const pv=document.getElementById('lvlPreview');
+ const colors=['blue','green','purple','pink','gold','orange','red','cyan','rainbow','legend'];
+ pv.className='lvlpreview '+colors[Math.min(idx-1,colors.length-1)];
+ pv.querySelector('.pvname').textContent=me?me.name:'VoxaUser';
+ pv.querySelector('.pveffect').textContent=un[1]+' — '+un[2];
+}
+async function save(patch){const {error}=await sb.from('profiles').update(patch).eq('id',me.id);if(error)err(error.message)}
+document.getElementById('momentVideo').addEventListener('change',function(){const f=this.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const v=document.getElementById('momentVideoPreview');v.src=r.result;v.style.display='block'};r.readAsDataURL(f)});
+async function addMoment(){const t=momentInput.value.trim();if(!t)return;
+ const vid=document.getElementById('momentVideoPreview').src||'';
+ const moments=[...(me.moments||[]),{t,at:new Date().toLocaleDateString(),video:vid}];
+ await save({moments});me.moments=moments;momentInput.value='';render();show('profilePage');alert('✅ Moment posted!')}
+async function logout(){await sb.auth.signOut();location.href='index.html'}
+init();
+async function logout(){
+  const supabase = window.supabase.createClient(
+    'https://mblcbygpqbogmtzacbtz.supabase.co',
+    'sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV'
+  );
+  await supabase.auth.signOut();
+  window.location.href = '/index.html';
+}
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  const supabase = window.supabase.createClient(
+    'https://mblcbygpqbogmtzacbtz.supabase.co',
+    'sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV'
+  );
+  await supabase.auth.signOut();
+  location.href = 'login2.html';
+});
+</script>
+<div class="nav">
+ <button class="active" onclick="location.href='homefile3.html'"><span class="ic">🏠</span>Home</button>
+ <button onclick="alert('Party Room ban raha hai — jaldi connect hoga!')"><span class="ic">🎉</span>Party Room</button>
+ <button onclick="location.href='inbox.html'"><span class="ic">📥</span>Inbox</button>
+ <button onclick="location.href='profile2.html'"><span class="ic">👤</span>Profile</button>
+</div>
+</body>
+ 
+</html>
