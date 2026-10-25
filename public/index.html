@@ -78,13 +78,12 @@ input,select{width:100%;padding:12px;border-radius:11px;border:1px solid rgba(16
 </div>
 
 <script>
-const SUPABASE_URL = 'https://mblcbygpqbgomtzacbtz.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV';
-
 let gender = '';
-
-window.addEventListener('load', async () => {
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+ window.addEventListener('load', async () => {
+  const supabase = window.supabase.createClient(
+    'https://mblcbygpqbogmtzacbtz.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ibGNieWdwcWJvZ210emFjYnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2MDg0OTIsImV4cCI6MjEwODE4NDQ5Mn0.7OpmnIoZKgGLTCj2gPZtNiZyXkgYPgrdyocbCkG6-Cg'
+  );
   const { data: { session } } = await supabase.auth.getSession();
   if (session) {
     window.location.href = '/profile2.html';
@@ -93,17 +92,21 @@ window.addEventListener('load', async () => {
 
 function err(m){const e=document.getElementById('err');e.textContent=m;e.style.display='block';}
 
+// OLD WORKING LOGIN (same as purana index.html)
 document.getElementById('googleBtn').addEventListener('click', async () => {
   document.getElementById('err').style.display='none';
   try {
     if (typeof window.supabase === 'undefined') {
       throw new Error('Supabase library load nahi hui');
     }
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabase = window.supabase.createClient(
+      'https://mblcbygpqbogmtzacbtz.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ibGNieWdwcWJvZ210emFjYnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2MDg0OTIsImV4cCI6MjEwODE4NDQ5Mn0.7OpmnIoZKgGLTCj2gPZtNiZyXkgYPgrdyocbCkG6-Cg'
+    );
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin + '/profile2.html' }
-    });
+  provider: 'google',
+  options: { redirectTo: window.location.origin + '/profile2.html' }
+});
     if (error) {
       err('Error: ' + error.message);
       alert('Login error: ' + error.message);
@@ -114,6 +117,7 @@ document.getElementById('googleBtn').addEventListener('click', async () => {
   }
 });
 
+// Hearts
 const heartsDiv=document.getElementById('hearts');
 for(let i=0;i<25;i++){
   const h=document.createElement('div');
@@ -153,6 +157,7 @@ async function saveName(){
   window.location.href='/profile2.html';
 }
 
+// Birthday dropdowns
 (function(){
   const d=document.getElementById('bday'),m=document.getElementById('bmon'),y=document.getElementById('byear');
   for(let i=1;i<=31;i++){const o=document.createElement('option');o.textContent=i;d.appendChild(o);}
