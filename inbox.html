@@ -2,68 +2,115 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VoxaChat - Inbox</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inbox</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-body{margin:0;font-family:Arial;background:#0a0a12;color:#fff;padding:16px}
-.top{display:flex;align-items:center;gap:10px;margin-bottom:16px}
-.back{background:none;border:1px solid #a855f7;color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer}
-h2{margin:0}
-.list{display:flex;flex-direction:column;gap:10px}
-.item{background:rgba(255,255,255,.06);border:1px solid rgba(168,85,247,.3);padding:14px;border-radius:12px}
-.empty{color:#9ca3af;text-align:center;margin-top:40px}
+*{box-sizing:border-box}
+body{
+  margin:0;background:#f8f8ff;color:#292432;
+  font-family:Arial,sans-serif
+}
+button,input{font:inherit}
+button{
+  cursor:pointer;border:0;border-radius:10px;
+  padding:10px 12px;background:#8548db;color:white
+}
+button:disabled{opacity:.5;cursor:default}
+header{
+  position:sticky;top:0;background:#f8f8ff;
+  padding:16px 12px;z-index:2
+}
+.top{display:flex;gap:10px;align-items:center}
+.tab{
+  background:none;color:#292432;padding:10px 2px;
+  font-size:17px;border-radius:0
+}
+.active{border-bottom:4px solid #8548db;font-weight:bold}
+#search{
+  margin-left:auto;min-width:55px;width:110px;
+  border:0;background:white;border-radius:20px;padding:10px
+}
+.alt,.close{background:#e6e1ee;color:#55476a}
+#requests{
+  background:white;color:#33253e;
+  font-size:21px;padding:8px
+}
+#badge{
+  background:#e85676;color:white;font-size:11px;
+  border-radius:20px;padding:2px 4px
+}
+.small{font-size:12px;color:#888;margin-top:6px}
+.status{font-size:12px;color:#a34545;overflow-wrap:anywhere}
+main{max-width:650px;margin:auto;padding:12px 15px 100px}
+h3{font-size:16px}
+.card{
+  display:flex;align-items:center;gap:12px;
+  background:#efeff8;border-radius:17px;
+  margin-bottom:12px;padding:17px;width:100%;
+  color:inherit;text-align:left
+}
+.avatar{
+  height:43px;width:43px;border-radius:50%;
+  background:#e1d5f9;color:#8041c3;
+  display:grid;place-items:center;
+  font-size:22px;flex-shrink:0
+}
+.info{flex:1;min-width:0;overflow-wrap:anywhere}
+.actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.muted{text-align:center;padding:22px;color:#888}
+nav{
+  position:fixed;bottom:0;left:0;right:0;display:flex;
+  background:white;border-top:1px solid #eee;
+  padding:13px 0 max(13px,env(safe-area-inset-bottom));
+  z-index:3
+}
+nav a{
+  flex:1;text-align:center;text-decoration:none;
+  font-size:12px;color:#999
+}
+nav span{display:block;font-size:22px;margin-bottom:4px}
+nav .selected{color:#8548db}
+dialog{
+  width:min(96vw,540px);border:0;border-radius:20px;
+  padding:16px;box-shadow:0 15px 80px #0003
+}
+dialog::backdrop{background:#0005}
+.modalTop{display:flex;align-items:center;gap:10px}
+.modalTop h3{flex:1;overflow-wrap:anywhere}
+#messages{
+  height:45vh;overflow:auto;display:flex;
+  flex-direction:column;gap:10px;padding:12px 0
+}
+.bubble{
+  align-self:flex-start;max-width:84%;padding:11px;
+  border-radius:13px;background:#ece6f5;
+  white-space:pre-wrap;overflow-wrap:anywhere
+}
+.mine{align-self:flex-end;background:#8548db;color:white}
+.bubble img{
+  display:block;max-width:240px;width:100%;
+  max-height:270px;object-fit:contain;border-radius:9px
+}
+.caption{margin-top:8px}
+#sendForm{display:flex;gap:7px;margin-top:10px}
+#message{
+  min-width:0;flex:1;border:1px solid #ddd;
+  border-radius:12px;padding:10px
+}
+#photoButton{font-size:24px;padding:5px 12px}
+#attachment{
+  position:relative;background:#eee7f7;
+  border-radius:12px;padding:10px;margin-top:10px
+}
+#attachment img{
+  max-width:100%;max-height:120px;
+  display:block;border-radius:8px
+}
+#removePhoto{position:absolute;right:8px;top:8px}
+#callModal{text-align:center}
+#callModal .actions{justify-content:center}
 </style>
 </head>
-<body>
-<div class="top">
-  <button class="back" onclick="location.href='profile2.html'">←</button>
-  <h2>Inbox</h2>
-</div>
-
-<div class="list" id="list"></div>
-<p class="empty" id="empty">Abhi koi message nahi hai.</p>
-
-<script>
-const sb = supabase.createClient(
-  'https://mblcbygpqbogmtzacbtz.supabase.co',
-  'sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV'
-);
-
-window.addEventListener('DOMContentLoaded', async () => {
-  const { data: { session } } = await sb.auth.getSession();
-
-  if (!session) {
-    location.href = 'login.html';
-    return;
-  }
-
-  const userId = session.user.id;
-
-  const { data: messages, error } = await sb
-    .from('messages')
-    .select('*')
-    .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    document.getElementById('empty').textContent = 'Error: ' + error.message;
-    return;
-  }
-
-  if (!messages || messages.length === 0) return;
-
-  document.getElementById('empty').style.display = 'none';
-
-  const list = document.getElementById('list');
-
-  messages.forEach(m => {
-    const div = document.createElement('div');
-    div.className = 'item';
-    div.textContent = m.content;
-    list.appendChild(div);
-  });
-});
-</script>
-</body>
-</html>
