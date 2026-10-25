@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoxaChat - Party</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
+body{min-height:100vh;background:linear-gradient(160deg,#0a0a12,#1a0b2e 55%,#000);color:#fff;padding:14px;padding-bottom:110px;position:relative;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;perspective:600px}
+.heart{position:absolute;opacity:.4;animation:float 11s linear infinite;filter:drop-shadow(0 0 8px rgba(168,85,247,.7));transform-style:preserve-3d}
+.heart.big{animation:floatBig 10s linear infinite}
+@keyframes float{0%{transform:translateY(110vh) translateX(0) scale(.5) rotateZ(0deg);opacity:0}10%{opacity:.5}50%{transform:translateY(50vh) translateX(20px) scale(.8) rotateZ(15deg)}90%{opacity:.3}100%{transform:translateY(-160px) translateX(-20px) scale(1.1) rotateZ(30deg);opacity:0}}
+@keyframes floatBig{0%{transform:translateY(110vh) translateX(0) scale(.5) rotateZ(0deg);opacity:0}10%{opacity:.5}25%{transform:translateY(75vh) translateX(30px) scale(.7) rotateZ(8deg)}50%{transform:translateY(50vh) translateX(-25px) scale(.85) rotateZ(-8deg)}75%{transform:translateY(25vh) translateX(25px) scale(.95) rotateZ(6deg)}90%{opacity:.3}100%{transform:translateY(-160px) translateX(-15px) scale(1.1) rotateZ(-5deg);opacity:0}}
+.wrap{max-width:480px;margin:0 auto;position:relative;z-index:2}
+.head{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.top-tab{background:rgba(255,255,255,.08);border:1px solid rgba(168,85,247,.5);color:#c084fc;font-size:12px;font-weight:800;padding:10px 12px;border-radius:14px;cursor:pointer;white-space:nowrap}
+.top-tab.active{background:linear-gradient(135deg,#7c3aed,#ec4899);border-color:transparent;color:#fff}
+.search-icon{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(168,85,247,.5);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;margin-left:auto;flex-shrink:0}
+.home-plus-icon{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(168,85,247,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;gap:1px}
+.home-plus-icon .home{font-size:14px;line-height:1}
+.home-plus-icon .plus{font-size:12px;line-height:1;color:#c084fc;font-weight:900}
+.category-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.grid-card{background:rgba(255,255,255,.06);backdrop-filter:blur(12px);border:1px solid rgba(168,85,247,.4);border-radius:16px;padding:14px 8px;text-align:center;cursor:pointer}
+.grid-card .card-icon{font-size:26px;display:block;margin-bottom:4px}
+.grid-card{font-size:12px;font-weight:700}
+.filter-tags-row{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px}
+.filter-tag{background:rgba(255,255,255,.06);border:1px solid rgba(168,85,247,.35);padding:7px 14px;border-radius:20px;font-size:12px;cursor:pointer;white-space:nowrap}
+.filter-tag.active{background:linear-gradient(135deg,#7c3aed,#ec4899);border-color:transparent;font-weight:800}
+.rooms-list{display:flex;flex-direction:column;gap:10px;margin-bottom:26px}
+.room-card{background:rgba(255,255,255,.06);backdrop-filter:blur(12px);border:1px solid rgba(168,85,247,.35);border-radius:16px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.room-left{display:flex;align-items:center;gap:10px;flex:1}
+.avatar-frame-wrapper{position:relative}
+.room-avatar{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#7c3aed,#3b82f6);display:flex;align-items:center;justify-content:center;font-size:22px;border:2px solid rgba(168,85,247,.6);overflow:hidden}
+.room-avatar img{width:100%;height:100%;object-fit:cover}
+.room-title{font-size:14px;font-weight:800;display:block}
+.badges-row{display:flex;gap:5px;margin-top:5px}
+.mini-badge{font-size:8px;padding:3px 6px;border-radius:8px;font-weight:800}
+.badge-party{background:rgba(236,72,153,.2);color:#f472b6}
+.badge-off{background:rgba(107,114,128,.2);color:#9ca3af}
+.badge-on{background:rgba(34,197,94,.2);color:#4ade80}
+.badge-gold{background:rgba(250,204,21,.2);color:#facc15}
+.badge-silver{background:rgba(203,213,225,.2);color:#e2e8f0}
+.badge-bronze{background:rgba(180,83,9,.2);color:#fbbf24}
+.room-right{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:#d8b4fe}
+.audio-wave{display:flex;gap:2px;align-items:flex-end;height:14px}
+.audio-bar{width:2px;height:100%;background:#4f46e5;border-radius:1px;animation:bounce .8s ease-in-out infinite alternate}
+.audio-bar:nth-child(2){animation-delay:.2s}
+.audio-bar:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%{height:20%}100%{height:100%}}
+.subtabs{display:flex;gap:8px;margin-bottom:12px}
+.subtab{background:rgba(255,255,255,.06);border:1px solid rgba(168,85,247,.35);padding:7px 14px;border-radius:20px;font-size:12px;cursor:pointer;user-select:none}
+.subtab.active{background:linear-gradient(135deg,#7c3aed,#ec4899);border-color:transparent;font-weight:800}
+.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,18,.95);border-top:1px solid rgba(168,85,247,.4);display:flex;justify-content:space-around;padding:12px 0;z-index:10}
+.nav button{background:none;border:0;color:#9ca3af;font-size:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+.nav button.active{color:#c084fc;text-shadow:0 0 12px rgba(192,132,252,.9)}
+.nav .ic{font-size:22px}
+.coming-soon{position:fixed;inset:0;background:linear-gradient(160deg,#0a0a12,#1a0b2e 55%,#000);z-index:80;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.coming-soon .big{font-size:60px}
+.coming-soon .txt{font-size:18px;font-weight:900;color:#c084fc}
+.coming-soon .sub{font-size:12px;color:#9ca3af}
+.rank-row{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(168,85,247,.35);border-radius:12px;padding:10px;margin-bottom:8px}
+.rank-row.top{border:2px solid #facc15;box-shadow:0 0 12px rgba(250,204,21,.4)}
+.rank-num{font-size:16px;font-weight:900;color:#facc15;min-width:28px;text-align:center}
+.rank-row.top .rank-num{font-size:20px}
+.rank-name{flex:1;font-size:13px;font-weight:800}
+.rank-score{font-size:12px;color:#c084fc;font-weight:800}
+.create-family-page{position:fixed;inset:0;background:linear-gradient(160deg,#0a0a12,#1a0b2e 55%,#000);z-index:90;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:14px}
+.create-family-page .big{font-size:70px}
+.create-family-page .txt{font-size:20px;font-weight:900;color:#c084fc}
+.create-family-page button{background:linear-gradient(135deg,#7c3aed,#ec4899);border:none;color:#fff;font-size:16px;font-weight:900;padding:14px 28px;border-radius:16px;cursor:pointer}
+.family-form-page{position:fixed;inset:0;background:linear-gradient(160deg,#0a0a12,#1a0b2e 55%,#000);z-index:90;display:none;flex-direction:column;padding:14px;gap:12px}
+.family-form-page .back{font-size:22px;cursor:pointer;color:#c084fc}
+.family-form-page .title{font-size:18px;font-weight:900;color:#c084fc}
+.family-form-page input,.family-form-page textarea{background:rgba(255,255,255,.06);border:1px solid rgba(168,85,247,.4);border-radius:12px;padding:12px;color:#fff;font-size:14px;width:100%}
+.family-form-page textarea{min-height:80px;resize:vertical}
+.family-form-page .photo-box{background:rgba(255,255,255,.06);border:1px solid rgba(168,85,247,.4);border-radius:16px;padding:14px;text-align:center;cursor:pointer;font-size:14px}
+.family-form-page button.create{background:linear-gradient(135deg,#7c3aed,#ec4899);border:none;color:#fff;font-size:16px;font-weight:900;padding:14px;border-radius:16px;cursor:pointer;margin-top:auto}
+</style>
+</head>
+<body>
+
+<div class="bg">
+ <span class="heart big" style="left:3%;color:#a855f7;font-size:46px;z-index:1;animation-delay:0s">💜</span>
+ <span class="heart" style="left:12%;animation-duration:11s;color:#a855f7;font-size:18px;z-index:0">💜</span>
+ <span class="heart big" style="left:22%;color:#7e22ce;font-size:46px;z-index:2;animation-delay:2s">💜</span>
+ <span class="heart" style="left:32%;animation-duration:13s;color:#a855f7;font-size:18px;z-index:0">💜</span>
+ <span class="heart big" style="left:42%;color:#a855f7;font-size:46px;z-index:1;animation-delay:4s">💜</span>
+ <span class="heart" style="left:52%;animation-duration:11s;color:#7e22ce;font-size:18px;z-index:0">💜</span>
+ <span class="heart big" style="left:62%;color:#a855f7;font-size:46px;z-index:2;animation-delay:6s">💜</span>
+ <span class="heart" style="left:72%;animation-duration:13s;color:#a855f7;font-size:18px;z-index:0">💜</span>
+ <span class="heart big" style="left:82%;color:#7e22ce;font-size:46px;z-index:1;animation-delay:8s">💜</span>
+ <span class="heart" style="left:92%;animation-duration:11s;color:#a855f7;font-size:18px;z-index:0">💜</span>
+</div>
+
+<div class="wrap">
+ <div class="head">
+  <div class="top-tab" onclick="setMode('related')">Related</div>
+  <div class="top-tab" onclick="setMode('explore')">Explore</div>
+  <div class="top-tab" onclick="setMode('event')">Event</div>
+  <div class="search-icon" onclick="searchRoom()">🔍</div>
+  <div class="home-plus-icon" onclick="openCreateFamilyPage()"><span class="home">🏠</span><span class="plus">+</span></div>
+ </div>
+</div>
+
+<div class="wrap">
+ <div id="masterContentContainer"></div>
+</div>
+
+<div class="nav">
+ <button onclick="location.href='homefile3.html'"><span class="ic">🏠</span>Home</button>
+ <button class="active" onclick="location.href='party.html'"><span class="ic">🎉</span>Party Room</button>
+ <button onclick="location.href='inbox.html'"><span class="ic">📥</span>Inbox</button>
+ <button onclick="location.href='profile2.html'"><span class="ic">👤</span>Profile</button>
+</div>
+
+<div id="comingSoon" class="coming-soon">
+  <span class="big">🚧</span>
+  <span class="txt">Coming Soon</span>
+  <span class="sub">Room ka andar ka interface alag file mein banega</span>
+</div>
+
+<div id="createFamilyPage" class="create-family-page">
+  <span class="big">🏰</span>
+  <span class="txt">Create a Family</span>
+  <button onclick="openFamilyForm()">Create Family Room</button>
+</div>
+
+<div id="familyFormPage" class="family-form-page">
+  <span class="back" onclick="closeFamilyForm()">←</span>
+  <span class="title">Family Room Create</span>
+  <input type="text" id="familyName" placeholder="Room Name">
+  <textarea id="familyAbout" placeholder="About"></textarea>
+  <div class="photo-box" onclick="pickFamilyPhoto()">📷 Room Photo Pick karo</div>
+  <button class="create" onclick="createFamilyRoom()">Create Family Room</button>
+</div>
+
+<script>
+const sb = supabase.createClient(
+  'https://mblcbygpqbogmtzacbtz.supabase.co',
+  'sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV'
+);
+
+let currentActiveMode = localStorage.getItem('voxa_active_mode')||'related';
+let currentSubTabMode = localStorage.getItem('voxa_subtab_mode')||'recent';
+let currentExploreCat = localStorage.getItem('voxa_explore_cat')||'recommended';
+let currentRankTab = localStorage.getItem('voxa_rank_tab')||'rooms';
+let familyPhoto='';
+
+const OFFICIAL_CREATORS=['creator_main_id','creator_partner_id'];
+
+const CUSTOMER_SUPPORT_ROOM={
+  id:'10001',
+  name:'🎧 Customer Support 💬',
+  emoji:'🎧',
+  count:1,
+  permanent:true,
+  live:true,
+  category:'official',
+  type:'official',
+  owner:'creator_main_id',
+  admins:[],
+  onlineUsers:[],
+  level:1,
+  language:'en',
+  rules:'',
+  image:'',
+  alwaysVisible:true
+};
+
+function isAuthorizedOfficial(uid){
+  return OFFICIAL_CREATORS.includes(uid);
+}
+
+function canCreateOfficialRoom(uid){
+  return isAuthorizedOfficial(uid);
+}
+
+function getRole(room,uid){
+  if(room.owner===uid)return 'owner';
+  if(room.admins?.includes(uid))return 'admin';
+  return 'member';
+}
+
+function getAdminLimit(room){
+  if(room.type==='official')return 30;
+  const level=room.level||1;
+  if(level>=21)return 30;
+  if(level>=15)return 15;
+  return 10;
+}
+
+function canAppointAdmin(room){
+  return (room.admins||[]).length<getAdminLimit(room);
+}
+
+function appointAdmin(room,uid){
+  if(!canAppointAdmin(room)){
+    alert('Admin seat limit reached ('+getAdminLimit(room)+').');
+    return false;
+  }
+  room.admins=[...(room.admins||[]),uid];
+  return true;
+}
+
+function removeAdmin(room,uid){
+  room.admins=(room.admins||[]).filter(a=>a!==uid);
+}
+
+function getRankingData(tab){
+  const rooms=getRooms('voxa_managed_rooms');
+  if(tab==='rooms'){
+    return rooms.map(r=>({name:r.name,score:r.count||1})).sort((a,b)=>b.score-a.score).slice(0,20);
+  }
+  if(tab==='receiver'||tab==='sender'){
+    return rooms.map(r=>({name:r.name,score:r.count||1})).sort((a,b)=>b.score-a.score).slice(0,20);
+  }
+  if(tab==='pk'){
+    return rooms.filter(r=>r.category==='games').map(r=>({name:r.name,score:r.count||1})).sort((a,b)=>b.score-a.score).slice(0,20);
+  }
+  if(tab==='games'){
+    return rooms.filter(r=>r.category==='games').map(r=>({name:r.name,score:r.count||1})).sort((a,b)=>b.score-a.score).slice(0,20);
+  }
+  return [];
+}
+
+function getUserID(){
+  let uid=localStorage.getItem('voxa_user_id');
+  if(!uid){
+    uid='u'+Date.now();
+    localStorage.setItem('voxa_user_id',uid);
+  }
+  return uid;
+}
+
+function getRooms(key){
+  let rooms=[];
+  try{rooms=JSON.parse(localStorage.getItem(key))||[];}catch(e){rooms=[];}
+  return rooms;
+}
+
+function saveRooms(key,rooms){
+  localStorage.setItem(key,JSON.stringify(rooms));
+}
+
+function getAllRooms(){
+  return [CUSTOMER_SUPPORT_ROOM,...getRooms('voxa_managed_rooms'),...getRooms('voxa_followed_rooms'),...getRooms('voxa_recent_rooms'),...getRooms('voxa_explore_rooms')];
+}
+
+function canCreateNormalRoom(uid){
+  const rooms=getRooms('voxa_managed_rooms');
+  return !rooms.some(r=>r.owner===uid&&r.type==='normal');
+}
+
+function canCreateFamilyRoom(uid){
+  const rooms=getRooms('voxa_managed_rooms');
+  return !rooms.some(r=>r.owner===uid&&r.type==='family');
+}
+
+function generateUnique9DigitID(){
+  const all=getAllRooms();
+  let id;
+  do{
+    id=String(Math.floor(100000000+Math.random()*900000000));
+  }while(all.some(r=>String(r.id)===id));
+  return id;
+}
+
+function createNormalRoom(name,uid){
+  if(!canCreateNormalRoom(uid)){
+    alert('Har user sirf 1 permanent Normal Room bana sakta hai.');
+    return null;
+  }
+  const id=generateUnique9DigitID();
+  const room={id,name,emoji:'🎙️',count:1,permanent:true,live:false,category:'chat',type:'normal',owner:uid,admins:[],onlineUsers:[uid],level:1,language:'en',rules:'',image:''};
+  const rooms=getRooms('voxa_managed_rooms');
+  rooms.unshift(room);
+  saveRooms('voxa_managed_rooms',rooms);
+  return room;
+}
+
+function createFamilyRoom(){
+  const uid=getUserID();
+  if(!canCreateFamilyRoom(uid)){
+    alert('Har user sirf 1 permanent Family Room bana sakta hai.');
+    return;
+  }
+  const name=document.getElementById('familyName').value.trim();
+  const about=document.getElementById('familyAbout').value.trim();
+  if(!name){
+    alert('Room Name required hai.');
+    return;
+  }
+  const id=generateUnique9DigitID();
+  const room={id,name,about,image:familyPhoto||'',emoji:'🏰',count:1,permanent:true,live:false,category:'family',type:'family',owner:uid,admins:[],onlineUsers:[uid],level:1,language:'en',rules:''};
+  const rooms=getRooms('voxa_managed_rooms');
+  rooms.unshift(room);
+  saveRooms('voxa_managed_rooms',rooms);
+  closeFamilyForm();
+  renderScreenView();
+  alert('Family Room create ho gaya: '+name+' 💯 (Room ID: '+id+')');
+}
+
+function checkAutoClose(room){
+  if(room.alwaysVisible)return room;
+  const online=room.onlineUsers||[];
+  const ownerPresent=online.includes(room.owner);
+  const adminPresent=(room.admins||[]).some(a=>online.includes(a));
+  if(!ownerPresent&&!adminPresent){
+    room.live=false;
+  }
+  return room;
+}
+
+function searchRoom(){
+  const id=prompt('Room ID search karo (9-digit ya Official text ID):');
+  if(!id)return;
+  const all=getAllRooms();
+  const found=all.find(r=>String(r.id)===id.trim());
+  if(found){
+    openComingSoon();
+  } else {
+    alert('Is Room ID se koi room nahi mila.');
+  }
+}
+
+function openComingSoon(){
+  document.getElementById('comingSoon').style.display='flex';
+}
+
+function openCreateFamilyPage(){
+  document.getElementById('createFamilyPage').style.display='flex';
+}
+
+function openFamilyForm(){
+  document.getElementById('createFamilyPage').style.display='none';
+  document.getElementById('familyFormPage').style.display='flex';
+}
+
+function closeFamilyForm(){
+  document.getElementById('familyFormPage').style.display='none';
+}
+
+function pickFamilyPhoto(){
+  const input=document.createElement('input');
+  input.type='file';
+  input.accept='image/*';
+  input.onchange=function(){
+    const file=input.files[0];
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=function(e){
+      familyPhoto=e.target.result;
+      alert('Photo pick ho gayi 💯');
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+function renderScreenView() {
+  const container = document.getElementById('masterContentContainer');
+  if (currentActiveMode === 'explore') {
+    container.innerHTML = `
+    <div class="category-grid">
+      <div class="grid-card" onclick="setExploreCat('ranking')" style="background:#facc15;border-color:#facc15"><div class="card-icon">👑</div><div style="color:#000">Ranking</div></div>
+      <div class="grid-card" onclick="setExploreCat('games')" style="background:#60a5fa;border-color:#60a5fa"><div class="card-icon">🎮</div><div style="color:#000">Games</div></div>
+      <div class="grid-card" onclick="setExploreCat('family')" style="background:#f472b6;border-color:#f472b6"><div class="card-icon">🏰</div><div style="color:#000">Family</div></div>
+    </div>
+    <div class="filter-tags-row">
+      <span class="filter-tag ${currentExploreCat==='recommended'?'active':''}" onclick="setExploreCat('recommended')">All Rooms</span>
+      <span class="filter-tag ${currentExploreCat==='official'?'active':''}" onclick="setExploreCat('official')">Official</span>
+      <span class="filter-tag ${currentExploreCat==='blinded'?'active':''}" onclick="setExploreCat('blinded')">Blind Date</span>
+      <span class="filter-tag ${currentExploreCat==='games'?'active':''}" onclick="setExploreCat('games')">Games</span>
+      <span class="filter-tag ${currentExploreCat==='chat'?'active':''}" onclick="setExploreCat('chat')">New / Chat</span>
+      <span class="filter-tag ${currentExploreCat==='matchmaker'?'active':''}" onclick="setExploreCat('matchmaker')">Match Maker</span>
+    </div>
+    <div id="exploreRoomsList" class="rooms-list"></div>`;
+    renderExploreRooms();
+  } else if (currentActiveMode === 'related') {
+    container.innerHTML = `
+    <div class="subtabs">
+      <span class="subtab ${currentSubTabMode==='recent'?'active':''}" onclick="setSubTab('recent')">Recently</span>
+      <span class="subtab ${currentSubTabMode==='following'?'active':''}" onclick="setSubTab('following')">Following</span>
+      <span class="subtab ${currentSubTabMode==='manage'?'active':''}" onclick="setSubTab('manage')">Manage</span>
+    </div>
+    <div id="subTabRoomsList" class="rooms-list"></div>`;
+    renderSubTabContent();
+  } else if (currentActiveMode === 'event') {
+    container.innerHTML = `<div style="color:#9ca3af;text-align:center;padding:20px">Events coming soon 💯</div>`;
+  } else {
+    container.innerHTML = `<div class="sub">Coming Soon 💯</div>`;
+  }
+}
+
+function setExploreCat(cat){
+  currentExploreCat=cat;
+  localStorage.setItem('voxa_explore_cat',cat);
+  renderScreenView();
+}
+
+function renderExploreRooms(){
+  const list=document.getElementById('exploreRoomsList');
+  if(!list)return;
+  const all=getAllRooms().map(checkAutoClose);
+  const active=all.filter(r=>r.live);
+  let rooms=[];
+  if(currentExploreCat==='recommended'||currentExploreCat==='allrooms'){
+    rooms=active;
+  } else if(currentExploreCat==='official'){
+    rooms=active.filter(r=>r.category==='official');
+  } else if(currentExploreCat==='blinded'){
+    rooms=active.filter(r=>r.category==='blinded');
+  } else if(currentExploreCat==='games'){
+    rooms=active.filter(r=>r.category==='games');
+  } else if(currentExploreCat==='chat'){
+    rooms=active.filter(r=>r.category==='chat');
+  } else if(currentExploreCat==='matchmaker'){
+    rooms=active.filter(r=>r.category==='matchmaker');
+  } else if(currentExploreCat==='ranking'){
+    renderRanking(list);
+    return;
+  } else if(currentExploreCat==='family'){
+    renderFamily(list);
+    return;
+  }
+  if(!rooms.length){
+    list.innerHTML='<div style="color:#9ca3af;text-align:center;padding:20px">Is category mein abhi koi active room nahi hai.</div>';
+  } else {
+    list.innerHTML=rooms.map(r=>roomCard(r)).join('');
+  }
+}
+
+function renderRanking(list){
+  const tabs=['rooms','receiver','sender','pk','games'];
+  const labels={rooms:'Rooms',receiver:'Receiver Users',sender:'Sender Users',pk:'PK Rooms',games:'Games'};
+  let html='<div class="filter-tags-row">';
+  tabs.forEach(t=>{
+    html+='<span class="filter-tag '+(currentRankTab===t?'active':'')+'" onclick="setRankTab(\''+t+'\')">'+labels[t]+'</span>';
+  });
+  html+='</div><div id="rankList" class="rooms-list"></div>';
+  list.innerHTML=html;
+  const data=getRankingData(currentRankTab);
+  const rankList=document.getElementById('rankList');
+  if(!data.length){
+    rankList.innerHTML='<div style="color:#9ca3af;text-align:center;padding:20px">Abhi koi ranking data nahi hai.</div>';
+    return;
+  }
+  rankList.innerHTML=data.map((d,i)=>{
+    const rank=i+1;
+    const cls=rank<=3?'top':'';
+    return '<div class="rank-row '+cls+'"><span class="rank-num">'+rank+'</span><span class="rank-name">'+d.name+'</span><span class="rank-score">'+d.score+'</span></div>';
+  }).join('');
+}
+
+function setRankTab(tab){
+  currentRankTab=tab;
+  localStorage.setItem('voxa_rank_tab',tab);
+  renderScreenView();
+}
+
+function renderFamily(list){
+  const all=getAllRooms().map(checkAutoClose);
+  const active=all.filter(r=>r.live&&r.category==='family');
+  const sorted=active.sort((a,b)=>(b.count||1)-(a.count||1)).slice(0,20);
+  if(!sorted.length){
+    list.innerHTML='<div style="color:#9ca3af;text-align:center;padding:20px">Abhi koi active family room nahi hai.</div>';
+    return;
+  }
+  list.innerHTML=sorted.map((r,i)=>{
+    const rank=i+1;
+    const cls=rank<=3?'top':'';
+    return '<div class="rank-row '+cls+'"><span class="rank-num">'+rank+'</span><span class="rank-name">'+r.name+'</span><span class="rank-score">'+(r.count||1)+'</span></div>';
+  }).join('');
+}
+
+function renderSubTabContent() {
+  const subList = document.getElementById('subTabRoomsList');
+  if (!subList) return;
+  if (currentSubTabMode === 'recent') {
+    const rooms=getRooms('voxa_recent_rooms').map(checkAutoClose);
+    if(!rooms.length){
+      subList.innerHTML = '<div style="color:#9ca3af;text-align:center;padding:20px">Recently mein abhi koi room nahi hai.</div>';
+    } else {
+      subList.innerHTML = rooms.map(r=>roomCard(r)).join('');
+    }
+  } else if (currentSubTabMode === 'following') {
+    const rooms=getRooms('voxa_followed_rooms').map(checkAutoClose);
+    if(!rooms.length){
+      subList.innerHTML = '<div style="color:#9ca3af;text-align:center;padding:20px">Abhi koi room follow nahi kiya hai.</div>';
+    } else {
+      subList.innerHTML = rooms.map(r=>roomCard(r)).join('');
+    }
+  } else {
+    const uid=getUserID();
+    const rooms=getRooms('voxa_managed_rooms').filter(r=>r.owner===uid||r.admins?.includes(uid)).map(checkAutoClose);
+    if(!rooms.length){
+      subList.innerHTML = '<div style="color:#9ca3af;text-align:center;padding:20px">Abhi koi managed room nahi hai.</div>';
+    } else {
+      subList.innerHTML = rooms.map(r=>roomCard(r)).join('');
+    }
+  }
+}
+
+function roomCard(r){
+  const status=r.live?'<span class="mini-badge badge-on">ON</span>':'<span class="mini-badge badge-off">OFF</span>';
+  const dp=r.image?'<img src="'+r.image+'">':(r.emoji||'🎙️');
+  return '<div class="room-card" onclick="openRoomById(\''+r.id+'\')">'
+    +'<div class="room-left"><div class="avatar-frame-wrapper"><div class="room-avatar">'+dp+'</div></div>'
+    +'<div class="room-info"><span class="room-title">'+(r.name||'Room')+'</span><div class="badges-row">'+status+'<span class="mini-badge badge-party">ID: '+r.id+'</span></div></div></div>'
+    +'<div class="room-right"><div class="audio-wave"><div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div></div><span>'+(r.count||1)+'</span></div></div>';
+}
+
+function openRoomById(id){
+  const all=getAllRooms().map(checkAutoClose);
+  const room=all.find(r=>String(r.id)===String(id));
+  if(!room)return;
+  if(!room.live){
+    const uid=getUserID();
+    const isOwner=room.owner===uid;
+    const isAdmin=room.admins?.includes(uid);
+    if(isOwner||isAdmin){
+      if(confirm('Ye room OFF hai. Owner/Admin hone ki wajah se ON karna hai?')){
+        room.live=true;
+        saveRooms('voxa_managed_rooms',getRooms('voxa_managed_rooms'));
+        renderScreenView();
+        alert('Room ON ho gaya 💯');
+      } else {
+        alert('Normal member OFF room mein enter nahi kar sakta.');
+      }
+    } else {
+      alert('Normal member OFF room mein enter nahi kar sakta.');
+    }
+    return;
+  }
+  openComingSoon();
+}
+
+function saveState(){
+  localStorage.setItem('voxa_active_mode',currentActiveMode);
+  localStorage.setItem('voxa_subtab_mode',currentSubTabMode);
+}
+
+function setMode(mode){currentActiveMode=mode;saveState();renderScreenView();}
+function setSubTab(mode){currentSubTabMode=mode;saveState();renderSubTabContent();}
+
+renderScreenView();
+</script>
+</body>
+</html>
