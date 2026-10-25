@@ -1,17 +1,102 @@
 <!DOCTYPE html>
-<html>
+<html lang="ur">
 <head>
-  <meta charset="utf-8">
-  <title>Inbox Test</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voxa Inbox</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #0f172a; color: #e2e8f0; padding: 16px; }
+  .wrap { max-width: 480px; margin: auto; }
+  h1 { font-size: 20px; margin-bottom: 12px; }
+  .card { background: #1e293b; border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; gap: 10px; align-items: center; width: 100%; border: none; color: inherit; text-align: left; cursor: pointer; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; background: #3b82f6; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
+  .info { flex: 1; }
+  .small { font-size: 12px; color: #94a3b8; }
+  .muted { color: #94a3b8; font-size: 14px; }
+  .actions { display: flex; gap: 6px; }
+  button { background: #3b82f6; color: white; border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; font-size: 14px; }
+  button.alt { background: #475569; }
+  input, textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: inherit; margin-bottom: 8px; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+  .tabs button { flex: 1; background: #1e293b; }
+  .tabs button.active { background: #3b82f6; }
+  .badge { background: #ef4444; border-radius: 50%; padding: 2px 7px; font-size: 12px; }
+  dialog { background: #1e293b; color: inherit; border: none; border-radius: 12px; padding: 16px; width: min(480px, 92vw); }
+  dialog::backdrop { background: rgba(0,0,0,.6); }
+  .messages { max-height: 50vh; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+  .bubble { background: #334155; padding: 8px 12px; border-radius: 12px; max-width: 80%; align-self: flex-start; }
+  .bubble.mine { background: #3b82f6; align-self: flex-end; }
+  .bubble img { max-width: 100%; border-radius: 8px; }
+  .caption { font-size: 13px; margin-top: 4px; }
+  .row { display: flex; gap: 8px; }
+  .row input { flex: 1; margin: 0; }
+  #attachment { margin: 8px 0; }
+  #attachment img { max-width: 120px; border-radius: 8px; display: block; margin-bottom: 6px; }
+</style>
 </head>
 <body>
-  <h1>Inbox Test Page</h1>
-  <p id="myId">Loading…</p>
-  <div id="online"></div>
-  <div id="status"></div>
-  <script>
-    // Yahan aapka poora script paste karo
-  </script>
+<div class="wrap">
+  <h1>Voxa Inbox</h1>
+  <p id="myId" class="muted">Loading…</p>
+  <p id="status" class="muted"></p>
+
+  <div class="tabs">
+    <button id="chatsTab" class="active">💬 Chats</button>
+    <button id="contactsTab">👥 Contacts</button>
+    <button id="requests">🔔 Requests <span id="badge" class="badge" hidden>0</span></button>
+  </div>
+
+  <div id="chats">
+    <div id="searchSection" hidden>
+      <input id="search" placeholder="User ID se search karo…">
+      <div id="results"></div>
+    </div>
+    <div id="online"></div>
+  </div>
+
+  <div id="contacts" hidden></div>
+</div>
+
+<dialog id="listModal">
+  <h2 id="listTitle"></h2>
+  <div id="listBody" style="margin:12px 0"></div>
+  <button data-close="listModal">Close</button>
+</dialog>
+
+<dialog id="chatModal">
+  <h2 id="chatTitle"></h2>
+  <p id="chatNote" class="muted"></p>
+  <div id="messages" class="messages"></div>
+  <div id="attachment" hidden>
+    <img id="previewImage" alt="preview">
+    <button id="removePhoto" class="alt">Remove photo</button>
+  </div>
+  <form id="sendForm">
+    <div class="row">
+      <button type="button" id="photoButton">📷</button>
+      <input id="message" placeholder="Message likho…" autocomplete="off">
+      <button type="submit" id="sendButton">Send</button>
+    </div>
+    <input type="file" id="file" accept="image/jpeg,image/png,image/webp" hidden>
+  </form>
+  <button data-close="chatModal" class="alt" style="margin-top:8px">Close chat</button>
+</dialog>
+
+<dialog id="callModal">
+  <h2>Call</h2>
+  <p id="callState" class="muted">Ringing…</p>
+  <div class="row" style="margin-top:12px">
+    <button id="acceptCall">Accept</button>
+    <button id="muteCall" class="alt">Mute</button>
+    <button id="endCall" class="alt">End</button>
+  </div>
+</dialog>
+
+<script>
+// ==== YAHAN AAPKA POORA SCRIPT PASTE KARO ====
+// (Wahi script jo aapne mujhe bheja tha — start() se lekar end tak)
+</script>
 </body>
 </html>
