@@ -310,3 +310,75 @@ const sampleNotifs=[
  {ic:'💗',grad:'linear-gradient(135deg,#f43f5e,#f97316)',txt:'Priya Nair ne aapko 10 Hearts bheje',sub:'22 min ago • Voice Match',tag:'Love',c:'#f43f5e'},
  {ic:'🎲',grad:'linear-gradient(135deg,#f59e0b,#ef4444)',txt:'Vikram Singh ne aapko Ludo challenge kiya',sub:'30 min ago • Ludo Room',tag:'Game',c:'#f59e0b'},
  {ic:'👤',grad:'linear-gradient(135deg,#22c55e,#14b8a6)',txt:'Priya Nair ne aapko follow kiya',sub:'1 hour ago • New follower',tag:'Follow',c:'#22c55e'}
+ {ic:'💬',grad:'linear-gradient(135deg,#8b5cf6,#3b82f6)',txt:'Rahul Mehta ne aapki post pe comment kiya',sub:'2 hours ago • "Kya baat hai!"',tag:'Comment',c:'#8b5cf6'},
+ {ic:'💗',grad:'linear-gradient(135deg,#facc15,#f97316)',txt:'Aapki post ko 500 naye likes mile',sub:'3 hours ago • Ludo Championship post',tag:'Like',c:'#facc15'}
+];
+function loadNotifs(){
+ let notifs=[];
+ try{notifs=JSON.parse(localStorage.getItem('voxa_notifications'))||[];}catch(e){notifs=[];}
+ if(!notifs.length){notifs=sampleNotifs;}
+ document.getElementById('notifCount').textContent=notifs.length;
+ document.getElementById('notifList').innerHTML=notifs.map(n=>`
+  <div class="notif-item" onclick="alert('Opening notification...')">
+   <div class="ni" style="background:${n.grad||'linear-gradient(135deg,#7c3aed,#3b82f6)'}">${n.ic||'🔔'}</div>
+   <div class="nt"><b>${n.txt||''}</b><span>${n.sub||''}</span></div>
+   <div class="ntag" style="background:${n.c||'#a855f7'}">${n.tag||'Info'}</div>
+  </div>`).join('');
+}
+
+const tasks=[
+ {ic:'👤',grad:'linear-gradient(135deg,#a855f7,#ec4899)',txt:'Follow 1 new person',sub:'Follow anyone & get reward',reward:20},
+ {ic:'💗',grad:'linear-gradient(135deg,#ec4899,#f97316)',txt:'Send 5 Hearts',sub:'Send hearts in Voice Match',reward:10},
+ {ic:'🎲',grad:'linear-gradient(135deg,#f59e0b,#ef4444)',txt:'Play 1 Ludo Game',sub:'Join & finish a Ludo match',reward:9},
+ {ic:'🎙️',grad:'linear-gradient(135deg,#7c3aed,#3b82f6)',txt:'Join 1 Voice Party Room',sub:'Spend 5 min in a room',reward:8}
+];
+let diamonds=0,done=[];
+try{diamonds=parseInt(localStorage.getItem('voxa_diamonds'))||0;done=JSON.parse(localStorage.getItem('voxa_tasks_done'))||[];}catch(e){}
+function loadTasks(){
+ document.getElementById('diamondCount').textContent=diamonds;
+ document.getElementById('taskList').innerHTML=tasks.map((t,i)=>`
+  <div class="task ${done.includes(i)?'done':''}" onclick="claim(${i})">
+   <div class="ti" style="background:${t.grad}">${t.ic}</div>
+   <div class="tt"><b>${t.txt}</b><span>${t.sub}</span></div>
+   <div class="reward">💎 ${t.reward}</div>
+  </div>`).join('');
+}
+function claim(i){
+ if(done.includes(i)){alert('Ye task already complete hai!');return;}
+ done.push(i);
+ diamonds+=tasks[i].reward;
+ localStorage.setItem('voxa_diamonds',diamonds);
+ localStorage.setItem('voxa_tasks_done',JSON.stringify(done));
+ loadTasks();
+ alert('💎 '+tasks[i].reward+' diamonds mil gaye!');
+}
+
+const samplePosts=[
+ {name:'Riya Sharma',time:'2 min ago',emoji:'👩',grad:'linear-gradient(135deg,#ec4899,#f97316)',pimg:'linear-gradient(135deg,#7c3aed,#ec4899)',pic:'🎤🎶',text:'Aaj raat Voice Party Room mein mast music aur masti! Join karo sab log 💯🔥',likes:'1.2K',comments:'86'},
+ {name:'Arjun Verma',time:'8 min ago',emoji:'👨',grad:'linear-gradient(135deg,#f59e0b,#ef4444)',pimg:'linear-gradient(135deg,#dc2626,#f59e0b)',pic:'🎲🏆',text:'Ludo Championship jeet liya! +500 coins mila 🎉 Koi challenge karega? 💯',likes:'890',comments:'42'},
+ {name:'Sneha Patel',time:'15 min ago',emoji:'🧑',grad:'linear-gradient(135deg,#a855f7,#ec4899)',pimg:'linear-gradient(135deg,#a855f7,#ec4899)',pic:'💘💖',text:'Voice Match pe 3 naye matches mile! Kitna cute hai ye app 💯💗',likes:'2.1K',comments:'134'}
+];
+function loadPosts(){
+ const feed=document.getElementById('postsFeed');
+ let posts=[];
+ try{posts=JSON.parse(localStorage.getItem('voxa_posts'))||[];}catch(e){posts=[];}
+ if(!posts.length){posts=samplePosts;}
+ feed.innerHTML=posts.map(p=>`
+  <div class="post" onclick="alert('Opening post...')">
+   <div class="ph">
+    <div class="pa" style="background:${p.grad||'linear-gradient(135deg,#7c3aed,#3b82f6)'}">${p.emoji||'👤'}</div>
+    <div class="pt"><b>${p.name||'User'}</b><span>${p.time||'Just now'}</span></div>
+   </div>
+   ${p.pic?`<div class="pimg" style="background:${p.pimg||'linear-gradient(135deg,#7c3aed,#ec4899)'}">${p.pic}</div>`:''}
+   <div class="pbody">${p.text||''}</div>
+   <div class="pfoot"><span>💗 ${p.likes||'0'}</span><span>💬 ${p.comments||'0'}</span><span>↗️ Share</span></div>
+  </div>`).join('');
+}
+loadNotifs();
+loadTasks();
+loadPosts();
+</script>
+
+ </div>
+</body>
+</html>
