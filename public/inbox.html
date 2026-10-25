@@ -142,5 +142,11 @@ $('giftBtn').onclick=async()=>{if(!activeChat)return;await sb.from('messages').i
 $('callBtn').onclick=()=>alert('Voice call starting…');
 sb.channel('inbox').on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},()=>loadMessages()).subscribe();
 </script>
+  <div class="nav">
+ <button onclick="location.href='homefile3.html'"><span class="ic">🏠</span>Home</button>
+ <button onclick="location.href='party.html'"><span class="ic">🎉</span>Party Room</button>
+ <button class="active" onclick="location.href='inbox.html'"><span class="ic">📥</span>Inbox</button>
+ <button onclick="location.href='profile2.html'"><span class="ic">👤</span>Profile</button>
+  </div>
 </body>
 </html>
