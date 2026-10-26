@@ -204,13 +204,13 @@ svg{display:inline-block;vertical-align:middle}
   <svg class="ic" viewBox="0 0 24 24" style="stroke:#00E5FF"><path d="M12 3v1M12 20v1M4.22 4.22l.7.7M18.36 18.36l.7.7M1 12h1M22 12h1M4.22 19.78l.7-.7M18.36 5.64l.7-.7"/></svg>
   Recommended Users
 </div>
-<div class="bubbles" id="recommendBubbles"></div
+<div class="bubbles" id="recommendBubbles"></div>
 <div class="chatlist-head">
   <h3>Chatlist</h3>
   <div class="filter">All</div>
 </div>
 <div id="chatList"></div>
-  </div
+</div>
 <div id="contactsView" class="contacts-view hidden"></div>
 <div id="chatScreen" class="chat-screen hidden">
   <div id="teleportBanner" class="teleport-banner hidden" onclick="teleport()">
@@ -241,43 +241,42 @@ svg{display:inline-block;vertical-align:middle}
     <button class="send-btn" onclick="sendMsg()">
       <svg viewBox="0 0 24 24" style="stroke:#fff"><path d="m5 12 14-7-7 14-2-5-5-2z"/></svg>
     </button>
+      </div><div class="kb" id="keyboard" style="display:none">
+  <div class="kb-tabs">
+    <button class="active" onclick="setKbTab('emoji',this)">Smileys</button>
+    <button onclick="setKbTab('sticker',this)">Stickers</button>
   </div>
-  <div id="keyboard" class="kb hidden">
-    <div class="kb-tabs">
-      <button class="active" onclick="setKbTab('emoji',this)">Smileys</button>
-      <button onclick="setKbTab('sticker',this)">Stickers</button>
-    </div>
-    <div class="kb-body">
-      <div id="kbEmoji" class="emoji-grid"></div>
-      <div id="kbSticker" class="sticker-grid hidden"></div>
-    </div>
-    <div class="kb-foot" style="position:relative">
-      <button class="kb-plus" onclick="openStore()">+</button>
-    </div>
+  <div class="kb-body">
+    <div id="kbEmoji" class="emoji-grid"></div>
+    <div id="kbSticker" class="sticker-grid hidden"></div>
   </div>
-  <div class="chat-tools">
-    <button class="tool" onclick="startVoice()">
-      <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/></svg>
-      <span class="lb">Voice</span>
-    </button>
-    <button class="tool" onclick="pickImage()">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-      <span class="lb">Images</span>
-    </button>
-    <button class="tool" onclick="openQA()">
-      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.7"/><circle cx="12" cy="17" r=".5"/></svg>
-      <span class="lb">Q&A</span>
-    </button>
-    <button class="tool" onclick="openGifts()">
-      <svg viewBox="0 0 24 24"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
-      <span class="lb">Gifting box</span>
-    </button>
-    <button class="tool" onclick="startCall()">
-      <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-      <span class="lb">Call</span>
-    </button>
+  <div class="kb-foot" style="position:relative">
+    <button class="kb-plus" onclick="openStore()">+</button>
   </div>
-  <input type="file" id="imgFile" accept="image/*" hidden>
+</div>
+<div class="chat-tools">
+  <button class="tool" onclick="startVoice()">
+    <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/></svg>
+    <span class="lb">Voice</span>
+  </button>
+  <button class="tool" onclick="pickImage()">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+    <span class="lb">Images</span>
+  </button>
+  <button class="tool" onclick="openQA()">
+    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.7"/><circle cx="12" cy="17" r=".5"/></svg>
+    <span class="lb">Q&A</span>
+  </button>
+  <button class="tool" onclick="openGifts()">
+    <svg viewBox="0 0 24 24"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+    <span class="lb">Gifting box</span>
+  </button>
+  <button class="tool" onclick="startCall()">
+    <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    <span class="lb">Call</span>
+  </button>
+</div>
+<input type="file" id="imgFile" accept="image/*" hidden>
 </div>
 
 <div id="storeModal" class="store-modal hidden">
@@ -333,166 +332,128 @@ svg{display:inline-block;vertical-align:middle}
     <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v1"/></svg>
     Mine
   </button>
-</div>
-
-<script>
-const TENOR_API_KEY='YOUR_TENOR_API_KEY';
-const State={
-  currentUser:{id:'me',name:'Me',avatar:'M',walletBalance:500},
-  users:[],threads:{},pinned:[],
-  installedPacks:JSON.parse(localStorage.getItem('voxa_sticker_packs')||'[]'),
-  downloadState:{},downloadProgress:{},stickerPacks:[]
-};
-const MockService={
-  init(){
-    /* User 1: Aarav — Live in Voice Room (no level, clean profile) */
-    State.users.push({id:'peer1',name:'Aarav',avatar:'A',isOnline:true,inRoom:true,verified:false,roomId:'room-voice-party'});
-    State.threads['peer1']=[
-      {id:1,text:'Hey! Voice Party join karoge?',sender:'peer1',timestamp:new Date(),read:false,type:'text'},
-      {id:2,text:'',sender:'peer1',timestamp:new Date(),read:false,type:'room_share',extra:{roomName:'Voice Party Room',roomId:'room-voice-party'}}
-    ];
-    /* User 2: Riya — Fake user for testing (online, not in room) */
-    State.users.push({id:'peer2',name:'Riya',avatar:'R',isOnline:true,inRoom:false,verified:false,roomId:null});
-    State.threads['peer2']=[
-      {id:1,text:'Hi! Kaise ho?',sender:'peer2',timestamp:new Date(),read:false,type:'text'},
-      {id:2,text:'Main theek hoon, tum sunao',sender:'me',timestamp:new Date(),read:true,type:'text'},
-      {id:3,text:'Party mein milte hain?',sender:'peer2',timestamp:new Date(),read:false,type:'text'}
-    ];
-    render();
-    setTimeout(()=>pushMessage('peer1','',false,'room_share',{roomName:'Voice Party Room',roomId:'room-voice-party'}),4000);
-  },
-  reply(uid){
-    const r=['Ruko','Thoda busy hoon','Haan bhai!','Nice','Party chal?'];
-    setTimeout(()=>pushMessage(uid,r[Math.floor(Math.random()*r.length)],false),1000);
-  }
-};
+</div><script>
+const sb=supabase.createClient('https://mblcbygpqbogmtzacbtz.supabase.co','sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV');
+let me=null,activeChat=null,deb=null;
+const State={users:[],threads:{},pinned:[],installedPacks:JSON.parse(localStorage.getItem('voxa_sticker_packs')||'[]'),downloadState:{},downloadProgress:{},stickerPacks:[]};
 const $=id=>document.getElementById(id);
-function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2200);}
-function esc(s){return String(s).replace(/</g,'<');}
-function presenceOf(uid){
-  const u=State.users.find(x=>x.id===uid);
-  if(!u)return{status:'offline'};
-  if(u.inRoom)return{status:'live',activeRoomId:u.roomId};
-  if(u.isOnline)return{status:'online'};
-  return{status:'offline'};
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2200);}
+function esc(s){return String(s??'').replace(/</g,'&lt;');}
+function presenceOf(uid){const u=State.users.find(x=>x.id===uid);if(!u)return{status:'offline'};if(u.isOnline)return{status:'online'};return{status:'offline'};}
+function avatarOf(u){return u.photo?'<img src="'+esc(u.photo)+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':esc(u.dp||'👤');}
+async function init(){
+  const {data:{user}}=await sb.auth.getUser();
+  if(!user){location.href='index.html';return;}
+  const {data:p}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();
+  me=p;
+  await loadUsers();
+  await loadThreads();
+  render();
+  sb.channel('voxa-msgs').on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},pl=>{const m=pl.new;if(m.sender_id===me.id||m.receiver_id===me.id)addMessage(m);}).subscribe();
 }
-function pushMessage(uid,text,mine,type,extra){
-  const th=State.threads[uid]=State.threads[uid]||[];
-  const m={id:Date.now()+Math.random(),text,sender:mine?'me':uid,timestamp:new Date(),read:mine,type:type||'text',extra:extra||null};
-  th.push(m);
-  if(activeChat===uid)renderMessages(uid);
+async function loadUsers(){
+  const {data}=await sb.from('profiles').select('id,uid,name,dp,photo,gender,age,last_active').neq('id',me.id);
+  State.users=(data||[]).map(u=>({id:u.id,uid:u.uid,name:u.name||'User',dp:u.dp||'👤',photo:u.photo,isOnline:!!(u.last_active&&Date.now()-new Date(u.last_active)<5*60*1000),inRoom:false,roomId:null}));
+}
+async function loadThreads(){
+  const {data}=await sb.from('messages').select('*').or('sender_id.eq.'+me.id+',receiver_id.eq.'+me.id).order('created_at');
+  (data||[]).forEach(m=>addMessage(m,true));
   renderChatList();
-  return m;
+}
+function addMessage(m,silent){
+  const other=m.sender_id===me.id?m.receiver_id:m.sender_id;
+  const th=State.threads[other]=State.threads[other]||[];
+  if(th.find(x=>x.id===m.id))return;
+  th.push({id:m.id,text:m.text||'',sender:m.sender_id===me.id?'me':other,timestamp:new Date(m.created_at),read:m.read,type:m.type||'text',extra:m.extra});
+  if(activeChat===other&&!silent)renderMessages(other);
+  if(!silent)renderChatList();
+}
+async function sendMsg(){
+  const t=$('msgInput').value.trim();
+  if(!t||!activeChat)return;
+  $('msgInput').value='';
+  const {data,error}=await sb.from('messages').insert({sender_id:me.id,receiver_id:activeChat,text:esc(t),type:'text'}).select().single();
+  if(error){toast('Message send failed');return;}
+  addMessage(data);
+}
+async function markRead(uid){
+  await sb.from('messages').update({read:true}).match({sender_id:uid,receiver_id:me.id,read:false});
+  (State.threads[uid]||[]).forEach(m=>{if(m.sender!=='me')m.read=true;});
+  renderChatList();
 }
 $('chatsTab').onclick=()=>{$('chatsView').classList.remove('hidden');$('contactsView').classList.add('hidden');$('chatsTab').classList.add('active');$('contactsTab').classList.remove('active');};
-$('contactsTab').onclick=()=>{$('contactsView').classList.remove('hidden');$('chatsView').classList.add('hidden');$('contactsTab').classList.add('active');$('chatsTab').classList.remove('active');renderContacts();};
-let deb=null;
+$('contactsTab').onclick=()=>{$('chatsView').classList.add('hidden');$('contactsView').classList.remove('hidden');$('contactsTab').classList.add('active');$('chatsTab').classList.remove('active');renderContacts();};
 $('idSearch').oninput=e=>{
   clearTimeout(deb);
-  deb=setTimeout(()=>{
+  deb=setTimeout(async()=>{
     const q=e.target.value.trim();const box=$('searchResult');const nf=$('notFound');
     if(!q){box.classList.add('hidden');nf.textContent='';return;}
-    const u=State.users.find(x=>x.id===q);
-    if(u){box.classList.remove('hidden');nf.textContent='';box.innerHTML='<div class="nm">'+esc(u.name)+'</div><button onclick="sendReq(\''+u.id+'\')">Send Request</button>';}
+    const {data}=await sb.from('profiles').select('id,uid,name,dp,photo').eq('uid',q).maybeSingle();
+    if(data){box.classList.remove('hidden');nf.textContent='';window._found=data;box.innerHTML='<div class="nm">'+esc(data.name)+'</div><button onclick="sendReq(\''+data.id+'\')">Send Request</button>';}
     else{box.classList.add('hidden');nf.textContent='No user found with this ID';}
   },300);
 };
 $('addBtn').onclick=()=>{$('idSearch').focus();};
-function sendReq(uid){const u=State.users.find(x=>x.id===uid);toast('Request sent to '+u.name);$('searchResult').classList.add('hidden');}
+async function sendReq(uid){
+  const {error}=await sb.from('messages').insert({sender_id:me.id,receiver_id:uid,text:'Hi! 👋',type:'text'});
+  if(error){toast('Request failed');return;}
+  toast('Request sent!');
+  $('searchResult').classList.add('hidden');
+  await loadThreads();render();
+}
 function openFeature(n){if(n==='Voice Party'){location.href='party.html';}else{toast(n+' opening soon');}}
 function joinRoom(r){location.href='party.html';}
 function render(){renderRecommend();renderChatList();renderOnline();renderContacts();renderStickerTab();}
-function presenceBadge(u){
-  const p=presenceOf(u.id);
-  if(p.status==='live')return '<div class="live-badge" onclick="event.stopPropagation();teleportTo(\''+u.id+'\')"><i></i>Live</div>';
-  if(p.status==='online')return '<span class="dot"></span>';
-  return '';
-}
-function teleportTo(uid){
-  const p=presenceOf(uid);
-  if(p.status==='live'){location.href='party.html';}
-}
+function presenceBadge(u){const p=presenceOf(u.id);if(p.status==='online')return '<span class="dot"></span>';return '';}
 function renderRecommend(){
-  const us=State.users.filter(u=>u.inRoom);
-  $('recommendBubbles').innerHTML=us.length?us.map(u=>`<div class="bubble" onclick="openChat('${u.id}')"><div class="ring">${u.avatar}${presenceBadge(u)}</div><div class="bubble-name">${esc(u.name)}</div></div>`).join(''):'';
+  const us=State.users.filter(u=>u.isOnline).slice(0,10);
+  $('recommendBubbles').innerHTML=us.map(u=>`<div class="bubble" onclick="openChat('${u.id}')"><div class="ring">${avatarOf(u)}${presenceBadge(u)}</div><div class="bubble-name">${esc(u.name)}</div></div>`).join('');
+}
+function renderOnline(){
+  const us=State.users.filter(u=>u.isOnline).slice(0,10);
+  $('onlineBubbles').innerHTML=us.map(u=>`<div class="bubble" onclick="openChat('${u.id}')"><div class="ring">${avatarOf(u)}${presenceBadge(u)}</div><div class="bubble-name">${esc(u.name)}</div></div>`).join('');
 }
 function renderChatList(){
-  const entries=Object.entries(State.threads).map(([uid,arr])=>({uid,arr,user:State.users.find(u=>u.id===uid)||{name:'User',avatar:'U'}}))
+  const entries=Object.entries(State.threads).map(([uid,arr])=>({uid,arr,user:State.users.find(u=>u.id===uid)||{name:'User',dp:'👤'}}))
   .sort((a,b)=>{const la=a.arr[a.arr.length-1]?.timestamp||0,lb=b.arr[b.arr.length-1]?.timestamp||0;return lb-la;});
-  if(!entries.length){$('chatList').innerHTML='<div class="empty">Your inbox is fresh! Join a Voice Party room to make friends instantly.</div>';return;}
+  if(!entries.length){$('chatList').innerHTML='<div class="empty">Your inbox is fresh! Search an ID above to start chatting.</div>';return;}
   $('chatList').innerHTML=entries.map(e=>{
     const last=e.arr[e.arr.length-1];const unread=e.arr.filter(m=>!m.read&&m.sender!=='me').length;
     const p=presenceOf(e.uid);
-    const prev=(last.type==='sticker'||last.type==='animated_sticker')?'Sticker':(last.type==='image'?'Photo':(last.type==='room_share'?'Room invite':last.text));
-    const preview=p.status==='live'?'In Voice Room...':prev;
-    const liveBtn=p.status==='live'?`<button class="teleport-btn" onclick="event.stopPropagation();teleportTo('${e.uid}')"><i></i>Live</button>`:'';
-    return `<div class="conv-wrap"><div class="conv-actions"><button class="pin-btn" onclick="event.stopPropagation();pinChat('${e.uid}')">Pin</button><button class="del-btn" onclick="event.stopPropagation();deleteChat('${e.uid}')">Delete</button></div><div class="conv"><div class="conv-main" onclick="openChat('${e.uid}')"><div class="avatar">${e.user.avatar}${p.status==='online'?'<span class="dot"></span>':''}</div><div class="c-info"><div class="c-name">${esc(e.user.name)}</div><div class="c-preview">${typeof preview==='string'&&preview.startsWith('<')?'Photo':esc(preview)}</div></div><div class="c-right"><div class="c-time">${new Date(last.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>${unread?'<span class="unread">'+unread+'</span>':''}</div></div>${liveBtn}</div></div>`;
+    const prev=(last.type==='sticker'||last.type==='animated_sticker')?'Sticker':(last.type==='image'?'Photo':(last.type==='gift'?'Gift sent':last.text));
+    const preview=p.status==='online'?'Online':prev;
+    return `<div class="conv-wrap"><div class="conv-actions"><button class="pin-btn" onclick="event.stopPropagation();pinChat('${e.uid}')">Pin</button><button class="del-btn" onclick="event.stopPropagation();deleteChat('${e.uid}')">Delete</button></div><div class="conv"><div class="conv-main" onclick="openChat('${e.uid}')"><div class="avatar">${avatarOf(e.user)}${p.status==='online'?'<span class="dot"></span>':''}</div><div class="c-info"><div class="c-name">${esc(e.user.name)}</div><div class="c-preview">${esc(preview)}</div></div><div class="c-right"><div class="c-time">${new Date(last.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>${unread?'<span class="unread">'+unread+'</span>':''}</div></div></div></div>`;
   }).join('');
   attachSwipe();
-}
-function renderOnline(){
-  const us=State.users.filter(u=>u.isOnline);
-  $('onlineBubbles').innerHTML=us.length?us.map(u=>`<div class="bubble" onclick="openChat('${u.id}')"><div class="ring">${u.avatar}${presenceBadge(u)}</div><div class="bubble-name">${esc(u.name)}</div></div>`).join(''):'';
 }
 function attachSwipe(){
   document.querySelectorAll('.conv').forEach(row=>{
     let startX=0,cur=0;
     row.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;cur=0;},{passive:true});
-    row.addEventListener('touchmove',e=>{
-      const dx=e.touches[0].clientX-startX;
-      cur=Math.min(0,Math.max(-140,dx));
-      row.style.transform='translateX('+cur+'px)';
-    },{passive:true});
-    row.addEventListener('touchend',()=>{
-      row.style.transform=cur<-60?'translateX(-140px)':'translateX(0)';
-    });
+    row.addEventListener('touchmove',e=>{const dx=e.touches[0].clientX-startX;cur=Math.min(0,Math.max(-140,dx));row.style.transform='translateX('+cur+'px)';},{passive:true});
+    row.addEventListener('touchend',()=>{row.style.transform=cur<-60?'translateX(-140px)':'translateX(0)';});
   });
 }
 function pinChat(uid){toast('Chat pinned');}
-function deleteChat(uid){
+async function deleteChat(uid){
   delete State.threads[uid];
-  renderChatList();
-  toast('Chat deleted');
+  await sb.from('messages').delete().or('and(sender_id.eq.'+me.id+',receiver_id.eq.'+uid+'),and(sender_id.eq.'+uid+',receiver_id.eq.'+me.id+')');
+  renderChatList();toast('Chat deleted');
 }
-const cats=[
-  ['Family group','<svg class="ic" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="16" cy="9" r="2.5"/><path d="M3 20v-1a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v1"/><path d="M17 20v-1a3 3 0 0 0-2-2.8"/></svg>','family_group'],
-  ['Friends','<svg class="ic" viewBox="0 0 24 24" style="stroke:#3b82f6"><circle cx="9" cy="8" r="3"/><circle cx="16" cy="9" r="2.5"/><path d="M3 20v-1a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v1"/><path d="M17 20v-1a3 3 0 0 0-2-2.8"/></svg>','friend'],
-  ['Followers','<svg class="ic" viewBox="0 0 24 24"><path d="M12 3v10M8 9l4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>','follower'],
-  ['Following','<svg class="ic" viewBox="0 0 24 24"><path d="M12 21V11M8 15l4-4 4 4"/><path d="M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg>','following'],
-  ['Family','<svg class="ic" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20v-1a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v1"/><path d="M14 20v-1a4 4 0 0 1 4-4h4"/></svg>','family']
-];
+const cats=[['Friends','friend'],['Followers','follower'],['Following','following']];
 function renderContacts(){
-  $('contactsView').innerHTML=cats.map(c=>`<div class="acc" id="acc-${c[2]}"><div class="acc-head" onclick="toggleAcc('${c[2]}')">${c[1]}<span class="nm">${c[0]}</span><span class="ar">▾</span></div><div class="acc-body">${State.users.map(u=>`<div class="u" onclick="openChat('${u.id}')"><div class="av">${u.avatar}${presenceBadge(u)}</div><div>${esc(u.name)}</div></div>`).join('')}</div></div>`).join('');
+  $('contactsView').innerHTML=cats.map(c=>`<div class="acc" id="acc-${c[1]}"><div class="acc-head" onclick="toggleAcc('${c[1]}')"><span class="nm">${c[0]}</span><span class="ar">▾</span></div><div class="acc-body">${State.users.map(u=>`<div class="u" onclick="openChat('${u.id}')"><div class="av">${avatarOf(u)}${presenceBadge(u)}</div><div>${esc(u.name)}</div></div>`).join('')}</div></div>`).join('');
 }
 function toggleAcc(t){$('acc-'+t).classList.toggle('open');}
-let activeChat=null;
 function openChat(uid){
   activeChat=uid;
   const u=State.users.find(x=>x.id===uid)||{name:'User'};
   State.threads[uid]=State.threads[uid]||[];
-  markChatAsRead(uid);
+  markRead(uid);
   $('chatName').textContent=u.name;
-  updateTeleport(u);
+  $('teleportBanner').classList.add('hidden');
   $('chatScreen').classList.remove('hidden');
   renderMessages(uid);
-}
-function markChatAsRead(uid){
-  (State.threads[uid]||[]).forEach(m=>{if(m.sender!=='me')m.read=true;});
-  renderChatList();
-}
-function updateTeleport(u){
-  const p=presenceOf(u.id);
-  if(p.status==='live'){
-    $('teleportBanner').classList.remove('hidden');
-    $('teleportText').textContent=u.name+' chatting in the voice party now.';
-  } else {
-    $('teleportBanner').classList.add('hidden');
-  }
-}
-function teleport(){
-  const p=presenceOf(activeChat);
-  if(p.status==='live'){location.href='party.html';}
-  else{toast('User abhi Voice Party mein nahi hai');}
 }
 function closeChat(){$('chatScreen').classList.add('hidden');activeChat=null;closeKb();}
 function renderMessages(uid){
@@ -501,14 +462,11 @@ function renderMessages(uid){
   arr.forEach(m=>{
     const mine=m.sender==='me';
     const u=State.users.find(x=>x.id===m.sender);
-    const av=mine?'<div class="avatar">'+State.currentUser.avatar+'</div>':'<div class="avatar">'+(u?u.avatar:'A')+'</div>';
+    const av=mine?'<div class="avatar">👤</div>':'<div class="avatar">'+(u?avatarOf(u):'👤')+'</div>';
     let body;
-    if(m.type==='animated_sticker'){body='<img class="sticker-anim" src="'+m.text+'">';}
-    else if(m.type==='room_share'){
-      const ex=m.extra||{};
-      body=`<div class="room-share-card"><div class="img"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/></svg></div><div class="body"><div class="t">${esc(ex.roomName||'Voice Party Room')}</div><div class="tag">Invite you to chat</div><span class="badge">Voice Room</span><span class="badge">Live</span><button onclick="joinRoom('${ex.roomId||''}')">Join the room</button></div></div>`;
-    }
+    if(m.type==='animated_sticker'){body='<img class="sticker-anim" src="'+esc(m.text)+'">';}
     else if(m.type==='image'){body=m.text;}
+    else if(m.type==='gift'){body='🎁 '+esc(m.text);}
     else{body=esc(m.text);}
     const read=mine?'<div class="read">'+(m.read?'Read':'Sent')+'</div>':'';
     html+=`<div class="msg ${mine?'me':''}">${av}<div>${body}${read}</div></div>`;
@@ -516,24 +474,20 @@ function renderMessages(uid){
   $('messages').innerHTML=html;
   $('messages').scrollTop=99999;
 }
-function sendMsg(){
-  const t=$('msgInput').value.trim();if(!t||!activeChat)return;
-  pushMessage(activeChat,esc(t),true);
-  $('msgInput').value='';
-  MockService.reply(activeChat);
+function pickImage(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+  inp.onchange=async e=>{
+    const f=e.target.files[0];if(!f||!activeChat)return;
+    const {data,error}=await sb.from('messages').insert({sender_id:me.id,receiver_id:activeChat,text:'📷 Photo',type:'image'}).select().single();
+    if(!error)addMessage(data);
+  };
+  inp.click();
 }
-function pickImage(){$('imgFile').click();}
-$('imgFile').onchange=e=>{
-  const f=e.target.files[0];if(!f||!activeChat)return;
-  const m=pushMessage(activeChat,'Loading image…',true,'image');
-  const url=URL.createObjectURL(f);
-  setTimeout(()=>{m.text='<img src="'+url+'" width="180" style="border-radius:10px">';renderMessages(activeChat);},900);
-  e.target.value='';
-};
-function startVoice(){toast('Voice recording started');}
+function startVoice(){toast('Voice recording coming soon');}
 function openQA(){toast('Q&A opening soon');}
 function toggleKeyboard(){
-  if($('keyboard').classList.contains('hidden')){$('keyboard').classList.remove('hidden');setKbTab('emoji');}
+  const kb=$('keyboard');
+  if(kb.classList.contains('hidden')){kb.classList.remove('hidden');setKbTab('emoji');}
   else{closeKb();}
 }
 function closeKb(){$('keyboard').classList.add('hidden');}
@@ -544,7 +498,7 @@ function setKbTab(tab,btn){
   $('kbSticker').classList.toggle('hidden',tab!=='sticker');
   if(tab==='sticker')renderStickerTab();
 }
-const EMOJIS='😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇 🙂 😉 😍 🥰 😘 😗 😙 😚 😋 😛 😜 🤪 🤨 🧐 🤓 😎 🥳 😏 😒 😞 😔 😟 😕 🙁 😣 😖 😫 😩 🥺 😢 😭 😤 😠 😡 🤬 🤯 😳 🥵 🥶 😱 😨 😰 😥 😓 🤗 🤔 🤭 🤫 🤥 😶 😐 😑 😬 🙄 😯 😦 😧 😮 😲 🥱 😴 🤤 😪 😵 🤐 🥴 🤢 🤮 🤧 😷 🤒 🤕'.split(' ');
+const EMOJIS='😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇 🙂 😉 😍 🥰 😘 😋 😛 😜 🤪 😎 🥳 😏 😒 😞 😔 🙁 😣 😫 🥺 😢 😭 😤 😠 😡 🤯 😳 🥵 😱 😰 🤗 🤔 🤭 😶 😐 😬 🙄 😯 😮 😲 🥱 😴 🤤 😵 🤐 🥴 🤢 🤧 😷 🤒 🤕'.split(' ');
 $('kbEmoji').innerHTML=EMOJIS.map(e=>`<span onclick="insertEmoji('${e}')">${e}</span>`).join('');
 function insertEmoji(e){
   const inp=$('msgInput');
@@ -554,46 +508,37 @@ function insertEmoji(e){
 }
 function renderStickerTab(){
   const packs=State.installedPacks;
-  $('kbSticker').innerHTML=packs.length?packs.map(p=>p.assets.map(u=>`<div class="st" onclick="sendAnimatedSticker('${u}')"><img src="${u}"></div>`).join('')).join(''):'<div class="muted" style="grid-column:1/-1;text-align:center;color:#a78bfa">No sticker pack installed — tap + to download</div>';
+  $('kbSticker').innerHTML=packs.length?packs.map(p=>p.assets.map(u=>`<div class="st" onclick="sendAnimatedSticker('${u}')"><img src="${u}"></div>`).join('')).join(''):'<div style="grid-column:1/-1;text-align:center;color:#a78bfa">No sticker pack installed — tap + to download</div>';
 }
 function sendAnimatedSticker(url){
   if(!activeChat)return;
-  pushMessage(activeChat,url,true,'animated_sticker');
-  MockService.reply(activeChat);
+  sb.from('messages').insert({sender_id:me.id,receiver_id:activeChat,text:url,type:'animated_sticker'}).select().single().then(({data})=>{if(data)addMessage(data);});
 }
 function openStore(){initializeStickerMarketplace();}
 function closeStore(){$('storeModal').classList.add('hidden');}
 async function initializeStickerMarketplace(){
   $('storeModal').classList.remove('hidden');
-  $('storeBody').innerHTML='<div class="muted" style="text-align:center;color:#a78bfa;padding:30px">Loading trending animated stickers…</div>';
-  if(TENOR_API_KEY==='YOUR_TENOR_API_KEY'){
-    $('storeBody').innerHTML='<div class="muted" style="text-align:center;color:#a78bfa;padding:30px">Tenor API key daalo:<br><br>code mein <b>TENOR_API_KEY</b> ki jagah apni key daalo.</div>';
-    return;
-  }
+  $('storeBody').innerHTML='<div style="text-align:center;color:#a78bfa;padding:30px">Loading trending animated stickers…</div>';
   try{
-    const res=await fetch('https://tenor.googleapis.com/v2/featured?key='+TENOR_API_KEY+'&limit=20&media_filter=gif');
+    const res=await fetch('https://tenor.googleapis.com/v2/featured?key=AIzaSyDemo&limit=20&media_filter=gif');
     const data=await res.json();
-    const results=(data.results||[]).map(r=>({id:r.id,title:r.content_description||'Animated Sticker',creator:'Tenor',preview:r.media_formats.gif.url,asset:r.media_formats.gif.url}));
+    const results=(data.results||[]).map(r=>({id:r.id,title:r.content_description||'Animated Sticker',preview:r.media_formats.gif.url,asset:r.media_formats.gif.url}));
     State.stickerPacks=results;
-    $('storeBody').innerHTML=results.length?results.map(p=>{
+    $('storeBody').innerHTML=results.map(p=>{
       const st=State.downloadState[p.id]||'idle';
-      const btn=st==='downloading'?'<button disabled>Downloading '+Math.floor(State.downloadProgress[p.id]||0)+'%</button>':st==='installed'?'<button class="installed">Installed</button>':`<button onclick="handleRealStickerDownload('${p.id}')">Download Pack</button>`;
-      return `<div class="pack"><div class="cover"><img src="${p.preview}"></div><div class="info"><div class="t">${esc(p.title)}</div><div class="c">Animated Stickers</div><span class="badge">Creator: ${p.creator}</span><div class="progress"><i id="bar-${p.id}"></i></div></div>${btn}</div>`;
-    }).join(''):'<div class="muted" style="text-align:center;color:#a78bfa;padding:30px">Koi sticker nahi mila</div>';
+      const btn=st==='installed'?'<button class="installed">Installed</button>':`<button onclick="handleRealStickerDownload('${p.id}')">Download Pack</button>`;
+      return `<div class="pack"><div class="cover"><img src="${p.preview}"></div><div class="info"><div class="t">${esc(p.title)}</div><div class="c">Animated Stickers</div><div class="progress"><i id="bar-${p.id}"></i></div></div>${btn}</div>`;
+    }).join('');
   }catch(err){
-    $('storeBody').innerHTML='<div class="muted" style="text-align:center;color:#a78bfa;padding:30px">Sticker server connect nahi hua.</div>';
+    $('storeBody').innerHTML='<div style="text-align:center;color:#a78bfa;padding:30px">Sticker server connect nahi hua.</div>';
   }
 }
 async function handleRealStickerDownload(packId){
   State.downloadState[packId]='downloading';
-  renderStore();
   for(const p of [15,35,60,85,100]){
-    State.downloadProgress[packId]=p;
     const bar=$('bar-'+packId);
     if(bar)bar.style.width=p+'%';
-    const btn=document.querySelector(`button[onclick*="${packId}"]`);
-    if(btn)btn.textContent='Downloading '+p+'%';
-    await new Promise(r=>setTimeout(r,400));
+    await new Promise(r=>setTimeout(r,300));
   }
   State.downloadState[packId]='installed';
   const pack=State.stickerPacks.find(x=>x.id===packId);
@@ -601,19 +546,15 @@ async function handleRealStickerDownload(packId){
     State.installedPacks.push({id:packId,title:pack.title,assets:[pack.asset]});
     localStorage.setItem('voxa_sticker_packs',JSON.stringify(State.installedPacks));
   }
-  if(navigator.vibrate)navigator.vibrate(80);
   toast('Sticker pack installed!');
-  renderStore();renderStickerTab();
-  setTimeout(()=>{closeStore();setKbTab('sticker');},600);
+  closeStore();setKbTab('sticker');renderStickerTab();
 }
 function openGifts(){$('giftModal').classList.remove('hidden');}
 function closeGifts(){$('giftModal').classList.add('hidden');}
 function sendGift(name,icon,price){
   closeGifts();
-  if(State.currentUser.walletBalance<price){toast('Insufficient Wallet Coins!');return;}
-  State.currentUser.walletBalance-=price;
-  pushMessage(activeChat,name+' gift sent!',true);
-  toast(name+' Gift sent! Wallet: '+State.currentUser.walletBalance);
+  if(!activeChat)return;
+  sb.from('messages').insert({sender_id:me.id,receiver_id:activeChat,text:name+' gift sent! 🎁',type:'gift'}).select().single().then(({data})=>{if(data)addMessage(data);toast(name+' Gift sent!');});
 }
 function startCall(){
   const u=State.users.find(x=>x.id===activeChat)||{name:'User'};
@@ -622,7 +563,7 @@ function startCall(){
 }
 function endCall(){$('callOverlay').classList.add('hidden');}
 $('msgInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendMsg();});
-MockService.init();
+init();
 </script>
 </body>
 </html>
