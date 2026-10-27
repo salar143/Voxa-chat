@@ -564,7 +564,6 @@ function render(){
  const gb=document.getElementById('genderBadge');
  gb.textContent=(g==='male'?'♂ ':g==='female'?'♀ ':'⚧ ')+(me.age?me.age:'—');
  gb.className='gender-badge '+g;
- pMeta.textContent=me.bio||'Welcome to VoxaChat! 🎉';
  sFo.textContent=me.following||0;sF.textContent=me.followers||0;sV.textContent=me.visitors||0;
  wallet();
  document.getElementById('ring').className='ring'+(me.frame===1?' rainbow':me.frame===2?' crown':'');
