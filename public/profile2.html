@@ -21,11 +21,12 @@ h3{font-size:14px;margin-bottom:9px;color:#d8b4fe}
 .pbg img{width:100%;height:100%;object-fit:cover}
 .pbg .bgavatar{position:absolute;right:14px;bottom:-6px;font-size:56px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.6))}
 .pbody{background:rgba(10,10,18,.75);backdrop-filter:blur(8px);padding:0 14px 14px}
-.prow{display:flex;flex-direction:column;align-items:center;margin-top:-55px;margin-bottom:10px}
+.prow{display:flex;align-items:flex-start;gap:14px;margin-top:-55px;margin-bottom:10px}
+.pleft{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
 .avatar{width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#3b82f6);display:flex;align-items:center;justify-content:center;font-size:46px;border:3px solid rgba(168,85,247,.6);position:relative;flex-shrink:0;overflow:hidden;cursor:pointer;margin-bottom:6px}
 .avatar img{width:100%;height:100%;object-fit:cover}
 .ring{position:absolute;inset:-4px;border-radius:50%;border:3px solid transparent}
-.pinfo{text-align:center;padding-bottom:4px;width:100%}
+.pinfo{flex:1;text-align:center;padding-top:58px}
 .pinfo h2{font-size:22px;margin:6px 0 4px;display:flex;flex-direction:column;align-items:center}
 .uid{font-size:14px;color:#a855f7}
 .meta{font-size:12px;color:#9ca3af;margin-top:2px}
@@ -132,12 +133,14 @@ input,textarea,select{width:100%;padding:11px;border-radius:11px;border:1px soli
  <div class="pbg" id="pbg" onclick="document.getElementById('bgInput').click()"><div class="bgavatar" id="bgAv">🧑</div></div>
  <div class="pbody">
   <div class="prow">
-   <div class="avatar" onclick="document.getElementById('photoInput').click()">
-    <span id="pAv">👤</span><div class="ring" id="ring"></div>
+   <div class="pleft">
+    <div class="avatar" onclick="document.getElementById('photoInput').click()">
+     <span id="pAv">👤</span><div class="ring" id="ring"></div>
+    </div>
+    <h2 id="pName" style="font-size:16px;margin-top:6px">VoxaUser</h2>
+    <div id="genderBadge" class="gender-badge" style="margin-top:4px">⚧ —</div>
    </div>
    <div class="pinfo">
-    <h2 id="pName">VoxaUser</h2>
-    <div id="genderBadge" class="gender-badge">⚧ —</div>
     <div class="uid">ID: <span id="pUid">—</span></div>
     <div class="meta" id="pMeta">Welcome to VoxaChat! 🎉</div>
    </div>
@@ -248,9 +251,8 @@ input,textarea,select{width:100%;padding:11px;border-radius:11px;border:1px soli
   <button class="btn" onclick="addMoment()">Post Moment</button>
  </div>
 </div>
-</div>
-
-<div class="screen" id="editPage">
+ </div>
+ <div class="screen" id="editPage">
 <div class="subpage">
  <button class="back" onclick="show('profilePage')">← Back to Profile</button>
  <h3 style="font-size:20px;margin-bottom:14px">✏️ Edit Profile</h3>
@@ -263,6 +265,11 @@ input,textarea,select{width:100%;padding:11px;border-radius:11px;border:1px soli
   <h3>Avatar / DP (emoji)</h3>
   <input id="editDp" placeholder="Enter emoji (👩 👨 🧑 🐱 🦊)">
   <button class="btn btn-sm" onclick="saveDp()">Save Avatar</button>
+ </div>
+ <div class="card">
+  <h3>Age</h3>
+  <input id="editAge" type="number" min="10" max="99" placeholder="Enter your age">
+  <button class="btn btn-sm" onclick="saveAge()">Save Age</button>
  </div>
  <div class="card">
   <h3>Profile Photo</h3>
@@ -406,9 +413,8 @@ input,textarea,select{width:100%;padding:11px;border-radius:11px;border:1px soli
  <div class="expl" id="lvlExpl"></div>
  <div class="lvlpreview blue" id="lvlPreview"><div class="pvavatar">👤</div><div class="pvname">VoxaUser</div><div class="pveffect">Profile glow + entrance</div></div>
  <div class="unlock" id="lvlUnlock"></div>
-</div>
-
-<div class="panel" id="editPanel"><div class="inner"><button class="close" onclick="closePanels()">✕</button><h3>⋯ Edit Profile</h3>
+ </div>
+ <div class="panel" id="editPanel"><div class="inner"><button class="close" onclick="closePanels()">✕</button><h3>⋯ Edit Profile</h3>
  <div class="srow" onclick="document.getElementById('photoInput').click()"><span>🖼️</span> Change Profile Photo <span>›</span></div>
  <div class="srow" onclick="changeAvatar()"><span>👤</span> Change Avatar <span>›</span></div>
  <div class="srow" onclick="changeName()"><span>✏️</span> Change Name / Nickname <span>›</span></div>
@@ -483,7 +489,7 @@ const COUNTRIES={
 'Mexico':['Mexico City','Guadalajara','Monterrey','Cancun'],
 'Morocco':['Casablanca','Rabat','Marrakesh','Fez'],
 'Myanmar':['Yangon','Mandalay'],
-'Nepal':['Kathmandu','Pokhara','Lalitpur','Biratnagar','Birgunj','Bharatpur','Janakpur','Dharan','Butwal','Hetauda'],
+'Nepal':['Kathmandu','Pokhara','Lalitnagar','Biratnagar','Birgunj','Bharatpur','Janakpur','Dharan','Butwal','Hetauda'],
 'Netherlands':['Amsterdam','Rotterdam','The Hague','Utrecht'],
 'New Zealand':['Auckland','Wellington','Christchurch','Hamilton'],
 'Nigeria':['Lagos','Abuja','Kano','Ibadan'],
@@ -589,7 +595,7 @@ function copyID(){navigator.clipboard.writeText(me.uid);alert('ID copied')}
 function playVoice(){alert(me.voice?'▶ Playing…':'Record with 🎤 first')}
 function recordVoice(){alert('Voice recording — real mic coming in next update')}
 function closePanels(){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('open'))}
-function openEdit(){editName.value=me.name;editDp.value=me.dp||'👤';show('editPage')}
+function openEdit(){editName.value=me.name;editDp.value=me.dp||'👤';editAge.value=me.age||'';show('editPage')}
 function showList(t){document.getElementById('listTitle').textContent=t;document.getElementById('listBody').textContent='Nothing here yet.';document.getElementById('listPanel').classList.add('open')}
 function toggleNotif(btn,type){const on=btn.textContent==='ON';btn.textContent=on?'OFF':'ON';alert(type+' Notifications: '+(on?'OFF':'ON'))}
 function openInvite(){inviteLink.value=location.origin+location.pathname+'?ref='+(me?me.uid:'');document.getElementById('invitePanel').classList.add('open')}
@@ -604,6 +610,15 @@ function deleteID(){
 }
 async function saveName(){const n=editName.value.trim();if(!n){alert('Name required');return}me.name=n;await save({name:n});alert('✅ Name saved!');render();show('profilePage')}
 async function saveDp(){const d=editDp.value.trim();if(!d){alert('Avatar required');return}me.dp=d;await save({dp:d});alert('✅ Avatar saved!');render();show('profilePage')}
+async function saveAge(){
+ const a=parseInt(editAge.value);
+ if(!a||a<10||a>99){alert('Sahi age daalo (10-99)');return}
+ me.age=a;
+ await save({age:a});
+ alert('✅ Age saved!');
+ render();
+ show('profilePage');
+}
 function editBio(){const b=prompt('Edit Bio / About Me:',me.bio||'');if(b!==null){me.bio=b;save({bio:b});render()}}
 function changeAvatar(){const d=prompt('Avatar emoji (👩 👨 🧑 🐱 🦊):',me.dp||'👤');if(d&&d.trim()){me.dp=d.trim();save({dp:me.dp});render()}}
 function changeName(){const n=prompt('Name / Nickname:',me.name);if(n&&n.trim()){me.name=n.trim();save({name:me.name});render()}}
