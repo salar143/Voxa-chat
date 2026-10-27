@@ -167,8 +167,7 @@ svg{display:inline-block;vertical-align:middle}
 .search-row{display:flex;align-items:center;gap:10px;padding:8px 0}
 .search-row .avatar{width:40px;height:40px;font-size:16px}
 </style>
-</head>
-<body>
+</head><body>
 
 <div class="header">
   <div class="tabs">
@@ -385,8 +384,7 @@ async function init(){
 async function loadUsers(){
   const {data}=await sb.from('profiles').select('id,uid,name,dp,photo,gender,age,last_active').neq('id',me.id);
   State.users=(data||[]).map(u=>({id:u.id,uid:u.uid,name:u.name||'User',dp:u.dp||'👤',photo:u.photo,last_active:u.last_active,isOnline:!!(u.last_active&&Date.now()-new Date(u.last_active)<5*60*1000),inRoom:false,roomId:null}));
-}
-  async function loadThreads(){
+}async function loadThreads(){
   const {data}=await sb.from('messages').select('*').or('sender_id.eq.'+me.id+',receiver_id.eq.'+me.id).order('created_at');
   (data||[]).forEach(m=>addMessage(m,true));
   renderChatList();
