@@ -808,4 +808,39 @@ async function acceptCall(){
   try{
     const stream=await navigator.mediaDevices.getUserMedia({audio:true});
     localStream=stream;
-    stream.
+    stream.getTracks().forEach(t=>pc.addTrack(t,stream));
+    await pc.setRemoteDescription(new RTCSessionDescription(sig.payload.sdp));
+    const answer=await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    activeChat=sig.from_user;
+    currentCallId=sig.call_id;
+    await sendSignal('answer',{sdp:pc.localDescription});
+    $('callStatus').textContent='Connected ✅';
+  }catch(err){
+    console.error(err);
+    $('callStatus').textContent='Mic permission chahiye';
+  }
+}
+
+async function rejectCall(){
+  if(pendingOffer){
+    activeChat=pendingOffer.from_user;
+    await sendSignal('reject',{});
+  }
+  endCall();
+}
+
+function endCall(){
+  if(localStream)localStream.getTracks().forEach(t=>t.stop());
+  if(pc){pc.close();pc=null;}
+  localStream=null;
+  currentCallId=null;
+  pendingOffer=null;
+  $('callOverlay').classList.add('hidden');
+  $('callStatus').textContent='Connecting Audio Channel';
+}
+$('msgInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendMsg();});
+init();
+</script>
+</body>
+</html>
