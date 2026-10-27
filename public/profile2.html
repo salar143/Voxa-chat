@@ -557,14 +557,17 @@ async function init(){
 }
 function wallet(){wD.textContent=me.diamonds;wC.textContent=me.coins}
 function soulCount(){const l=me.active_level||0;return l>=30?12:l>=20?9:l>=10?6:3}
-function render(){
+async function render(){
  if(me.photo){pAv.innerHTML='<img src="'+me.photo+'">'}else{pAv.textContent=me.dp||'👤'}
  pName.textContent=me.name;pUid.textContent=me.uid;
  const g=(me.gender||'').toLowerCase();
  const gb=document.getElementById('genderBadge');
  gb.textContent=(g==='male'?'♂ ':g==='female'?'♀ ':'⚧ ')+(me.age?me.age:'—');
  gb.className='gender-badge '+g;
- sFo.textContent=me.following||0;sF.textContent=me.followers||0;sV.textContent=me.visitors||0;
+ const {count:fing}=await sb.from('follows').select('*',{count:'exact',head:true}).eq('follower_id',me.id);
+ const {count:fers}=await sb.from('follows').select('*',{count:'exact',head:true}).eq('following_id',me.id);
+ const {count:vis}=await sb.from('profile_visits').select('*',{count:'exact',head:true}).eq('profile_id',me.id);
+ sFo.textContent=fing||0;sF.textContent=fers||0;sV.textContent=vis||0;
  wallet();
  document.getElementById('ring').className='ring'+(me.frame===1?' rainbow':me.frame===2?' crown':'');
  if(me.bg){pbg.innerHTML='<img src="'+me.bg+'">'}
@@ -682,12 +685,3 @@ document.getElementById('logoutSwitch').addEventListener('change',async (e)=>{
  await logout();
 });
 init();
-</script>
-<div class="nav">
- <button class="active" onclick="location.href='homefile3.html'"><span class="ic">🏠</span>Home</button>
- <button onclick="location.href='party.html'"><span class="ic">🎉</span>Party Room</button>
- <button onclick="location.href='inbox.html'"><span class="ic">📥</span>Inbox</button>
- <button onclick="location.href='profile2.html'"><span class="ic">👤</span>Profile</button>
-</div>
-</body>
-</html>
