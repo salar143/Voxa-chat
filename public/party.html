@@ -319,7 +319,7 @@ function searchRoom(){
   const all=getAllRooms();
   const found=all.find(r=>String(r.id)===id.trim());
   if(found){
-    openComingSoon();
+    location.href='blind-date-room.html?id='+found.id;
   } else {
     alert('Is Room ID se koi room nahi mila.');
   }
@@ -534,7 +534,7 @@ function openRoomById(id){
     }
     return;
   }
-  openComingSoon();
+  location.href='blind-date-room.html?id='+room.id;
 }
 
 function saveState(){
