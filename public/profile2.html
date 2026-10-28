@@ -603,14 +603,35 @@ async function refreshStats(){
   catch(e){E(el).textContent='—';err(el+' count load nahi hua: '+messageOf(e))}
  }));
 }
- async function recordVisit(profileId){
+async function recordVisit(profileId){
  if(!me||String(me.id)===String(profileId))return;
- const start=new Date();start.setUTCHours(0,0,0,0);
+
+ const start=new Date();
+ start.setUTCHours(0,0,0,0);
  const end=new Date(start.getTime()+86400000);
- const {data}=await db(sb.from('profile_visits').select('id').eq('profile_id',profileId).eq('visitor_id',me.id).gte('visited_at',start.toISOString()).lt('visited_at',end.toISOString()).limit(1));
+
+ const {data}=await db(
+  sb.from('profile_visits').select('id')
+   .eq('profile_id',profileId)
+   .eq('visitor_id',me.id)
+   .gte('visited_at',start.toISOString())
+   .lt('visited_at',end.toISOString())
+   .limit(1)
+ );
+
  if(data?.length)return;
- await db(sb.from('profile_visits').insert({profile_id:profileId,visitor_id:me.id,visited_at:new Date().toISOString()}));
+
+ try{
+  await db(
+   sb.from('profile_visits').insert({
+    profile_id:profileId,
+    visitor_id:me.id
+   })
+  );
+ }catch(e){
+  if(e.code!=='23505')throw e;
  }
+}
 function paintFollowButton(){const b=E('followBtn');b.textContent=isFollowing?'Following':'+ Follow';b.className=isFollowing?'pbtn following':'pbtn follow';b.disabled=followBusy}
 async function checkFollowStatus(){
  if(!me||!profileUser||isOwner)return;
