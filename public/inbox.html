@@ -426,7 +426,7 @@ async function sendMsg(){
  toast('Send failed: ' + error.message);
  console.log(error);
  return;
-  }
+ }
 }
 async function markRead(uid){
   await sb.from('messages').update({read:true}).match({sender_id:uid,receiver_id:me.id,read:false});
