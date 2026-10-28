@@ -374,7 +374,22 @@ async function init(){
   me=p;
   await loadUsers();
   await loadThreads();
-  render();
+render();
+
+const requestedUid =
+ new URLSearchParams(location.search).get('uid');
+
+if(requestedUid){
+ const target=State.users.find(
+  u=>String(u.uid)===String(requestedUid)
+ );
+
+ if(target){
+  openChat(target.id);
+ }else{
+  toast('Is user ki conversation load nahi hui.');
+ }
+}
   sb.channel('voxa-msgs').on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},pl=>{const m=pl.new;if(m.sender_id===me.id||m.receiver_id===me.id)addMessage(m);}).subscribe();
   sb.channel('voxa-calls').on('postgres_changes',{event:'INSERT',schema:'public',table:'call_signals',filter:'to_user=eq.'+me.id},pl=>{handleSignal(pl.new);}).subscribe();
 }
