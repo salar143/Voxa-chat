@@ -418,16 +418,56 @@ function addMessage(m,silent){
 }
 async function sendMsg(){
   const t=$('msgInput').value.trim();
-  if(!t||!activeChat)return;
+
+  if(!activeChat){
+   toast('Chat user select nahi hua');
+   return;
+  }
+
+  if(!t){
+   return;
+  }
+
+  let uid = me && me.id ? me.id : null;
+
+  if(!uid){
+   const { data } = await sb.auth.getUser();
+   uid = data && data.user ? data.user.id : null;
+
+   if(uid){
+    me = me ? { ...me, id: uid } : { id: uid };
+   }
+  }
+
+  if(!uid){
+   toast('Login problem: sender ID missing');
+   return;
+  }
+
   $('msgInput').value='';
-  sb.from('typing_status').upsert({user_id:me.id,chat_with:activeChat,typing:false},{onConflict:'user_id,chat_with'});
-  const {data,error}=await sb.from('messages').insert({sender_id:me.id,receiver_id:activeChat,text:esc(t),type:'text'}).select().single();
- if(error){
- toast('Send failed: ' + error.message);
- console.log(error);
- return;
- }
-}
+
+  sb.from('typing_status').upsert(
+   {user_id:uid,chat_with:activeChat,typing:false},
+   {onConflict:'user_id,chat_with'}
+  );
+
+  const {data:errorData,error}=await sb.from('messages')
+   .insert({
+    sender_id:uid,
+    receiver_id:activeChat,
+    text:esc(t),
+    type:'text'
+   })
+   .select()
+   .single();
+
+  if(error){
+   toast('Send failed: ' + error.message);
+   return;
+  }
+
+  addMessage(errorData);
+  }
 async function markRead(uid){
   await sb.from('messages').update({read:true}).match({sender_id:uid,receiver_id:me.id,read:false});
   (State.threads[uid]||[]).forEach(m=>{if(m.sender!=='me')m.read=true;});
