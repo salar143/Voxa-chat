@@ -422,8 +422,11 @@ async function sendMsg(){
   $('msgInput').value='';
   sb.from('typing_status').upsert({user_id:me.id,chat_with:activeChat,typing:false},{onConflict:'user_id,chat_with'});
   const {data,error}=await sb.from('messages').insert({sender_id:me.id,receiver_id:activeChat,text:esc(t),type:'text'}).select().single();
-  if(error){toast('Message send failed');return;}
-  addMessage(data);
+ if(error){
+ toast('Send failed: ' + error.message);
+ console.log(error);
+ return;
+  }
 }
 async function markRead(uid){
   await sb.from('messages').update({read:true}).match({sender_id:uid,receiver_id:me.id,read:false});
