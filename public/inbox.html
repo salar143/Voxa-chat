@@ -200,7 +200,6 @@ svg{display:inline-block;vertical-align:middle}
     </button>
   </div>
 </div>
-
 <div id="searchResult" class="float-card hidden"></div>
 <div id="notFound" style="padding:4px 16px;font-size:12px;color:#a78bfa"></div>
 
@@ -436,8 +435,8 @@ $('addBtn').onclick=async()=>{
   let html='<div style="font-weight:700;color:#fff;font-size:13px;margin-bottom:6px">🙋 New Friend Requests</div>';
   html+=(recvd&&recvd.length)?recvd.map(r=>`
     <div class="search-row">
-      <div class="avatar">${avatarOf(r.from)}</div>
-      <div style="flex:1">
+      <div class="avatar" onclick="location.href='profile2.html?uid=${r.from?.uid||''}'" style="cursor:pointer">${avatarOf(r.from)}</div>
+      <div style="flex:1;cursor:pointer" onclick="location.href='profile2.html?uid=${r.from?.uid||''}'">
         <div style="font-weight:700;color:#fff;font-size:13px">${esc(r.from?.name||'User')}</div>
         <div style="font-size:11px;color:#a78bfa">ID: ${esc(r.from?.uid||'')}</div>
       </div>
@@ -447,8 +446,8 @@ $('addBtn').onclick=async()=>{
   html+='<div style="font-weight:700;color:#fff;font-size:13px;margin:10px 0 6px">📤 Sent Requests</div>';
   html+=(sent&&sent.length)?sent.map(r=>`
     <div class="search-row">
-      <div class="avatar">${avatarOf(r.to)}</div>
-      <div style="flex:1">
+      <div class="avatar" onclick="location.href='profile2.html?uid=${r.to?.uid||''}'" style="cursor:pointer">${avatarOf(r.to)}</div>
+      <div style="flex:1;cursor:pointer" onclick="location.href='profile2.html?uid=${r.to?.uid||''}'">
         <div style="font-weight:700;color:#fff;font-size:13px">${esc(r.to?.name||'User')}</div>
         <div style="font-size:11px;color:#a78bfa">Pending…</div>
       </div>
@@ -456,7 +455,7 @@ $('addBtn').onclick=async()=>{
   box.innerHTML=html;
 };
 
-// ✅ FIX 2 — Search: contacts hide
+// ✅ FIX 2 — Search: contacts hide, naam/avatar par profile open
 $('idSearch').oninput=e=>{
   clearTimeout(deb);
   deb=setTimeout(async()=>{
@@ -479,8 +478,8 @@ $('idSearch').oninput=e=>{
       nf.textContent='';
       box.innerHTML=data.map(u=>`
         <div class="search-row">
-          <div class="avatar">${avatarOf(u)}</div>
-          <div style="flex:1">
+          <div class="avatar" onclick="location.href='profile2.html?uid=${u.uid}'" style="cursor:pointer">${avatarOf(u)}</div>
+          <div style="flex:1;cursor:pointer" onclick="location.href='profile2.html?uid=${u.uid}'">
             <div style="font-weight:700;color:#fff;font-size:13px">${esc(u.name)}</div>
             <div style="font-size:11px;color:#a78bfa">ID: ${esc(u.uid)} · ${lastSeen(u)}</div>
           </div>
@@ -522,11 +521,11 @@ function render(){renderRecommend();renderChatList();renderOnline();renderContac
 function presenceBadge(u){const p=presenceOf(u.id);if(p.status==='online')return '<span class="dot"></span>';return '';}
 function renderRecommend(){
   const us=State.users.filter(u=>u.isOnline).slice(0,10);
-  $('recommendBubbles').innerHTML=us.map(u=>`<div class="bubble" onclick="openChat('${u.id}')"><div class="ring">${avatarOf(u)}${presenceBadge(u)}</div><div class="bubble-name">${esc(u.name)}</div></div>`).join('');
+  $('recommendBubbles').innerHTML=us.map(u=>`<div class="bubble" onclick="openChat('${u.id}')"><div class="ring" onclick="event.stopPropagation();location.href='profile2.html?uid=${u.uid}'" style="cursor:pointer">${avatarOf(u)}${presenceBadge(u)}</div><div class="bubble-name" onclick="event.stopPropagation();location.href='profile2.html?uid=${u.uid}'" style="cursor:pointer">${esc(u.name)}</div></div>`).join('');
 }
 function renderOnline(){
   const us=State.users.filter(u=>u.isOnline).slice(0,10);
-  $('onlineBubbles').innerHTML=us.map(u=>`<div class="bubble" onclick="openChat('${u.id}')"><div class="ring">${avatarOf(u)}${presenceBadge(u)}</div><div class="bubble-name">${esc(u.name)}</div></div>`).join('');
+  $('onlineBubbles').innerHTML=us.map(u=>`<div class="bubble" onclick="openChat('${u.id}')"><div class="ring" onclick="event.stopPropagation();location.href='profile2.html?uid=${u.uid}'" style="cursor:pointer">${avatarOf(u)}${presenceBadge(u)}</div><div class="bubble-name" onclick="event.stopPropagation();location.href='profile2.html?uid=${u.uid}'" style="cursor:pointer">${esc(u.name)}</div></div>`).join('');
 }
 function renderChatList(){
   const entries=Object.entries(State.threads).map(([uid,arr])=>({uid,arr,user:State.users.find(u=>u.id===uid)||{name:'User',dp:'👤'}}))
@@ -537,326 +536,215 @@ function renderChatList(){
     const p=presenceOf(e.uid);
     const prev=(last.type==='sticker'||last.type==='animated_sticker')?'Sticker':(last.type==='image'?'Photo':(last.type==='gift'?'Gift sent':last.text));
     const preview=p.status==='online'?'Online':prev;
-    return `<div class="conv-wrap"><div class="conv-actions"><button class="pin-btn" onclick="event.stopPropagation();pinChat('${e.uid}')">Pin</button><button class="del-btn" onclick="event.stopPropagation();deleteChat('${e.uid}')">Delete</button></div><div class="conv"><div class="conv-main" onclick="openChat('${e.uid}')"><div class="avatar">${avatarOf(e.user)}${p.status==='online'?'<span class="dot"></span>':''}</div><div class="c-info"><div class="c-name">${esc(e.user.name)}</div><div class="c-preview">${esc(preview)}</div></div><div class="c-right"><div class="c-time">${new Date(last.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>${unread?'<span class="unread">'+unread+'</span>':''}</div></div></div></div>`;
+    return `<div class="conv-wrap"><div class="conv-actions"><button class="pin-btn" onclick="event.stopPropagation();pinChat('${e.uid}')">Pin</button><button class="del-btn" onclick="event.stopPropagation();deleteChat('${e.uid}')">Delete</button></div><div class="conv"><div class="conv-main" onclick="openChat('${e.uid}')"><div class="avatar" onclick="event.stopPropagation();location.href='profile2.html?uid=${e.user.uid}'" style="cursor:pointer">${avatarOf(e.user)}${p.status==='online'?'<span class="dot"></span>':''}</div><div class="c-info" onclick="event.stopPropagation();location.href='profile2.html?uid=${e.user.uid}'" style="cursor:pointer"><div class="c-name">${esc(e.user.name)}</div><div class="c-preview">${esc(preview)}</div></div><div class="c-right"><div class="c-time">${new Date(last.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>${unread?'<span class="unread">'+unread+'</span>':''}</div></div></div></div>`;
   }).join('');
   attachSwipe();
-}
-function attachSwipe(){
-  document.querySelectorAll('.conv').forEach(row=>{
-    let startX=0,cur=0;
-    row.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;cur=0;},{passive:true});
-    row.addEventListener('touchmove',e=>{const dx=e.touches[0].clientX-startX;cur=Math.min(0,Math.max(-140,dx));row.style.transform='translateX('+cur+'px)';},{passive:true});
-    row.addEventListener('touchend',()=>{row.style.transform=cur<-60?'translateX(-140px)':'translateX(0)';});
+}function attachSwipe(){
+  document.querySelectorAll('.conv-wrap').forEach(w=>{
+    const conv=w.querySelector('.conv');
+    if(!conv)return;
+    let sx=0,dx=0;
+    conv.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;conv.style.transition='none';});
+    conv.addEventListener('touchmove',e=>{dx=e.touches[0].clientX-sx;if(dx<0)conv.style.transform='translateX('+Math.max(dx,-120)+'px)';});
+    conv.addEventListener('touchend',()=>{
+      conv.style.transition='transform .2s';
+      conv.style.transform=dx<-60?'translateX(-120px)':'translateX(0)';
+    });
   });
 }
-function pinChat(uid){toast('Chat pinned');}
-async function deleteChat(uid){
-  delete State.threads[uid];
-  await sb.from('messages').delete().or('and(sender_id.eq.'+me.id+',receiver_id.eq.'+uid+'),and(sender_id.eq.'+uid+',receiver_id.eq.'+me.id+')');
-  renderChatList();toast('Chat deleted');
-                 }// ✅ FIX 3 — Contacts: Family Room + no requests
-const cats=[['Friends','friend'],['Followers','follower'],['Following','following'],['Family','family']];
-async function renderContacts(){
-  let html=`<div class="acc" id="acc-familyroom"><div class="acc-head" onclick="toggleAcc('familyroom')"><span class="nm">🏠 Family Room</span><span class="ar">▾</span></div><div class="acc-body"><div class="u" onclick="toast('Family Room opening soon')"><div class="av">🏠</div><div>Family Room</div></div></div></div>`;
-  html+=cats.map(c=>`<div class="acc" id="acc-${c[1]}"><div class="acc-head" onclick="toggleAcc('${c[1]}')"><span class="nm">${c[0]}</span><span class="ar">▾</span></div><div class="acc-body">${State.users.map(u=>`<div class="u" onclick="openChat('${u.id}')"><div class="av">${avatarOf(u)}${presenceBadge(u)}</div><div>${esc(u.name)}</div></div>`).join('')}</div></div>`).join('');
-  $('contactsView').innerHTML=html;
+function renderContacts(){
+  const box=$('contactsView');
+  box.innerHTML='';
+  const groups={};
+  State.users.forEach(u=>{const g=u.name[0].toUpperCase();(groups[g]=groups[g]||[]).push(u);});
+  Object.keys(groups).sort().forEach(g=>{
+    const acc=document.createElement('div');acc.className='acc';
+    acc.innerHTML=`<div class="acc-head"><div class="nm">${g}</div><div class="ar">▾</div></div><div class="acc-body">${groups[g].map(u=>`<div class="u" onclick="openChat('${u.id}')"><div class="av" onclick="event.stopPropagation();location.href='profile2.html?uid=${u.uid}'" style="cursor:pointer">${avatarOf(u)}${presenceBadge(u)}</div><div onclick="event.stopPropagation();location.href='profile2.html?uid=${u.uid}'" style="cursor:pointer">${esc(u.name)}</div></div>`).join('')}</div>`;
+    acc.querySelector('.acc-head').onclick=()=>acc.classList.toggle('open');
+    box.appendChild(acc);
+  });
 }
-function toggleAcc(t){$('acc-'+t).classList.toggle('open');}
+function pinChat(uid){State.pinned.push(uid);toast('Chat pinned');renderChatList();}
+function deleteChat(uid){delete State.threads[uid];toast('Chat deleted');renderChatList();}
 function openChat(uid){
   activeChat=uid;
-  const u=State.users.find(x=>x.id===uid)||{name:'User'};
-  State.threads[uid]=State.threads[uid]||[];
-  markRead(uid);
-  $('chatName').textContent=u.name;
-  $('teleportBanner').classList.add('hidden');
+  const u=State.users.find(x=>x.id===uid);
+  $('chatName').textContent=u?u.name:'User';
+  $('teleportBanner').classList.remove('hidden');
   $('chatScreen').classList.remove('hidden');
   renderMessages(uid);
-  subscribeTyping(uid);
+  markRead(uid);
 }
-function closeChat(){$('chatScreen').classList.add('hidden');activeChat=null;closeKb();}
+function closeChat(){activeChat=null;$('chatScreen').classList.add('hidden');renderChatList();}
+function renderMessages(uid){
+  const arr=State.threads[uid]||[];
+  let last='';
+  $('messages').innerHTML=arr.map(m=>{
+    const t=new Date(m.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const sep=t!==last?'<div class="time-sep">'+t+'</div>':'';
+    last=t;
+    const u=State.users.find(x=>x.id===uid);
+    if(m.type==='sticker'||m.type==='animated_sticker'){
+      return sep+`<div class="msg ${m.sender==='me'?'me':''}">${m.sender==='me'?'':'<div class="avatar" onclick="location.href=\'profile2.html?uid='+u.uid+'\'" style="cursor:pointer">'+avatarOf(u)+'</div>'}<div class="bubble sticker-anim"><img src="${esc(m.extra)}" style="max-width:120px"></div></div>`;
+    }
+    if(m.type==='image'){
+      return sep+`<div class="msg ${m.sender==='me'?'me':''}">${m.sender==='me'?'':'<div class="avatar" onclick="location.href=\'profile2.html?uid='+u.uid+'\'" style="cursor:pointer">'+avatarOf(u)+'</div>'}<div><div class="bubble"><img src="${esc(m.extra)}" class="msg-img"></div>${m.sender==='me'?'<div class="read">✓✓</div>':''}</div></div>`;
+    }
+    if(m.type==='gift'){
+      return sep+`<div class="msg ${m.sender==='me'?'me':''}">${m.sender==='me'?'':'<div class="avatar" onclick="location.href=\'profile2.html?uid='+u.uid+'\'" style="cursor:pointer">'+avatarOf(u)+'</div>'}<div class="bubble">🎁 ${esc(m.text)}</div></div>`;
+    }
+    return sep+`<div class="msg ${m.sender==='me'?'me':''}">${m.sender==='me'?'':'<div class="avatar" onclick="location.href=\'profile2.html?uid='+u.uid+'\'" style="cursor:pointer">'+avatarOf(u)+'</div>'}<div><div class="bubble">${esc(m.text)}</div>${m.sender==='me'?'<div class="read">✓✓</div>':''}</div></div>`;
+  }).join('');
+  $('messages').scrollTop=$('messages').scrollHeight;
+}
 
-// ✅ Profile view — naam pe click
+// ✅ FIX 3 — Chat header name tap: real profile open
 function viewProfile(){
   if(!activeChat)return;
   const u=State.users.find(x=>x.id===activeChat);
-  if(u)toast('👤 '+u.name+' · ID: '+u.uid+' · '+lastSeen(u));
+  if(u&&u.uid){location.href='profile2.html?uid='+u.uid;}
 }
-
-// ✅ Block / Report menu
 function openChatMenu(){
-  if(!activeChat)return;
-  if(confirm('Block this user?')){
-    sb.from('blocks').insert({blocker_id:me.id,blocked_id:activeChat}).then(()=>toast('User blocked'));
-  }
+  const box=$('searchResult');
+  box.classList.remove('hidden');
+  box.innerHTML=`
+  <div style="font-weight:700;color:#fff;font-size:13px;margin-bottom:6px">Chat Options</div>
+  <button class="req-btn" style="width:100%;margin-bottom:6px" onclick="viewProfile()">View Profile</button>
+  <button class="req-btn" style="width:100%;margin-bottom:6px" onclick="startCall()">Voice Call</button>
+  <button class="req-btn" style="width:100%;margin-bottom:6px" onclick="startVoice()">Voice Party</button>
+  <button class="req-btn" style="width:100%" onclick="deleteChat('${activeChat}');closeChat()">Delete Chat</button>`;
 }
-
-function renderMessages(uid){
-  const arr=State.threads[uid]||[];
-  let html='<div class="time-sep">Today</div>';
-  arr.forEach(m=>{
-    const mine=m.sender==='me';
-    const u=State.users.find(x=>x.id===m.sender);
-    const av=mine?'<div class="avatar">👤</div>':'<div class="avatar">'+(u?avatarOf(u):'👤')+'</div>';
-    let body;
-    if(m.type==='animated_sticker'){body='<img class="sticker-anim" src="'+esc(m.text)+'">';}
-    else if(m.type==='image'){body='<img class="msg-img" src="'+esc(m.text)+'">';}
-    else if(m.type==='gift'){body='🎁 '+esc(m.text);}
-    else{body=esc(m.text);}
-    const del=mine?`<button class="msg-del" onclick="deleteMsg('${m.id}','${uid}')">🗑 Delete</button>`:'';
-    const read=mine?'<div class="read">'+(m.read?'Read':'Sent')+'</div>':'';
-    html+=`<div class="msg ${mine?'me':''}">${av}<div>${body}${del}${read}</div></div>`;
-  });
-  html+='<div id="typingIndicator" class="time-sep hidden">typing…</div>';
-  $('messages').innerHTML=html;
-  $('messages').scrollTop=99999;
-}
-
-// ✅ Message delete
-async function deleteMsg(msgId,uid){
-  await sb.from('messages').delete().eq('id',msgId);
-  State.threads[uid]=State.threads[uid].filter(m=>m.id!==msgId);
-  renderMessages(uid);
-  toast('Message deleted');
-}
-
-// ✅ REAL IMAGE UPLOAD — Supabase Storage
-function pickImage(){
-  const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
-  inp.onchange=async e=>{
-    const f=e.target.files[0];if(!f||!activeChat)return;
-    toast('Uploading…');
-    const path='chat/'+me.id+'/'+Date.now()+'_'+f.name;
-    const {error:upErr}=await sb.storage.from('chat-images').upload(path,f);
-    if(upErr){console.error(upErr);toast('Upload failed');return;}
-    const {data:{publicUrl}}=sb.storage.from('chat-images').getPublicUrl(path);
-    const {data,error}=await sb.from('messages').insert({sender_id:me.id,receiver_id:activeChat,text:publicUrl,type:'image'}).select().single();
-    if(!error)addMessage(data);
-  };
-  inp.click();
-}
-
-// ✅ TYPING INDICATOR
-let typingTimeout=null;
-$('msgInput').addEventListener('input',()=>{
-  if(!activeChat)return;
-  sb.from('typing_status').upsert({user_id:me.id,chat_with:activeChat,typing:true},{onConflict:'user_id,chat_with'});
-  clearTimeout(typingTimeout);
-  typingTimeout=setTimeout(()=>{
-    sb.from('typing_status').upsert({user_id:me.id,chat_with:activeChat,typing:false},{onConflict:'user_id,chat_with'});
-  },2000);
-});
-function subscribeTyping(uid){
-  sb.channel('typing-'+uid)
-    .on('postgres_changes',{event:'*',schema:'public',table:'typing_status',filter:'user_id=eq.'+uid},pl=>{
-      const row=pl.new||pl.old;
-      if(row&&row.chat_with===me.id){
-        const ind=$('typingIndicator');
-        if(ind)ind.classList.toggle('hidden',!row.typing);
-      }
-    }).subscribe();
-}
-
-function startVoice(){toast('Voice recording coming soon');}
-function openQA(){toast('Q&A opening soon');}
+function pickImage(){$('imgFile').click();}
+$('imgFile').onchange=async e=>{
+  const f=e.target.files[0];if(!f||!activeChat)return;
+  const path='chat/'+me.id+'/'+Date.now()+'_'+f.name;
+  const {error:upErr}=await sb.storage.from('chat-images').upload(path,f);
+  if(upErr){toast('Upload failed');return;}
+  const {data:{publicUrl}}=sb.storage.from('chat-images').getPublicUrl(path);
+  const {data,error}=await sb.from('messages').insert({sender_id:me.id,receiver_id:activeChat,text:'',type:'image',extra:publicUrl}).select().single();
+  if(error){toast('Send failed');return;}
+  addMessage(data);
+};
 function toggleKeyboard(){
   const kb=$('keyboard');
-  if(kb.classList.contains('hidden')){kb.classList.remove('hidden');setKbTab('emoji');}
-  else{closeKb();}
+  kb.style.display=kb.style.display==='none'?'flex':'none';
+  if(kb.style.display==='flex'){renderStickerTab();}
 }
-function closeKb(){$('keyboard').classList.add('hidden');}
 function setKbTab(tab,btn){
   document.querySelectorAll('.kb-tabs button').forEach(b=>b.classList.remove('active'));
-  if(btn)btn.classList.add('active');
+  btn.classList.add('active');
   $('kbEmoji').classList.toggle('hidden',tab!=='emoji');
   $('kbSticker').classList.toggle('hidden',tab!=='sticker');
-  if(tab==='sticker')renderStickerTab();
 }
-const EMOJIS='😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇 🙂 😉 😍 🥰 😘 😋 😛 😜 🤪 😎 🥳 😏 😒 😞 😔 🙁 😣 😫 🥺 😢 😭 😤 😠 😡 🤯 😳 🥵 😱 😰 🤗 🤔 🤭 😶 😐 😬 🙄 😯 😮 😲 🥱 😴 🤤 😵 🤐 🥴 🤢 🤧 😷 🤒 🤕'.split(' ');
-$('kbEmoji').innerHTML=EMOJIS.map(e=>`<span onclick="insertEmoji('${e}')">${e}</span>`).join('');
-function insertEmoji(e){
-  const inp=$('msgInput');
-  const s=inp.selectionStart||inp.value.length;
-  inp.value=inp.value.slice(0,s)+e+inp.value.slice(inp.selectionEnd||s);
-  inp.focus();
-}
+const EMOJIS=['😀','😂','😍','🥰','😎','🤩','😢','😭','😡','🤬','😱','🤔','🤗','🤭','🤫','🤥','😷','🤒','🤕','🤢','🤮','🥵','🥶','😵','🤯','🤠','🥳','😎','🤓','🧐','😕','😟','🙁','😮','😯','😲','😳','🥺','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','🤬','😈','👿','💀','☠️','💩','🤡','👹','👺','👻','👽','🤖','😺','😸','😹','😻','😼','😽','🙀','😿','😾','🙈','🙉','🙊','💋','💌','💘','💝','💖','💗','💓','💞','💕','❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','👍','👎','👌','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','👇','☝️','✋','🤚','🖐️','🖖','👋','🤝','🙏','💪','🦾','🦵','🦶','👂','👃','🧠','🦷','🦴','👀','👁️','👅','👄','🫀','🫁','🧠','🫂','👥','👤','🫶','🫰','🤌','🤏','🤞','🤟','🤘','🤙','👈','👉','👆','👇','☝️','✋','🤚','🖐️','🖖','👋','🤝','🙏','💪','🦾','🦵','🦶','👂','👃','🧠','🦷','🦴','👀','👁️','👅','👄','🫀','🫁','🧠','🫂','👥','👤','🫶','🫰','🤌','🤏'];
 function renderStickerTab(){
-  const packs=State.installedPacks;
-  $('kbSticker').innerHTML=packs.length?packs.map(p=>p.assets.map(u=>`<div class="st" onclick="sendAnimatedSticker('${u}')"><img src="${u}"></div>`).join('')).join(''):'<div style="grid-column:1/-1;text-align:center;color:#a78bfa">No sticker pack installed — tap + to download</div>';
+  $('kbEmoji').innerHTML=EMOJIS.map(e=>`<span onclick="insertEmoji('${e}')">${e}</span>`).join('');
+  const packs=State.stickerPacks;
+  $('kbSticker').innerHTML=packs.length?packs.map(p=>`<div class="st" onclick="sendSticker('${p.id}')"><img src="${esc(p.cover)}"></div>`).join(''):'<div style="color:#a78bfa;font-size:12px">No sticker packs installed</div>';
 }
-function sendAnimatedSticker(url){
-  if(!activeChat)return;
-  sb.from('messages').insert({sender_id:me.id,receiver_id:activeChat,text:url,type:'animated_sticker'}).select().single().then(({data})=>{if(data)addMessage(data);});
+function insertEmoji(e){$('msgInput').value+=e;}
+async function sendSticker(pid){
+  const p=State.stickerPacks.find(x=>x.id===pid);
+  if(!p||!activeChat)return;
+  const {data,error}=await sb.from('messages').insert({sender_id:me.id,receiver_id:activeChat,text:'',type:'sticker',extra:p.cover}).select().single();
+  if(error){toast('Send failed');return;}
+  addMessage(data);
 }
-function openStore(){initializeStickerMarketplace();}
-function closeStore(){$('storeModal').classList.add('hidden');}
-async function initializeStickerMarketplace(){
+async function openStore(){
   $('storeModal').classList.remove('hidden');
-  $('storeBody').innerHTML='<div style="text-align:center;color:#a78bfa;padding:30px">Loading trending animated stickers…</div>';
-  try{
-    const res=await fetch('https://tenor.googleapis.com/v2/featured?key=AIzaSyDemo&limit=20&media_filter=gif');
-    const data=await res.json();
-    const results=(data.results||[]).map(r=>({id:r.id,title:r.content_description||'Animated Sticker',preview:r.media_formats.gif.url,asset:r.media_formats.gif.url}));
-    State.stickerPacks=results;
-    $('storeBody').innerHTML=results.map(p=>{
-      const st=State.downloadState[p.id]||'idle';
-      const btn=st==='installed'?'<button class="installed">Installed</button>':`<button onclick="handleRealStickerDownload('${p.id}')">Download Pack</button>`;
-      return `<div class="pack"><div class="cover"><img src="${p.preview}"></div><div class="info"><div class="t">${esc(p.title)}</div><div class="c">Animated Stickers</div><div class="progress"><i id="bar-${p.id}"></i></div></div>${btn}</div>`;
-    }).join('');
-  }catch(err){
-    $('storeBody').innerHTML='<div style="text-align:center;color:#a78bfa;padding:30px">Sticker server connect nahi hua.</div>';
-  }
+  const {data}=await sb.from('sticker_packs').select('*');
+  State.stickerPacks=data||[];
+  $('storeBody').innerHTML=(data||[]).map(p=>{
+    const installed=State.installedPacks.includes(p.id);
+    const prog=State.downloadProgress[p.id]||0;
+    return `<div class="pack"><div class="cover"><img src="${esc(p.cover)}"></div><div class="info"><div class="t">${esc(p.name)}</div><div class="c">${esc(p.category||'Stickers')} · ${p.stickers?p.stickers.length:0} stickers</div><span class="badge">${p.type||'static'}</span><div class="progress"><i style="width:${prog}%"></i></div></div><button class="${installed?'installed':''}" onclick="installPack('${p.id}')">${installed?'Installed':'Install'}</button></div>`;
+  }).join('');
 }
-async function handleRealStickerDownload(packId){
-  State.downloadState[packId]='downloading';
-  for(const p of [15,35,60,85,100]){
-    const bar=$('bar-'+packId);
-    if(bar)bar.style.width=p+'%';
-    await new Promise(r=>setTimeout(r,300));
-  }
-  State.downloadState[packId]='installed';
-  const pack=State.stickerPacks.find(x=>x.id===packId);
-  if(pack&&!State.installedPacks.find(x=>x.id===packId)){
-    State.installedPacks.push({id:packId,title:pack.title,assets:[pack.asset]});
-    localStorage.setItem('voxa_sticker_packs',JSON.stringify(State.installedPacks));
-  }
-  toast('Sticker pack installed!');
-  closeStore();setKbTab('sticker');renderStickerTab();
+function closeStore(){$('storeModal').classList.add('hidden');}
+async function installPack(pid){
+  const p=State.stickerPacks.find(x=>x.id===pid);
+  if(!p)return;
+  State.downloadProgress[pid]=0;
+  const btn=document.querySelector(`[onclick="installPack('${pid}')"]`);
+  if(btn){btn.textContent='Downloading…';btn.disabled=true;}
+  const timer=setInterval(()=>{
+    State.downloadProgress[pid]=Math.min(100,(State.downloadProgress[pid]||0)+10);
+    const bar=document.querySelector(`[onclick="installPack('${pid}')"]`)?.closest('.pack')?.querySelector('.progress i');
+    if(bar)bar.style.width=State.downloadProgress[pid]+'%';
+    if(State.downloadProgress[pid]>=100){
+      clearInterval(timer);
+      State.installedPacks.push(pid);
+      localStorage.setItem('voxa_sticker_packs',JSON.stringify(State.installedPacks));
+      if(btn){btn.textContent='Installed';btn.classList.add('installed');btn.disabled=false;}
+      toast('Pack installed!');
+      renderStickerTab();
+    }
+  },200);
+}
+function openQA(){
+  const box=$('searchResult');
+  box.classList.remove('hidden');
+  box.innerHTML='<div style="font-weight:700;color:#fff;font-size:13px;margin-bottom:6px">Q&A</div><div style="color:#a78bfa;font-size:12px">Coming soon</div>';
 }
 function openGifts(){$('giftModal').classList.remove('hidden');}
 function closeGifts(){$('giftModal').classList.add('hidden');}
-function sendGift(name,icon,price){
-  closeGifts();
+async function sendGift(name,label,price){
   if(!activeChat)return;
-  sb.from('messages').insert({sender_id:me.id,receiver_id:activeChat,text:name+' gift sent! 🎁',type:'gift'}).select().single().then(({data})=>{if(data)addMessage(data);toast(name+' Gift sent!');});
+  const {data,error}=await sb.from('messages').insert({sender_id:me.id,receiver_id:activeChat,text:'Gift: '+name,type:'gift',extra:''}).select().single();
+  if(error){toast('Gift failed');return;}
+  addMessage(data);
+  closeGifts();
+  toast('Gift sent! 🎁');
 }
-
-// ===== ✅ REAL CALLING — WebRTC + Supabase signaling =====
-let pc=null,localStream=null,currentCallId=null,pendingOffer=null;
-
+function startVoice(){
+  if(!activeChat)return;
+  const u=State.users.find(x=>x.id===activeChat);
+  $('callName').textContent='Voice Party';
+  $('callStatus').textContent='Joining room with '+u.name;
+  $('callOverlay').classList.remove('hidden');
+  $('endCallBtn').style.display='block';
+  $('acceptCallBtn').style.display='none';
+  $('rejectCallBtn').style.display='none';
+}
 function startCall(){
   if(!activeChat)return;
-  const u=State.users.find(x=>x.id===activeChat)||{name:'User'};
-  currentCallId='call_'+me.id+'_'+activeChat+'_'+Date.now();
-  pendingOffer=null;
-  $('callName').textContent='Calling '+u.name+'…';
+  const u=State.users.find(x=>x.id===activeChat);
+  $('callName').textContent='Calling '+u.name;
   $('callStatus').textContent='Connecting Audio Channel';
-  $('acceptCallBtn').style.display='none';
-  $('rejectCallBtn').style.display='none';
-  $('endCallBtn').style.display='inline-block';
   $('callOverlay').classList.remove('hidden');
-
-  setupPeer();
-  navigator.mediaDevices.getUserMedia({audio:true})
-    .then(stream=>{
-      localStream=stream;
-      stream.getTracks().forEach(t=>pc.addTrack(t,stream));
-      return pc.createOffer();
-    })
-    .then(offer=>pc.setLocalDescription(offer))
-    .then(()=>sendSignal('offer',{sdp:pc.localDescription}))
-    .catch(err=>{
-      console.error(err);
-      $('callStatus').textContent='Mic permission chahiye';
-    });
-}
-
-function setupPeer(){
-  pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});
-  pc.onicecandidate=e=>{
-    if(e.candidate)sendSignal('ice',{candidate:e.candidate.toJSON()});
-  };
-  pc.ontrack=e=>{
-    const audio=new Audio();
-    audio.srcObject=e.streams[0];
-    audio.autoplay=true;
-    audio.play().catch(()=>{});
-  };
-  pc.onconnectionstatechange=()=>{
-    if(pc.connectionState==='connected')$('callStatus').textContent='Connected ✅';
-    if(pc.connectionState==='failed'||pc.connectionState==='disconnected')endCall();
-  };
-}
-
-async function sendSignal(type,payload){
-  if(!currentCallId)return;
-  await sb.from('call_signals').insert({
-    call_id:currentCallId,from_user:me.id,to_user:activeChat,type,payload
-  });
-}
-
-async function handleSignal(sig){
-  if(sig.type==='offer'){
-    pendingOffer=sig;
-    currentCallId=sig.call_id;
-    activeChat=sig.from_user;
-    const u=State.users.find(x=>x.id===sig.from_user)||{name:'User'};
-    $('callName').textContent=u.name;
-    $('callStatus').textContent='Incoming call…';
-    $('acceptCallBtn').style.display='inline-block';
-    $('rejectCallBtn').style.display='inline-block';
-    $('endCallBtn').style.display='none';
-    $('callOverlay').classList.remove('hidden');
-  }
-  else if(sig.type==='answer'){
-    if(pc){
-      await pc.setRemoteDescription(new RTCSessionDescription(sig.payload.sdp));
-      $('callStatus').textContent='Connected ✅';
-    }
-  }
-  else if(sig.type==='ice'){
-    if(pc&&sig.payload.candidate){
-      try{await pc.addIceCandidate(new RTCIceCandidate(sig.payload.candidate));}catch(e){}
-    }
-  }
-  else if(sig.type==='reject'){
-    $('callStatus').textContent='Call rejected';
-    setTimeout(endCall,1500);
-  }
-}
-
-async function acceptCall(){
-  if(!pendingOffer)return;
-  const sig=pendingOffer;
+  $('endCallBtn').style.display='block';
   $('acceptCallBtn').style.display='none';
   $('rejectCallBtn').style.display='none';
-  $('endCallBtn').style.display='inline-block';
-  $('callStatus').textContent='Connecting…';
-  setupPeer();
-  try{
-    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-    localStream=stream;
-    stream.getTracks().forEach(t=>pc.addTrack(t,stream));
-    await pc.setRemoteDescription(new RTCSessionDescription(sig.payload.sdp));
-    const answer=await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-    activeChat=sig.from_user;
-    currentCallId=sig.call_id;
-    await sendSignal('answer',{sdp:pc.localDescription});
-    $('callStatus').textContent='Connected ✅';
-  }catch(err){
-    console.error(err);
-    $('callStatus').textContent='Mic permission chahiye';
+  sb.from('call_signals').insert({from_user:me.id,to_user:activeChat,type:'ring'});
+}
+function handleSignal(s){
+  if(s.type==='ring'){
+    const u=State.users.find(x=>x.id===s.from_user);
+    $('callName').textContent='Incoming call from '+u.name;
+    $('callStatus').textContent='Incoming Voice Call';
+    $('callOverlay').classList.remove('hidden');
+    $('acceptCallBtn').style.display='block';
+    $('rejectCallBtn').style.display='block';
+    $('endCallBtn').style.display='none';
   }
 }
-
-async function rejectCall(){
-  if(pendingOffer){
-    activeChat=pendingOffer.from_user;
-    await sendSignal('reject',{});
-  }
-  endCall();
+function acceptCall(){
+  $('callStatus').textContent='Connected';
+  $('acceptCallBtn').style.display='none';
+  $('rejectCallBtn').style.display='none';
+  $('endCallBtn').style.display='block';
 }
-
-function endCall(){
-  if(localStream)localStream.getTracks().forEach(t=>t.stop());
-  if(pc){pc.close();pc=null;}
-  localStream=null;
-  currentCallId=null;
-  pendingOffer=null;
+function rejectCall(){
   $('callOverlay').classList.add('hidden');
-  $('callStatus').textContent='Connecting Audio Channel';
+  sb.from('call_signals').insert({from_user:me.id,to_user:activeChat,type:'reject'});
 }
-$('msgInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendMsg();});
+function endCall(){
+  $('callOverlay').classList.add('hidden');
+  sb.from('call_signals').insert({from_user:me.id,to_user:activeChat,type:'end'});
+}
+function teleport(){
+  location.href='party.html';
+}
 init();
 </script>
 </body>
