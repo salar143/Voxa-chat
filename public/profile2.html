@@ -607,7 +607,7 @@ async function init(){
   if(!user){err('Please login first — go to the login page.');return}
   const {data:own}=await db(sb.from('profiles').select(PROFILE_COLS).eq('id',user.id).maybeSingle());
   if(!own){err('Tumhari profile record nahi mili. Signup/profile setup complete karo.');return}
-  me={...own,email:user.email||own.email||''};
+  me={...own,email:user.email||''};
   if(own.deleted_at){
    err('Account deactivated hai. Recovery ke liye Official se contact karo.');
    return;
