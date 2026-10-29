@@ -490,6 +490,89 @@ async function db(query){
  if(id==='followersPage')loadFollowers();
  if(id==='followingPage')loadFollowing();
  }
+ const FOLLOW_TABLE='follows';
+const FOLLOWER_COL='follower_id';
+const FOLLOWING_COL='following_id';
+
+async function loadFollowers(){
+ if(!me||String(profileUser?.id)!==String(me.id))return;
+ const list=E('followersList');if(!list)return;
+ list.textContent='Loading followers...';
+ try{
+  const {data:rows}=await db(
+   sb.from(FOLLOW_TABLE)
+    .select(FOLLOWER_COL)
+    .eq(FOLLOWING_COL,me.id)
+    .order('created_at',{ascending:false})
+  );
+  const ids=[...(new Set((rows||[]).map(r=>r[FOLLOWER_COL])))].filter(id=>id!==me.id);
+  list.replaceChildren();
+  if(!ids.length){list.textContent='No followers yet.';return}
+  const people=new Map();
+  for(let i=0;i<ids.length;i+=100){
+   const {data}=await db(sb.from('profiles').select('id,uid,name,dp,photo').in('id',ids.slice(i,i+100)));
+   (data||[]).forEach(p=>people.set(p.id,p));
+  }
+  for(const id of ids){
+   const p=people.get(id),row=document.createElement('div'),av=document.createElement('span'),detail=document.createElement('div'),name=document.createElement('div'),sub=document.createElement('div');
+   row.className='srow';
+   av.style.cssText='width:40px;height:40px;flex-shrink:0;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center';
+   const img=p?makeImage(p.photo,p.name||'User'):null;
+   if(img){img.style.cssText='width:100%;height:100%;object-fit:cover';av.appendChild(img)}else{av.textContent=p?.dp||'👤'}
+   detail.style.cssText='flex:1;min-width:0;font-size:14px';
+   name.textContent=p?.name||'Profile unavailable';
+   sub.style.cssText='font-size:11px;color:#9ca3af;margin-top:4px';
+   sub.textContent='Follows you';
+   detail.append(name,sub);
+   row.append(av,detail);
+   if(p?.uid!==null&&p?.uid!==undefined){
+    row.onclick=()=>location.href='profile2.html?uid='+encodeURIComponent(String(p.uid));
+    const a=document.createElement('span');a.textContent='›';row.appendChild(a);
+   }else{row.style.cursor='default'}
+   list.appendChild(row);
+  }
+ }catch(e){list.textContent='Followers load nahi hue: '+messageOf(e)}
+}
+
+async function loadFollowing(){
+ if(!me||String(profileUser?.id)!==String(me.id))return;
+ const list=E('followingList');if(!list)return;
+ list.textContent='Loading following...';
+ try{
+  const {data:rows}=await db(
+   sb.from(FOLLOW_TABLE)
+    .select(FOLLOWING_COL)
+    .eq(FOLLOWER_COL,me.id)
+    .order('created_at',{ascending:false})
+  );
+  const ids=[...(new Set((rows||[]).map(r=>r[FOLLOWING_COL])))].filter(id=>id!==me.id);
+  list.replaceChildren();
+  if(!ids.length){list.textContent='Not following anyone yet.';return}
+  const people=new Map();
+  for(let i=0;i<ids.length;i+=100){
+   const {data}=await db(sb.from('profiles').select('id,uid,name,dp,photo').in('id',ids.slice(i,i+100)));
+   (data||[]).forEach(p=>people.set(p.id,p));
+  }
+  for(const id of ids){
+   const p=people.get(id),row=document.createElement('div'),av=document.createElement('span'),detail=document.createElement('div'),name=document.createElement('div'),sub=document.createElement('div');
+   row.className='srow';
+   av.style.cssText='width:40px;height:40px;flex-shrink:0;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center';
+   const img=p?makeImage(p.photo,p.name||'User'):null;
+   if(img){img.style.cssText='width:100%;height:100%;object-fit:cover';av.appendChild(img)}else{av.textContent=p?.dp||'👤'}
+   detail.style.cssText='flex:1;min-width:0;font-size:14px';
+   name.textContent=p?.name||'Profile unavailable';
+   sub.style.cssText='font-size:11px;color:#9ca3af;margin-top:4px';
+   sub.textContent='You follow';
+   detail.append(name,sub);
+   row.append(av,detail);
+   if(p?.uid!==null&&p?.uid!==undefined){
+    row.onclick=()=>location.href='profile2.html?uid='+encodeURIComponent(String(p.uid));
+    const a=document.createElement('span');a.textContent='›';row.appendChild(a);
+   }else{row.style.cursor='default'}
+   list.appendChild(row);
+  }
+ }catch(e){list.textContent='Following load nahi hua: '+messageOf(e)}
+}
 function fillSelect(id,placeholder,items){const s=E(id);s.replaceChildren(new Option(placeholder,placeholder));items.forEach(v=>s.add(new Option(v,v)))}
 function fillAllDropdowns(){
  fillSelect('country','— Select Country —',Object.keys(COUNTRIES));
