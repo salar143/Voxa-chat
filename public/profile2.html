@@ -250,7 +250,6 @@ input,textarea,select{width:100%;padding:11px;border-radius:11px;border:1px soli
  </div>
 </div>
 </div>
-
 <div class="screen" id="editPage">
 <div class="subpage">
  <button class="back" onclick="show('profilePage')">← Back to Profile</button>
@@ -363,6 +362,7 @@ input,textarea,select{width:100%;padding:11px;border-radius:11px;border:1px soli
  <div class="srow" onclick="alert('Email: '+(me?me.email||'—':'—'))"><span>📧</span> Gmail / Email <span>›</span></div>
 </div>
 </div>
+
 <div class="screen" id="visitorsPage">
 <div class="subpage">
  <button class="back" onclick="show('profilePage')">← Back to Profile</button>
@@ -444,7 +444,6 @@ input,textarea,select{width:100%;padding:11px;border-radius:11px;border:1px soli
  <button onclick="location.href='inbox.html'"><span class="ic">📥</span>Inbox</button>
  <button class="active" onclick="location.href='profile2.html'"><span class="ic">👤</span>Profile</button>
 </div>
-
 <script>
 const sb=supabase.createClient('https://mblcbygpqbogmtzacbtz.supabase.co','sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV');
 let me=null,profileUser=null,isOwner=true,curType='active';
@@ -462,7 +461,7 @@ const UNLOCKS=[
  ['L90','Rainbow diamond blossom','Rainbow luxury effects'],
  ['L100','Legendary crown flower','Legendary prestige']
 ];
- const COUNTRIES={
+const COUNTRIES={
 'India':['Mumbai','Delhi','Bangalore','Hyderabad','Chennai','Kolkata','Pune','Jaipur','Lucknow','Patna','Kochi','Goa'],
 'Pakistan':['Karachi','Lahore','Islamabad','Rawalpindi','Faisalabad','Multan','Peshawar','Quetta'],
 'Nepal':['Kathmandu','Pokhara','Biratnagar','Birgunj','Bharatpur','Janakpur','Dharan','Butwal'],
@@ -493,7 +492,7 @@ async function db(query){
  catch(e){if(c.signal.aborted)throw new Error('Request timeout. Connection check karke dobara try karo.');throw e}
  finally{clearTimeout(timer)}
 }
- function show(id){
+function show(id){
  const ownerOnly=['editPage','settingsPage','accountPage','momentPage','reportPage','feedbackPage','blockPage','visitorsPage'];
  if(ownerOnly.includes(id)&&!isOwner)return;
  const target=E(id);if(!target)return;
@@ -504,8 +503,8 @@ async function db(query){
  if(id==='visitorsPage')loadVisitors();
  if(id==='followersPage')loadFollowers();
  if(id==='followingPage')loadFollowing();
- }
- const FOLLOW_TABLE='follows';
+}
+const FOLLOW_TABLE='follows';
 const FOLLOWER_COL='follower_id';
 const FOLLOWING_COL='following_id';
 
@@ -588,7 +587,7 @@ async function loadFollowing(){
   }
  }catch(e){list.textContent='Following load nahi hua: '+messageOf(e)}
 }
-function fillSelect(id,placeholder,items){const s=E(id);s.replaceChildren(new Option(placeholder,placeholder));items.forEach(v=>s.add(new Option(v,v)))}
+ function fillSelect(id,placeholder,items){const s=E(id);s.replaceChildren(new Option(placeholder,placeholder));items.forEach(v=>s.add(new Option(v,v)))}
 function fillAllDropdowns(){
  fillSelect('country','— Select Country —',Object.keys(COUNTRIES));
  fillSelect('citySel','— Select City —',CITY_ALL);
@@ -660,6 +659,21 @@ function render(){
  vs.onkeydown=isOwner?e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();show('visitorsPage')}}:null;
  if(isOwner){vs.setAttribute('role','button');vs.tabIndex=0}
  else{vs.removeAttribute('role');vs.removeAttribute('tabindex')}
+ const fs=E('followersStat'),fg=E('followingStat');
+ if(isOwner){
+  fs.onclick=()=>show('followersPage');
+  fg.onclick=()=>show('followingPage');
+  fs.classList.add('visitors-clickable');
+  fg.classList.add('visitors-clickable');
+  fs.setAttribute('role','button');fs.tabIndex=0;
+  fg.setAttribute('role','button');fg.tabIndex=0;
+ }else{
+  fs.onclick=null;fg.onclick=null;
+  fs.classList.remove('visitors-clickable');
+  fg.classList.remove('visitors-clickable');
+  fs.removeAttribute('role');fs.removeAttribute('tabindex');
+  fg.removeAttribute('role');fg.removeAttribute('tabindex');
+ }
  E('bioInput').value=u.bio||'';E('bioInput').disabled=!isOwner;
  E('saveBioBtn').style.display=isOwner?'':'none';
  E('createMomentBtn').style.display=isOwner?'':'none';
