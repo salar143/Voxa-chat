@@ -147,15 +147,13 @@ input,textarea,select{width:100%;padding:11px;border-radius:11px;border:1px soli
    <div class="lbox" onclick="openLevels('wealth')"><svg viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.6"><path d="M12 21C7 17 4 13 4 9a8 8 0 0 1 16 0c0 4-3 8-8 12z"/><path d="M12 21V9"/></svg><div class="ln" id="lvlWealth">—</div><div class="lt">Sending</div></div>
    <div class="lbox" onclick="openLevels('game')"><svg viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.6"><path d="M12 21C7 17 4 13 4 9a8 8 0 0 1 16 0c0 4-3 8-8 12z"/><path d="M12 21V9"/></svg><div class="ln" id="lvlGame">—</div><div class="lt">Gaming</div></div>
   </div>
-
-  <div class="stats">
-   <div class="stat"><b id="sFo">—</b><span>Following</span></div>
-   <div class="stat"><b id="sF">—</b><span>Followers</span></div>
+  
+<div class="stats">
+   <div class="stat" id="followingStat"><b id="sFo">—</b><span>Following</span></div>
+   <div class="stat" id="followersStat"><b id="sF">—</b><span>Followers</span></div>
    <div class="stat" id="visitorStat"><b id="sV">—</b><span>Visitors</span></div>
-  </div>
- </div>
 </div>
-
+ 
 <div class="card">
  <h3>📝 Bio</h3>
  <textarea id="bioInput" rows="4" maxlength="600" style="font-size:15px" placeholder="Write your bio (up to 100 words)..."></textarea>
