@@ -283,7 +283,6 @@ input,textarea,select{width:100%;padding:11px;border-radius:11px;border:1px soli
  </div>
 </div>
 </div>
-
 <div class="screen" id="settingsPage">
 <div class="subpage">
  <button class="back" onclick="show('profilePage')">← Back to Profile</button>
@@ -424,7 +423,6 @@ input,textarea,select{width:100%;padding:11px;border-radius:11px;border:1px soli
   <button class="btn btn-sm btn-ghost" style="margin-top:6px" onclick="shareInvite()">Share</button>
  </div>
 </div></div>
-
 <div class="panel" id="listPanel"><div class="inner">
  <button class="close" onclick="closePanels()">✕</button>
  <h3 id="listTitle">List</h3><div class="empty" id="listBody">Nothing loaded.</div>
@@ -443,8 +441,9 @@ input,textarea,select{width:100%;padding:11px;border-radius:11px;border:1px soli
  <button onclick="location.href='party.html'"><span class="ic">🎉</span>Party Room</button>
  <button onclick="location.href='inbox.html'"><span class="ic">📥</span>Inbox</button>
  <button class="active" onclick="location.href='profile2.html'"><span class="ic">👤</span>Profile</button>
-   </div>
-   <script>
+</div>
+
+<script>
 const sb=supabase.createClient('https://mblcbygpqbogmtzacbtz.supabase.co','sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV');
 let me=null,profileUser=null,isOwner=true,curType='active';
 let followBusy=false,followStatusKnown=false,isFollowing=false;
@@ -587,7 +586,8 @@ async function loadFollowing(){
   }
  }catch(e){list.textContent='Following load nahi hua: '+messageOf(e)}
 }
-    function fillSelect(id,placeholder,items){const s=E(id);s.replaceChildren(new Option(placeholder,placeholder));items.forEach(v=>s.add(new Option(v,v)))}
+
+function fillSelect(id,placeholder,items){const s=E(id);s.replaceChildren(new Option(placeholder,placeholder));items.forEach(v=>s.add(new Option(v,v)))}
 function fillAllDropdowns(){
  fillSelect('country','— Select Country —',Object.keys(COUNTRIES));
  fillSelect('citySel','— Select City —',CITY_ALL);
@@ -637,8 +637,7 @@ async function init(){
   err(messageOf(e));
  }
 }
-
-function render(){
+ function render(){
  const u=profileUser;if(!u||!me)return;
  isOwner=String(u.id)===String(me.id);
  const av=E('pAv'),photo=makeImage(u.photo,u.name||'Profile photo');av.replaceChildren();
@@ -732,6 +731,7 @@ async function refreshStats(){
   catch(e){E(el).textContent='—';err(el+' count load nahi hua: '+messageOf(e))}
  }));
 }
+
 async function recordVisit(profileId){
  if(!me||String(me.id)===String(profileId))return;
 
@@ -761,13 +761,16 @@ async function recordVisit(profileId){
   if(e.code!=='23505')throw e;
  }
 }
+
 function paintFollowButton(){const b=E('followBtn');b.textContent=isFollowing?'Following':'+ Follow';b.className=isFollowing?'pbtn following':'pbtn follow';b.disabled=followBusy}
+
 async function checkFollowStatus(){
  if(!me||!profileUser||isOwner)return;
  E('followBtn').disabled=true;
  const {data}=await db(sb.from('follows').select('id').eq('follower_id',me.id).eq('following_id',profileUser.id).limit(1));
  isFollowing=!!data?.length;followStatusKnown=true;paintFollowButton();
 }
+
 async function toggleFollow(){
  if(!me||!profileUser||isOwner||followBusy)return;
  followBusy=true;E('followBtn').disabled=true;
@@ -790,6 +793,7 @@ async function toggleFollow(){
   else{E('followBtn').textContent='Retry Follow';E('followBtn').disabled=false}
  }
 }
+
 function openChat(){
  if(!profileUser||isOwner)return;
  if(profileUser.uid===null||profileUser.uid===undefined){err('Is profile ki UID missing hai.');return}
@@ -823,9 +827,8 @@ async function loadVisitors(){
    list.appendChild(row);
   }
  }catch(e){list.textContent='Visitors load nahi hue: '+messageOf(e)}
-}
-
-function tab(n,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.querySelectorAll('.tabc').forEach(c=>c.classList.remove('active'));E('t-'+n)?.classList.add('active')}
+   }
+ function tab(n,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.querySelectorAll('.tabc').forEach(c=>c.classList.remove('active'));E('t-'+n)?.classList.add('active')}
 function closePanels(){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('open'))}
 function openEdit(){if(!isOwner)return;E('editName').value=me.name||'';E('editDp').value=me.dp||'👤';E('editAge').value=me.age||'';show('editPage')}
 async function save(patch){
