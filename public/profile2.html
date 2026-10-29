@@ -478,16 +478,18 @@ async function db(query){
  catch(e){if(c.signal.aborted)throw new Error('Request timeout. Connection check karke dobara try karo.');throw e}
  finally{clearTimeout(timer)}
 }
-function show(id){
+ function show(id){
  const ownerOnly=['editPage','settingsPage','accountPage','momentPage','reportPage','feedbackPage','blockPage','visitorsPage'];
  if(ownerOnly.includes(id)&&!isOwner)return;
- if(['followingPage','followersPage'].includes(id))return;
  const target=E(id);if(!target)return;
  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
  target.classList.add('active');
  E('profileBtns').classList.toggle('open',id==='profilePage'&&!!profileUser&&!isOwner);
- window.scrollTo(0,0);if(id==='visitorsPage')loadVisitors();
-}
+ window.scrollTo(0,0);
+ if(id==='visitorsPage')loadVisitors();
+ if(id==='followersPage')loadFollowers();
+ if(id==='followingPage')loadFollowing();
+ }
 function fillSelect(id,placeholder,items){const s=E(id);s.replaceChildren(new Option(placeholder,placeholder));items.forEach(v=>s.add(new Option(v,v)))}
 function fillAllDropdowns(){
  fillSelect('country','— Select Country —',Object.keys(COUNTRIES));
