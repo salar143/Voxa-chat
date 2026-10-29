@@ -363,12 +363,27 @@ input,textarea,select{width:100%;padding:11px;border-radius:11px;border:1px soli
  <div class="srow" onclick="alert('Email: '+(me?me.email||'—':'—'))"><span>📧</span> Gmail / Email <span>›</span></div>
 </div>
 </div>
-
 <div class="screen" id="visitorsPage">
 <div class="subpage">
  <button class="back" onclick="show('profilePage')">← Back to Profile</button>
  <h3 style="font-size:20px;margin-bottom:14px">👀 Visitors</h3>
  <div class="card"><div id="visitorsList" aria-live="polite"><div class="empty">Open Visitors from your own profile to load the list.</div></div></div>
+</div>
+</div>
+
+<div class="screen" id="followersPage">
+<div class="subpage">
+ <button class="back" onclick="show('profilePage')">← Back to Profile</button>
+ <h3 style="font-size:20px;margin-bottom:14px">👥 Followers</h3>
+ <div class="card"><div id="followersList" aria-live="polite"><div class="empty">Open Followers from your own profile to load the list.</div></div></div>
+</div>
+</div>
+
+<div class="screen" id="followingPage">
+<div class="subpage">
+ <button class="back" onclick="show('profilePage')">← Back to Profile</button>
+ <h3 style="font-size:20px;margin-bottom:14px">➡️ Following</h3>
+ <div class="card"><div id="followingList" aria-live="polite"><div class="empty">Open Following from your own profile to load the list.</div></div></div>
 </div>
 </div>
 
