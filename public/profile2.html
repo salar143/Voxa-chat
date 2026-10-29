@@ -477,8 +477,7 @@ const UNI_ALL=['Delhi University','Mumbai University','Tribhuvan University','Ka
 const FOODS=['Pizza','Burger','Biryani','Momos','Chowmein','Sushi','Pasta','Ice Cream','Cake','Coffee','Tea','Other'];
 const ACTS=['Cricket','Football','Volleyball','Basketball','Badminton','Swimming','Gym & Fitness','Yoga','Chess','Ludo','Singing','Dancing','Gaming','Traveling','Photography','Reading','Cooking','Other'];
 const E=id=>document.getElementById(id);
-const PROFILE_COLS='id,uid,name,dp,photo,bg,gender,age,active_level,charm_level,wealth_level,game_level,frame,bio,country,city,uni,food,activity,zodiac,hobbies,diamonds,coins,email,deleted_at';
-
+const PROFILE_COLS='id,uid,name,dp,photo,bg,gender,age,active_level,charm_level,wealth_level,game_level,frame,bio,country,city,uni,food,activity,zodiac,hobbies,diamonds,coins,deleted_at';
 function err(m){E('err').textContent=String(m);E('err').style.display='block';console.error(m)}
 function messageOf(e){return e?.message||String(e||'Unknown error')}
 function safeURL(v){
