@@ -455,7 +455,7 @@ async function sendMsg(){
    .insert({
     sender_id:uid,
     receiver_id:activeChat,
-    text:esc(t),
+    content:t,
     type:'text'
    })
    .select()
