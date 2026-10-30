@@ -405,8 +405,8 @@ async function loadThreads(){
 function addMessage(m,silent){
   const other=m.sender_id===me.id?m.receiver_id:m.sender_id;
   const th=State.threads[other]=State.threads[other]||[];
-  if(th.find(x=>x.id===m.id))return;
-  th.push({id:m.id,text:m.text||'',sender:m.sender_id===me.id?'me':other,timestamp:new Date(m.created_at),read:m.read,type:m.type||'text',extra:m.extra});
+  if(th.find(x=>x.id===m.id))return
+  th.push({id:m.id,text:m.content ?? m.text ?? '',sender:m.sender_id===me.id?'me':other,timestamp:new Date(m.created_at),read:m.read,type:m.type||'text',extra:m.extra});
   if(activeChat===other&&!silent)renderMessages(other);
   if(!silent){
     renderChatList();
