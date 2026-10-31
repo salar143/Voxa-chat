@@ -838,6 +838,24 @@ function endCall(){
 function teleport(){
   location.href='party.html';
 }
+const imgViewer=document.getElementById('imgViewer');
+const viewerImg=document.getElementById('viewerImg');
+
+function openImageViewer(src){
+  viewerImg.src=src;
+  imgViewer.classList.remove('hidden');
+}
+function closeImageViewer(){
+  imgViewer.classList.add('hidden');
+  viewerImg.src='';
+}
+
+document.getElementById('messages').addEventListener('click',function(e){
+  if(e.target.classList.contains('msg-img')){
+    e.stopPropagation();
+    openImageViewer(e.target.src);
+  }
+});
 init();
 </script>
   <div class="img-viewer hidden" id="imgViewer" onclick="closeImageViewer()">
