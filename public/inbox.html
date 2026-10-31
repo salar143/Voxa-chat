@@ -695,11 +695,11 @@ $('imgFile').onchange=async e=>{
     return;
   }
 
-  const {data,error}=await sb.from('messages')
+const {data,error}=await sb.from('messages')
     .insert({
       sender_id:me.id,
       receiver_id:activeChat,
-      content:publicUrl,
+      content:`<img src="${publicUrl}" width="200">`,
       type:'image'
     })
     .select()
