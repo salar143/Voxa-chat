@@ -651,7 +651,7 @@ function renderMessages(uid){
       return sep+`<div class="msg ${m.sender==='me'?'me':''}">${m.sender==='me'?'':'<div class="avatar" onclick="location.href=\'profile2.html?uid='+u.uid+'\'" style="cursor:pointer">'+avatarOf(u)+'</div>'}<div class="bubble sticker-anim"><img src="${esc(m.extra)}" style="max-width:120px"></div></div>`;
     }
     if(m.type==='image'){
-      return sep+`<div class="msg ${m.sender==='me'?'me':''}">${m.sender==='me'?'':'<div class="avatar" onclick="location.href=\'profile2.html?uid='+u.uid+'\'" style="cursor:pointer">'+avatarOf(u)+'</div>'}<div><div class="bubble">${m.text}</div>${m.sender==='me'?'<div class="read">✓✓</div>':''}</div></div>`;
+  return sep+`<div class="msg ${m.sender==='me'?'me':''}">${m.sender==='me'?'':'<div class="avatar" onclick="location.href=\'profile2.html?uid='+u.uid+'\'" style="cursor:pointer">'+avatarOf(u)+'</div>'}<div><div class="bubble">${m.text||''}</div><img class="msg-img" src="${esc(m.extra)}" onclick="openImageViewer('${esc(m.extra)}')">${m.sender==='me'?'<div class="read">✓✓</div>':''}</div></div>`;
     }
     if(m.type==='gift'){
       return sep+`<div class="msg ${m.sender==='me'?'me':''}">${m.sender==='me'?'':'<div class="avatar" onclick="location.href=\'profile2.html?uid='+u.uid+'\'" style="cursor:pointer">'+avatarOf(u)+'</div>'}<div class="bubble">🎁 ${esc(m.text)}</div></div>`;
