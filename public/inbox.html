@@ -860,12 +860,7 @@ document.getElementById('messages').addEventListener('click',function(e){
     e.stopPropagation();
     openImageViewer(img.src);
   }
-});function(e){
-  if(e.target.classList.contains('msg-img')){
-    e.stopPropagation();
-    openImageViewer(e.target.src);
-  }
-});
+})
 init();
 </script>event.stopPropagation();closeImageViewer()">✕</button>
   <img id="viewerImg" src="" alt="">
