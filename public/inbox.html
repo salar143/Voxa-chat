@@ -629,15 +629,21 @@ function renderContacts(){
 }
 function pinChat(uid){State.pinned.push(uid);toast('Chat pinned');renderChatList();}
 function deleteChat(uid){delete State.threads[uid];toast('Chat deleted');renderChatList();}
-function openChat(uid){
+async function openChat(uid){
   activeChat=uid;
   const u=State.users.find(x=>x.id===uid);
   $('chatName').textContent=u?u.name:'User';
-  $('teleportBanner').classList.remove('hidden');
+
+  if(u && u.inRoom && u.isOnline){
+    $('teleportBanner').classList.remove('hidden');
+  }else{
+    $('teleportBanner').classList.add('hidden');
+  }
+
   $('chatScreen').classList.remove('hidden');
   renderMessages(uid);
   markRead(uid);
-}
+  }
 function closeChat(){activeChat=null;$('chatScreen').classList.add('hidden');renderChatList();}
 function renderMessages(uid){
   const arr=State.threads[uid]||[];
