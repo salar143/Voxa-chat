@@ -864,7 +864,9 @@ document.getElementById('messages').addEventListener('click',function(e){
   }
 });
 init();
-</script>event.stopPropagation();closeImageViewer()">✕</button>
+</script>
+  <div class="img-viewer hidden" id="imgViewer" onclick="closeImageViewer()">
+  <button class="close" onclick="event.stopPropagation();closeImageViewer()">✕</button>
   <img id="viewerImg" src="" alt="">
   </div>
 </body>
