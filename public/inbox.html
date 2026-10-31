@@ -838,6 +838,10 @@ function endCall(){
 function teleport(){
   location.href='party.html';
 }
+function endCall(){
+  $('callOverlay').classList.add('hidden');
+  sb.from('call_signals').insert({from_user:me.id,to_user:activeChat,type:'end'});
+}
 const imgViewer=document.getElementById('imgViewer');
 const viewerImg=document.getElementById('viewerImg');
 
@@ -851,15 +855,19 @@ function closeImageViewer(){
 }
 
 document.getElementById('messages').addEventListener('click',function(e){
+  const img=e.target.closest('img');
+  if(img){
+    e.stopPropagation();
+    openImageViewer(img.src);
+  }
+});function(e){
   if(e.target.classList.contains('msg-img')){
     e.stopPropagation();
     openImageViewer(e.target.src);
   }
 });
 init();
-</script>
-  <div class="img-viewer hidden" id="imgViewer" onclick="closeImageViewer()">
-  <button class="close" onclick="event.stopPropagation();closeImageViewer()">✕</button>
+</script>event.stopPropagation();closeImageViewer()">✕</button>
   <img id="viewerImg" src="" alt="">
   </div>
 </body>
