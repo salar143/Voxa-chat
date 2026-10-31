@@ -842,14 +842,19 @@ function endCall(){
   $('callOverlay').classList.add('hidden');
   sb.from('call_signals').insert({from_user:me.id,to_user:activeChat,type:'end'});
 }
-const imgViewer=document.getElementById('imgViewer');
-const viewerImg=document.getElementById('viewerImg');
-
-function openImageViewer(src){
-  alert('Viewer mila: '+(imgViewer?'HAAN':'NAHI'));
+  function openImageViewer(src){
+  const imgViewer=document.getElementById('imgViewer');
+  const viewerImg=document.getElementById('viewerImg');
   viewerImg.src=src;
   imgViewer.classList.remove('hidden');
 }
+
+function closeImageViewer(){
+  const imgViewer=document.getElementById('imgViewer');
+  const viewerImg=document.getElementById('viewerImg');
+  imgViewer.classList.add('hidden');
+  viewerImg.src='';
+    }
 
 function closeImageViewer(){
   imgViewer.classList.add('hidden');
