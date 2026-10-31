@@ -844,12 +844,12 @@ function endCall(){
 }
 const imgViewer=document.getElementById('imgViewer');
 const viewerImg=document.getElementById('viewerImg');
-function openImageViewer(src){
-  alert('Tap kaam kar raha hai');
+}
+function openImageViewer(src)
+  alert('Viewer mila: '+(imgViewer?'HAAN':'NAHI'));
   viewerImg.src=src;
   imgViewer.classList.remove('hidden');
-}
-
+  }                                 
 function closeImageViewer(){
   imgViewer.classList.add('hidden');
   viewerImg.src='';
