@@ -798,7 +798,11 @@ function startVoice(){
   $('endCallBtn').style.display='block';
   $('acceptCallBtn').style.display='none';
   $('rejectCallBtn').style.display='none';
+
+  // Party room me enter — status set
+  sb.from('profiles').update({current_party_room:me.id}).eq('id',me.id);
 }
+
 function startCall(){
   if(!activeChat)return;
   const u=State.users.find(x=>x.id===activeChat);
@@ -810,6 +814,7 @@ function startCall(){
   $('rejectCallBtn').style.display='none';
   sb.from('call_signals').insert({from_user:me.id,to_user:activeChat,type:'ring'});
 }
+
 function handleSignal(s){
   if(s.type==='ring'){
     const u=State.users.find(x=>x.id===s.from_user);
@@ -821,28 +826,32 @@ function handleSignal(s){
     $('endCallBtn').style.display='none';
   }
 }
+
 function acceptCall(){
   $('callStatus').textContent='Connected';
   $('acceptCallBtn').style.display='none';
   $('rejectCallBtn').style.display='none';
   $('endCallBtn').style.display='block';
 }
+
 function rejectCall(){
   $('callOverlay').classList.add('hidden');
   sb.from('call_signals').insert({from_user:me.id,to_user:activeChat,type:'reject'});
 }
+
 function endCall(){
   $('callOverlay').classList.add('hidden');
   sb.from('call_signals').insert({from_user:me.id,to_user:activeChat,type:'end'});
+
+  // Party room se exit — status clear
+  sb.from('profiles').update({current_party_room:null}).eq('id',me.id);
 }
+
 function teleport(){
   location.href='party.html';
 }
-function endCall(){
-  $('callOverlay').classList.add('hidden');
-  sb.from('call_signals').insert({from_user:me.id,to_user:activeChat,type:'end'});
-}
-  function openImageViewer(src){
+
+function openImageViewer(src){
   const imgViewer=document.getElementById('imgViewer');
   const viewerImg=document.getElementById('viewerImg');
   viewerImg.src=src;
@@ -854,11 +863,6 @@ function closeImageViewer(){
   const viewerImg=document.getElementById('viewerImg');
   imgViewer.classList.add('hidden');
   viewerImg.src='';
-    }
-
-function closeImageViewer(){
-  imgViewer.classList.add('hidden');
-  viewerImg.src='';
 }
 
 document.getElementById('messages').addEventListener('click',function(e){
@@ -868,11 +872,12 @@ document.getElementById('messages').addEventListener('click',function(e){
     openImageViewer(img.src);
   }
 });
+
 init();
 </script>
-  <div class="img-viewer hidden" id="imgViewer" onclick="closeImageViewer()">
+<div class="img-viewer hidden" id="imgViewer" onclick="closeImageViewer()">
   <button class="close" onclick="event.stopPropagation();closeImageViewer()">✕</button>
   <img id="viewerImg" src="" alt="">
-  </div>
+</div>
 </body>
 </html>
