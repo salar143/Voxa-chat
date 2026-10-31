@@ -840,5 +840,9 @@ function teleport(){
 }
 init();
 </script>
+  <div class="img-viewer hidden" id="imgViewer" onclick="closeImageViewer()">
+  <button class="close" onclick="event.stopPropagation();closeImageViewer()">✕</button>
+  <img id="viewerImg" src="" alt="">
+  </div>
 </body>
 </html>
