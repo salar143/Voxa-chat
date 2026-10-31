@@ -673,15 +673,45 @@ function openChatMenu(){
   <button class="req-btn" style="width:100%" onclick="deleteChat('${activeChat}');closeChat()">Delete Chat</button>`;
 }
 function pickImage(){$('imgFile').click();}
+
 $('imgFile').onchange=async e=>{
-  const f=e.target.files[0];if(!f||!activeChat)return;
+  const f=e.target.files[0];
+  if(!f||!activeChat)return;
+
   const path='chat/'+me.id+'/'+Date.now()+'_'+f.name;
+
   const {error:upErr}=await sb.storage.from('chat-images').upload(path,f);
-  if(upErr){toast('Upload failed');return;}
-  const {data:{publicUrl}}=sb.storage.from('chat-images').getPublicUrl(path);
-  const {data,error}=await sb.from('messages').insert({sender_id:me.id,receiver_id:activeChat,text:'',type:'image',extra:publicUrl}).select().single();
-  if(error){toast('Send failed');return;}
+
+  if(upErr){
+    toast('Upload failed: '+upErr.message);
+    return;
+  }
+
+  const {data:urlData}=sb.storage.from('chat-images').getPublicUrl(path);
+  const publicUrl=urlData?.publicUrl;
+
+  if(!publicUrl){
+    toast('Image URL nahi mila');
+    return;
+  }
+
+  const {data,error}=await sb.from('messages')
+    .insert({
+      sender_id:me.id,
+      receiver_id:activeChat,
+      content:publicUrl,
+      type:'image'
+    })
+    .select()
+    .single();
+
+  if(error){
+    toast('Send failed: '+error.message);
+    return;
+  }
+
   addMessage(data);
+  e.target.value='';
 };
 function toggleKeyboard(){
   const kb=$('keyboard');
