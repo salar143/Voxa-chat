@@ -372,6 +372,84 @@ dialog p{
   color:white;
 }
 [hidden]{display:none!important}
+
+/* NORMAL MODE GROUPED SEATS FIX */
+.normal-groups{
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+}
+.normal-group-card{
+  background:#ffffff10;
+  border:1px solid #ffffff14;
+  border-radius:12px;
+  padding:12px;
+}
+.normal-group-card h3{
+  margin:0 0 12px;
+  color:#dec8ff;
+  font-size:13px;
+}
+.normal-seat-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:16px 5px;
+}
+.normal-seat{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px;
+  color:white;
+  background:none;
+  border:0;
+}
+.normal-seat-circle{
+  width:clamp(42px,12vw,58px);
+  height:clamp(42px,12vw,58px);
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(145deg,#39294e,#211a33);
+  border:1px solid #bc8cf544;
+}
+.normal-seat-circle svg{
+  width:24px;
+  height:24px;
+  fill:#c9a7ff;
+}
+.normal-seat-circle.locked{
+  border-color:#fb718566;
+}
+.normal-seat-circle.locked svg{
+  fill:#fb7185;
+}
+.normal-seat-circle.occupied{
+  border-color:#5eead4;
+  box-shadow:0 0 15px #2dd4bf18;
+}
+.normal-seat-circle img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:50%;
+}
+.normal-seat-name{
+  width:100%;
+  max-width:75px;
+  text-align:center;
+  font-size:10px;
+  color:#e5dcf0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.normal-seat-number{
+  font-size:9px;
+  color:#aa99bd;
+}
+
 @media(prefers-reduced-motion:reduce){
   .emoji-float{animation:none}
   .panel{transition:none}
@@ -735,6 +813,57 @@ function seatElement(id, label) {
   return button;
 }
 
+function normalSeatElement(id) {
+  const seat = seatByID(id);
+  const occupied = Boolean(seat.user_id);
+  const locked = Boolean(seat.locked);
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "normal-seat";
+
+  const circle = document.createElement("span");
+  circle.className = "normal-seat-circle" +
+    (occupied ? " occupied" : locked ? " locked" : "");
+
+  const photo = safePhoto(seat.photo);
+
+  if (occupied && photo) {
+    const image = document.createElement("img");
+    image.src = photo;
+    image.alt = seat.name || "Participant";
+    circle.appendChild(image);
+  } else {
+    circle.innerHTML = locked
+      ? '<svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 0 1 6 0v3H9z"/></svg>'
+      : '<svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V22h2v-3.08A7 7 0 0 0 19 12h-2z"/></svg>';
+  }
+
+  const name = document.createElement("span");
+  name.className = "normal-seat-name";
+  name.textContent = occupied
+    ? (seat.name || "Saved participant")
+    : locked ? "Locked" : "Empty";
+
+  const number = document.createElement("span");
+  number.className = "normal-seat-number";
+  number.textContent = "Mic " + id;
+
+  button.append(circle, name, number);
+
+  button.onclick = () => {
+    if (canManage && !occupied) {
+      toggleLock(id);
+    } else {
+      unavailable(
+        occupied ? "Seat controls" : "Apply for seat"
+      );
+    }
+  };
+
+  return button;
+}
+
 function renderSeats() {
   const area = E("seatsArea");
   area.replaceChildren();
@@ -743,97 +872,4 @@ function renderSeats() {
 
   if (currentMode === "blind") {
     const hosts = document.createElement("div");
-    hosts.className = "hosts";
-
-    hosts.append(
-      seatElement("host_admin", "HOST · Admin"),
-      seatElement("host_user", "HOST · User")
-    );
-
-    const pairs = document.createElement("div");
-    pairs.className = "pairs";
-
-    [[1,2],[3,4],[5,6],[7,8]].forEach(([first,second]) => {
-      const pair = document.createElement("div");
-      pair.className = "pair";
-
-      const heart = document.createElement("span");
-      heart.className = "pair-heart";
-      heart.textContent = "💕";
-
-      pair.append(
-        seatElement(first, "Mic " + first),
-        heart,
-        seatElement(second, "Mic " + second)
-      );
-
-      pairs.appendChild(pair);
-    });
-
-    area.append(hosts, pairs);
-  } else {
-    const grid = document.createElement("div");
-    grid.className = "seat-grid";
-
-    for (let i = 1; i <= seatCount; i++) {
-      grid.appendChild(seatElement(i, "Mic " + i));
-    }
-
-    area.appendChild(grid);
-  }
-}
-
-function render() {
-  if (!room) return;
-
-  E("roomTitle").textContent = room.name || "VoxaChat Room";
-  E("roomID").textContent = String(room.id);
-
-  E("roomStatus").textContent = room.live
-    ? "Saved status: ON"
-    : "Saved status: OFF";
-
-  const modes = {
-    normal:"💬 Chat",
-    disco:"🎵 Disco",
-    blind:"💕 Blind Date"
-  };
-
-  E("modeLabel").textContent = modes[currentMode] || modes.normal;
-  E("roleLabel").textContent = "Local role: " + localRole;
-
-  document.querySelectorAll("[data-mode]").forEach(button => {
-    button.disabled = !canManage;
-
-    button.classList.toggle(
-      "active",
-      button.dataset.mode === currentMode
-    );
-  });
-
-  E("seatCountBtn").disabled =
-    !canManage || currentMode === "blind";
-
-  E("announcementBtn").disabled = !canManage;
-  E("applyBtn").disabled = !ready;
-
-  E("modeNote").textContent = canManage
-    ? "Owner/Admin: local mode aur seat settings change kar sakte ho."
-    : "Mode aur seat-count controls sirf owner/admin ke liye hain.";
-
-  const following = readRooms("voxa_followed_rooms").some(
-    item => String(item.id) === String(room.id)
-  );
-
-  E("followRoomBtn").textContent = following
-    ? "★ Following room"
-    : "☆ Follow room";
-
-  const announcement = String(room.announcement || "");
-
-  E("announcement").hidden = !announcement;
-  E("announcement").textContent = announcement;
-
-  renderSeats();
-}
-
+    hosts.className = 
