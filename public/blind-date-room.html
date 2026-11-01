@@ -2308,5 +2308,274 @@ E("audioBtn").onclick = () => {
   );
 };
 
+/* VOICE INTEGRATION */
 
+/*
+  This HTML does not include a voice token service.
+  Set CONFIG.voiceTokenUrl to your own secure endpoint,
+  or leave it blank to use the local seat preview only.
+*/
+async function startVoice() {
+  if (!CONFIG.sharedBackend) {
+    toast(
+      "Voice requires shared backend and voice token service."
+    );
+
+    return;
+  }
+
+  if (!voiceTokenUrl) {
+    toast(
+      "Voice is not configured. Set CONFIG.voiceTokenUrl."
+    );
+
+    return;
+  }
+
+  if (!navigator.mediaDevices?.getUserMedia) {
+    toast("Microphone is not available.");
+    return;
+  }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      }
+    });
+
+    micStream = stream;
+
+    E("micBtn").classList.add("on");
+    E("micBtn").setAttribute(
+      "aria-label",
+      "Turn microphone off"
+    );
+
+    toast("Microphone connected.");
+  } catch (err) {
+    message(
+      "Microphone unavailable",
+      err.message ||
+      "Allow microphone permission and try again."
+    );
+  }
+}
+
+async function stopVoice() {
+  try {
+    if (micStream) {
+      micStream.getTracks().forEach(track => track.stop());
+      micStream = null;
+    }
+
+    E("micBtn").classList.remove("on");
+    E("micBtn").setAttribute(
+      "aria-label",
+      "Turn microphone on"
+    );
+  } catch (err) {
+    /* Ignore cleanup errors */
+  }
+}
+
+E("micBtn").onclick = async () => {
+  if (!ready) {
+    toast("Wait for the room to finish loading.");
+    return;
+  }
+
+  if (!mySeat()) {
+    toast("Join a seat before using the microphone.");
+    return;
+  }
+
+  if (micStream) {
+    await stopVoice();
+    toast("Microphone off.");
+    return;
+  }
+
+  await startVoice();
+};
+
+/* LOAD SHARED DATA */
+
+async function loadShared() {
+  if (!CONFIG.sharedBackend) return;
+
+  const { data: roomData, error: roomError } = await sb
+    .from("voxa_rooms")
+    .select("*")
+    .eq("id", String(room.id))
+    .maybeSingle();
+
+  if (roomError) throw roomError;
+
+  if (!roomData) {
+    throw new Error("Room not found.");
+  }
+
+  room = roomData;
+
+  const { data: chatData, error: chatError } = await sb
+    .from("voxa_messages")
+    .select("id, room_id, user_id, body, created_at")
+    .eq("room_id", String(room.id))
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  if (chatError) throw chatError;
+
+  chatCache = (chatData || []).reverse();
+}
+
+/* LOAD LOCAL CHAT */
+
+async function loadChat() {
+  if (CONFIG.sharedBackend) {
+    await loadShared();
+  }
+
+  E("chatBox").innerHTML = "";
+
+  for (const item of chatCache) {
+    showChat(item);
+  }
+}
+
+/* REALTIME CHAT */
+
+function connectChat() {
+  if (!CONFIG.sharedBackend || !sb) return;
+
+  chatChannel = sb
+    .channel("voxa-room-chat-" + String(room.id))
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "voxa_messages",
+        filter: "room_id=eq." + String(room.id)
+      },
+      payload => {
+        if (payload?.new) {
+          showChat(payload.new);
+        }
+      }
+    )
+    .subscribe();
+}
+
+/* INITIALIZE */
+
+async function init() {
+  try {
+    if (!window.supabase) {
+      throw new Error(
+        "Supabase library did not load. Check your internet connection."
+      );
+    }
+
+    if (CONFIG.sharedBackend) {
+      if (
+        !CONFIG.supabaseUrl ||
+        !CONFIG.supabaseAnonKey
+      ) {
+        throw new Error(
+          "Add your Supabase URL and anon key in CONFIG."
+        );
+      }
+
+      sb = window.supabase.createClient(
+        CONFIG.supabaseUrl,
+        CONFIG.supabaseAnonKey
+      );
+
+      const { data: userData, error: userError } =
+        await sb.auth.getUser();
+
+      if (userError) throw userError;
+
+      if (!userData?.user) {
+        location.href = "login.html";
+        return;
+      }
+
+      authUser = userData.user;
+
+      const { data: profileData, error: profileError } =
+        await sb
+          .from("profiles")
+          .select("name, photo")
+          .eq("id", authUser.id)
+          .maybeSingle();
+
+      if (profileError) throw profileError;
+
+      profile = profileData || {};
+    } else {
+      authUser = {
+        id: "local-user"
+      };
+
+      profile = {
+        name: "You",
+        photo: ""
+      };
+    }
+
+    /*
+      Room ID can come from:
+      ?id=123
+      ?room=123
+      #room-123
+    */
+    const params = new URLSearchParams(
+      location.search
+    );
+
+    roomID =
+      params.get("id") ||
+      params.get("room") ||
+      location.hash.replace(/^#room-?/i, "");
+
+    if (!roomID) {
+      location.href = "party.html";
+      return;
+    }
+
+    room = find(roomID) || {
+      id: String(roomID),
+      name: "VoxaChat Room",
+      mode: "normal",
+      seatCount: 10,
+      announcement: "",
+      seats: []
+    };
+
+    await loadChat();
+    connectChat();
+
+    ready = true;
+    render();
+
+    E("powerBtn").focus();
+  } catch (err) {
+    message(
+      "Room could not load",
+      err.message || "Unexpected initialization error."
+    );
+  }
+}
+
+init();
+
+/* FINAL CLOSING TAGS */
+</script>
+</body>
+</html>
 
