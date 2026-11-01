@@ -1466,4 +1466,138 @@ function note(parent, text) {
   parent.append(paragraph);
 }
 
+/* SEAT AND ROOM ACTIONS */
+
+async function mutate(operation, data = {}) {
+  if (!ready || busy) return false;
+
+  busy = true;
+  render();
+
+  try {
+    if (CONFIG.sharedBackend) {
+      /*
+        Requires the supplied Supabase SQL setup.
+        Permissions are checked by the database RPC.
+      */
+      const { error: rpcError } = await sb.rpc(
+        "voxa_room_action",
+        {
+          p_room: String(room.id),
+          p_action: operation,
+          p_data: data
+        }
+      );
+
+      if (rpcError) throw rpcError;
+
+      await loadShared();
+    } else {
+      /*
+        Local preview mode only.
+        These changes are not shared with other devices.
+      */
+      const latest = find(room.id) || room;
+
+      const updated = {
+        ...latest
+      };
+
+      const savedSeats = Array.isArray(latest.seats)
+        ? latest.seats
+            .filter(item => item && typeof item === "object")
+            .map(item => ({ ...item }))
+        : [];
+
+      const target = String(data.number || "");
+
+      const existing = savedSeats.find(
+        item => String(item.number) === target
+      );
+
+      if (operation === "join") {
+        if (!ids().includes(target)) {
+          throw new Error("Invalid seat.");
+        }
+
+        if (
+          target === "host_admin" &&
+          !canManage
+        ) {
+          throw new Error(
+            "Admin host seat is for owner/admin."
+          );
+        }
+
+        if (
+          existing?.user_id &&
+          String(existing.user_id) !== authUser.id
+        ) {
+          throw new Error("Seat is occupied.");
+        }
+
+        if (existing?.locked) {
+          throw new Error("Seat is locked.");
+        }
+
+        /*
+          Clear your old seat without deleting its record.
+          This preserves any stored seat properties.
+        */
+        const nextSeats = savedSeats.map(item => {
+          if (String(item.user_id) === authUser.id) {
+            return {
+              ...item,
+              user_id: null,
+              name: null,
+              photo: null
+            };
+          }
+
+          return item;
+        });
+
+        const targetIndex = nextSeats.findIndex(
+          item => String(item.number) === target
+        );
+
+        const joinedSeat = {
+          ...(targetIndex >= 0
+            ? nextSeats[targetIndex]
+            : {}),
+          number: target,
+          user_id: authUser.id,
+          name: profile.name || "You",
+          photo: photo(profile.dp || profile.photo),
+          locked: false
+        };
+
+        if (targetIndex >= 0) {
+          nextSeats[targetIndex] = joinedSeat;
+        } else {
+          nextSeats.push(joinedSeat);
+        }
+
+        updated.seats = nextSeats;
+      } else if (operation === "leave") {
+        updated.seats = savedSeats.map(item => {
+          if (String(item.user_id) === authUser.id) {
+            return {
+              ...item,
+              user_id: null,
+              name: null,
+              photo: null
+            };
+          }
+
+          return item;
+        });
+      } else {
+        if (!canManage) {
+          throw new Error(
+            "Owner/admin permission required."
+          );
+        }
+
+        if
 
