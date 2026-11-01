@@ -872,4 +872,112 @@ function renderSeats() {
 
   if (currentMode === "blind") {
     const hosts = document.createElement("div");
-    hosts.className = 
+    hosts.className = "hosts";
+
+    hosts.append(
+      seatElement("host_admin", "HOST · Admin"),
+      seatElement("host_user", "HOST · User")
+    );
+
+    const pairs = document.createElement("div");
+    pairs.className = "pairs";
+
+    [[1,2],[3,4],[5,6],[7,8]].forEach(([first,second]) => {
+      const pair = document.createElement("div");
+      pair.className = "pair";
+
+      const heart = document.createElement("span");
+      heart.className = "pair-heart";
+      heart.textContent = "💕";
+
+      pair.append(
+        seatElement(first, "Mic " + first),
+        heart,
+        seatElement(second, "Mic " + second)
+      );
+
+      pairs.appendChild(pair);
+    });
+
+    area.append(hosts, pairs);
+  } else {
+    const groups = document.createElement("div");
+    groups.className = "normal-groups";
+
+    for (let start = 1; start <= seatCount; start += 5) {
+      const end = Math.min(start + 4, seatCount);
+
+      const card = document.createElement("div");
+      card.className = "normal-group-card";
+
+      const title = document.createElement("h3");
+      title.textContent = "Seats " + start + "–" + end;
+
+      const grid = document.createElement("div");
+      grid.className = "normal-seat-grid";
+
+      for (let i = start; i <= end; i++) {
+        grid.appendChild(normalSeatElement(i));
+      }
+
+      card.append(title, grid);
+      groups.appendChild(card);
+    }
+
+    area.appendChild(groups);
+  }
+}
+
+function render() {
+  if (!room) return;
+
+  E("roomTitle").textContent = room.name || "VoxaChat Room";
+  E("roomID").textContent = String(room.id);
+
+  E("roomStatus").textContent = room.live
+    ? "Saved status: ON"
+    : "Saved status: OFF";
+
+  const modes = {
+    normal:"💬 Chat",
+    disco:"🎵 Disco",
+    blind:"💕 Blind Date"
+  };
+
+  E("modeLabel").textContent = modes[currentMode] || modes.normal;
+  E("roleLabel").textContent = "Local role: " + localRole;
+
+  document.querySelectorAll("[data-mode]").forEach(button => {
+    button.disabled = !canManage;
+
+    button.classList.toggle(
+      "active",
+      button.dataset.mode === currentMode
+    );
+  });
+
+  E("seatCountBtn").disabled =
+    !canManage || currentMode === "blind";
+
+  E("announcementBtn").disabled = !canManage;
+  E("applyBtn").disabled = !ready;
+
+  E("modeNote").textContent = canManage
+    ? "Owner/Admin: local mode aur seat settings change kar sakte ho."
+    : "Mode aur seat-count controls sirf owner/admin ke liye hain.";
+
+  const following = readRooms("voxa_followed_rooms").some(
+    item => String(item.id) === String(room.id)
+  );
+
+  E("followRoomBtn").textContent = following
+    ? "★ Following room"
+    : "☆ Follow room";
+
+  const announcement = String(room.announcement || "");
+
+  E("announcement").hidden = !announcement;
+  E("announcement").textContent = announcement;
+
+  renderSeats();
+}
