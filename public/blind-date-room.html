@@ -1599,5 +1599,714 @@ async function mutate(operation, data = {}) {
           );
         }
 
-        if
+                if (
+          ["lock", "remove"].includes(operation) &&
+          !ids().includes(target)
+        ) {
+          throw new Error("Invalid seat.");
+        }
+
+        if (operation === "lock") {
+          if (existing?.user_id) {
+            throw new Error(
+              "Cannot lock an occupied seat."
+            );
+          }
+
+          updated.seats = savedSeats.filter(
+            item => String(item.number) !== target
+          );
+
+          updated.seats.push({
+            ...existing,
+            number: target,
+            user_id: null,
+            locked: !existing?.locked
+          });
+        } else if (operation === "remove") {
+          updated.seats = savedSeats.map(item => {
+            if (String(item.number) === target) {
+              return {
+                ...item,
+                user_id: null,
+                name: null,
+                photo: null
+              };
+            }
+
+            return item;
+          });
+        } else if (operation === "settings") {
+          if (
+            data.mode !== undefined &&
+            !["normal", "disco", "blind"].includes(data.mode)
+          ) {
+            throw new Error("Invalid room mode.");
+          }
+
+          if (
+            data.seatCount !== undefined &&
+            ![5, 10, 15, 20].includes(Number(data.seatCount))
+          ) {
+            throw new Error("Invalid seat count.");
+          }
+
+          if (
+            data.announcement !== undefined &&
+            (
+              typeof data.announcement !== "string" ||
+              data.announcement.length > 300
+            )
+          ) {
+            throw new Error(
+              "Announcement must be up to 300 characters."
+            );
+          }
+
+          if (data.mode !== undefined) {
+            updated.mode = data.mode;
+          }
+
+          if (data.seatCount !== undefined) {
+            updated.seatCount = Number(data.seatCount);
+          }
+
+          if (data.announcement !== undefined) {
+            updated.announcement = data.announcement;
+          }
+
+          if (
+            data.mode !== undefined ||
+            data.seatCount !== undefined
+          ) {
+            const nextMode =
+              ["normal", "disco", "blind"].includes(updated.mode)
+                ? updated.mode
+                : currentMode;
+
+            const nextCount =
+              [5, 10, 15, 20].includes(Number(updated.seatCount))
+                ? Number(updated.seatCount)
+                : seatCount;
+
+            const allowed = nextMode === "blind"
+              ? [
+                  "host_admin",
+                  "host_user",
+                  ...Array.from(
+                    { length: 8 },
+                    (_, index) => String(index + 1)
+                  )
+                ]
+              : Array.from(
+                  { length: nextCount },
+                  (_, index) => String(index + 1)
+                );
+
+            updated.seats = savedSeats.filter(
+              item => allowed.includes(String(item.number))
+            );
+          } else {
+            updated.seats = savedSeats;
+          }
+        } else {
+          throw new Error("Unknown room action.");
+        }
+      }
+
+      store(updated);
+      room = updated;
+    }
+
+    closePanel();
+    render();
+
+    if (operation === "leave") {
+      await stopVoice();
+    }
+
+    toast(
+      CONFIG.sharedBackend
+        ? "Room updated."
+        : "Saved on this browser only."
+    );
+
+    return true;
+  } catch (err) {
+    message(
+      "Room action failed",
+      err.message || "Unable to update room."
+    );
+
+    return false;
+  } finally {
+    busy = false;
+    render();
+  }
+}
+
+/* TAP A SEAT */
+
+function seatMenu(id) {
+  if (!ready) return;
+
+  id = String(id);
+
+  const savedSeat = seat(id);
+  const body = panel(
+    id === "host_admin"
+      ? "Admin Host"
+      : id === "host_user"
+      ? "User Host"
+      : "Seat " + id
+  );
+
+  if (String(savedSeat.user_id) === authUser.id) {
+    action(
+      body,
+      "Leave seat",
+      () => mutate("leave")
+    );
+  } else if (!savedSeat.user_id) {
+    const adminOnly =
+      id === "host_admin" && !canManage;
+
+    action(
+      body,
+      savedSeat.locked
+        ? "Seat locked"
+        : adminOnly
+        ? "Owner/admin host only"
+        : "Join seat",
+      () => mutate("join", { number: id }),
+      Boolean(savedSeat.locked) || adminOnly
+    );
+  } else {
+    note(
+      body,
+      savedSeat.name || "This seat is occupied."
+    );
+  }
+
+  if (canManage) {
+    if (!savedSeat.user_id) {
+      action(
+        body,
+        savedSeat.locked ? "Unlock seat" : "Lock seat",
+        () => mutate("lock", { number: id })
+      );
+    } else {
+      action(
+        body,
+        "Remove from seat",
+        () => {
+          if (
+            confirm(
+              "Remove this participant from the seat?"
+            )
+          ) {
+            mutate("remove", { number: id });
+          }
+        }
+      );
+    }
+  }
+
+  note(
+    body,
+    CONFIG.sharedBackend
+      ? "Seat changes use the shared backend."
+      : "Local mode: other devices do not receive these seat changes."
+  );
+}
+
+/* RIGHT-SIDE APPLY / JOIN BUTTON */
+
+E("applyBtn").onclick = () => {
+  if (!ready || busy) return;
+
+  const ownSeat = mySeat();
+
+  if (ownSeat) {
+    seatMenu(String(ownSeat.number));
+    return;
+  }
+
+  const availableID = ids().find(id => {
+    if (id === "host_admin") return false;
+
+    const savedSeat = seat(id);
+
+    return !savedSeat.locked && !savedSeat.user_id;
+  });
+
+  if (!availableID) {
+    toast("No unlocked empty seat available.");
+    return;
+  }
+
+  seatMenu(availableID);
+};
+
+/* ROOM OPTIONS */
+
+function settings() {
+  if (!ready) {
+    toast("Wait for the room to finish loading.");
+    return;
+  }
+
+  const body = panel("Room options");
+
+  action(body, "Change Theme", themes);
+
+  const following = read(KEYS[1]).some(
+    item => String(item.id) === String(room.id)
+  );
+
+  action(
+    body,
+    following ? "Unfollow room" : "Follow room",
+    () => {
+      try {
+        let rows = read(KEYS[1]);
+
+        const exists = rows.some(
+          item => String(item.id) === String(room.id)
+        );
+
+        rows = rows.filter(
+          item => String(item.id) !== String(room.id)
+        );
+
+        if (!exists) {
+          rows.unshift({ ...room });
+        }
+
+        localStorage.setItem(
+          KEYS[1],
+          JSON.stringify(rows)
+        );
+
+        closePanel();
+        toast(exists ? "Unfollowed." : "Followed.");
+      } catch (err) {
+        message("Follow failed", err.message);
+      }
+    }
+  );
+
+  if (canManage) {
+    for (const [mode, label] of [
+      ["normal", "Normal Room"],
+      ["disco", "Disco"],
+      ["blind", "Blind Date"]
+    ]) {
+      action(
+        body,
+        (currentMode === mode ? "✓ " : "") + label,
+        () => {
+          if (mode === currentMode) {
+            closePanel();
+            return;
+          }
+
+          const accepted = confirm(
+            "Change room mode? Seats outside the new " +
+            "layout will lose their saved occupants."
+          );
+
+          if (accepted) {
+            mutate("settings", { mode });
+          }
+        }
+      );
+    }
+
+    action(body, "Seat count", () => {
+      if (currentMode === "blind") {
+        toast(
+          "Blind Date has 2 hosts and 8 member seats."
+        );
+        return;
+      }
+
+      const answer = prompt(
+        "Enter 5, 10, 15 or 20.",
+        String(seatCount)
+      );
+
+      if (answer === null) return;
+
+      const count = Number(answer.trim());
+
+      if (![5, 10, 15, 20].includes(count)) {
+        toast("Choose 5, 10, 15 or 20.");
+        return;
+      }
+
+      if (count === seatCount) {
+        closePanel();
+        return;
+      }
+
+      const accepted = confirm(
+        "Change seat count? Seats removed from the " +
+        "layout will lose their saved occupants."
+      );
+
+      if (accepted) {
+        mutate("settings", {
+          seatCount: count
+        });
+      }
+    });
+
+    action(body, "Announcement", () => {
+      const value = prompt(
+        "Announcement: maximum 300 characters.",
+        room.announcement || ""
+      );
+
+      if (value === null) return;
+
+      if (value.length > 300) {
+        toast("Maximum 300 characters.");
+        return;
+      }
+
+      mutate("settings", {
+        announcement: value.trim()
+      });
+    });
+  }
+
+  note(
+    body,
+    canManage
+      ? "Owner/admin controls available."
+      : "Member: room mode and seat-management controls are owner/admin only."
+  );
+
+  action(body, "Connection status", () => {
+    message(
+      "Connection status",
+      CONFIG.sharedBackend
+        ? (
+            "Shared backend enabled.\n" +
+            "Voice requires its separate token service."
+          )
+        : (
+            "Local seat mode.\n" +
+            "Shared seats and voice are not configured.\n" +
+            "The backend setup is separate from this HTML."
+          )
+    );
+  });
+}
+
+/* CHANGE THEME */
+
+function themes() {
+  const body = panel("Change Theme");
+
+  const choices = [
+    ["sunset", "Warm room"],
+    ["midnight", "Midnight purple"],
+    ["ocean", "Ocean"],
+    ["rose", "Rose"]
+  ];
+
+  for (const [key, label] of choices) {
+    action(body, label, () => {
+      E("app").dataset.theme = key;
+
+      try {
+        localStorage.setItem(
+          "voxa_room_theme",
+          key
+        );
+
+        closePanel();
+      } catch (err) {
+        closePanel();
+
+        toast(
+          "Theme changed, but could not save preference."
+        );
+      }
+    });
+  }
+
+  note(
+    body,
+    "Theme preference is saved on this browser."
+  );
+}
+
+/* MENU BUTTONS */
+
+E("optionsBtn").onclick = settings;
+E("moreBtn").onclick = settings;
+
+E("closePanelBtn").onclick = closePanel;
+E("overlay").onclick = closePanel;
+
+E("dialogOK").onclick = () => {
+  E("messageDialog").close();
+};
+
+/* POWER BUTTON: EXIT AND MINIMIZE */
+
+E("powerBtn").onclick = () => {
+  const body = panel("Room");
+
+  action(body, "Minimize room", () => {
+    closePanel();
+
+    E("emojiPicker").hidden = true;
+    E("app").hidden = true;
+    E("restoreBtn").hidden = false;
+
+    E("restoreBtn").focus();
+  });
+
+  const exitButton = action(
+    body,
+    "Exit room",
+    async () => {
+      if (busy) {
+        toast("Please wait for the current action.");
+        return;
+      }
+
+      if (ready && mySeat()) {
+        const left = await mutate("leave");
+
+        if (!left) return;
+      }
+
+      try {
+        await stopVoice();
+        location.href = "party.html";
+      } catch (err) {
+        message(
+          "Exit failed",
+          err.message || "Unable to leave room."
+        );
+      }
+    }
+  );
+
+  exitButton.classList.add("danger");
+
+  note(
+    body,
+    "Minimize keeps this page open. Audio may stop " +
+    "if your phone suspends the browser."
+  );
+};
+
+E("restoreBtn").onclick = () => {
+  E("app").hidden = false;
+  E("restoreBtn").hidden = true;
+
+  E("powerBtn").focus();
+};
+
+/* SHARE ROOM */
+
+E("shareBtn").onclick = async () => {
+  try {
+    if (navigator.share) {
+      await navigator.share({
+        title: room?.name || "VoxaChat Room",
+        url: location.href
+      });
+    } else if (
+      navigator.clipboard &&
+      window.isSecureContext
+    ) {
+      await navigator.clipboard.writeText(
+        location.href
+      );
+
+      toast("Room link copied.");
+    } else {
+      prompt(
+        "Copy room link:",
+        location.href
+      );
+    }
+  } catch (err) {
+    if (err.name !== "AbortError") {
+      toast("Unable to share link.");
+    }
+  }
+};
+
+/* INBOX */
+
+E("inboxBtn").onclick = () => {
+  location.href = "inbox.html";
+};
+
+/* ROOM MESSAGE COMPOSER */
+
+function openComposer() {
+  E("composer").hidden = false;
+  E("emojiPicker").hidden = true;
+  E("msgInput").focus();
+}
+
+E("chatBtn").onclick = openComposer;
+
+E("closeComposer").onclick = () => {
+  E("composer").hidden = true;
+  E("chatBtn").focus();
+};
+
+/* EMOJI PICKER */
+
+E("emojiBtn").onclick = () => {
+  E("emojiPicker").hidden =
+    !E("emojiPicker").hidden;
+};
+
+for (const emoji of [
+  "❤️", "😂", "👏", "😍", "🔥",
+  "😊", "🎉", "👍", "🌹", "👋"
+]) {
+  const button = document.createElement("button");
+
+  button.type = "button";
+  button.textContent = emoji;
+  button.setAttribute(
+    "aria-label",
+    "Insert " + emoji
+  );
+
+  button.onclick = () => {
+    openComposer();
+
+    const input = E("msgInput");
+
+    if (
+      input.value.length + emoji.length <=
+      input.maxLength
+    ) {
+      input.value += emoji;
+    }
+  };
+
+  E("emojiPicker").append(button);
+}
+
+/* DISPLAY CHAT MESSAGES */
+
+function showChat(item) {
+  const row = document.createElement("div");
+
+  row.className = "msg";
+  row.textContent =
+    (item.name || "Member") +
+    ": " +
+    item.body;
+
+  E("chatBox").append(row);
+
+  while (E("chatBox").children.length > 150) {
+    E("chatBox").firstChild.remove();
+  }
+
+  E("chatBox").scrollTop =
+    E("chatBox").scrollHeight;
+}
+
+/* SEND MESSAGE */
+
+E("composer").onsubmit = async event => {
+  event.preventDefault();
+
+  const body = E("msgInput").value.trim();
+
+  if (!body || !ready) return;
+
+  E("sendBtn").disabled = true;
+
+  try {
+    if (CONFIG.sharedBackend) {
+      const { error: insertError } = await sb
+        .from("voxa_messages")
+        .insert({
+          room_id: String(room.id),
+          user_id: authUser.id,
+          body
+        });
+
+      if (insertError) throw insertError;
+
+      await loadChat();
+    } else {
+      showChat({
+        name: "You · local",
+        body
+      });
+    }
+
+    E("msgInput").value = "";
+  } catch (err) {
+    message(
+      "Chat failed",
+      err.message || "Unable to send message."
+    );
+  } finally {
+    E("sendBtn").disabled = false;
+  }
+};
+
+/* LISTENING MUTE / UNMUTE */
+
+E("audioBtn").onclick = () => {
+  roomMuted = !roomMuted;
+
+  document.querySelectorAll(
+    "#remoteAudio audio"
+  ).forEach(audio => {
+    audio.muted = roomMuted;
+
+    if (!roomMuted) {
+      audio.play().catch(() => {
+        toast(
+          "Audio playback was blocked by the browser."
+        );
+      });
+    }
+  });
+
+  E("audioBtn").classList.toggle(
+    "muted",
+    roomMuted
+  );
+
+  E("audioBtn").setAttribute(
+    "aria-pressed",
+    String(roomMuted)
+  );
+
+  E("audioBtn").setAttribute(
+    "aria-label",
+    roomMuted
+      ? "Unmute room audio"
+      : "Mute room audio"
+  );
+
+  toast(
+    roomMuted
+      ? "Room listening muted."
+      : "Room listening unmuted."
+  );
+};
+
+
 
