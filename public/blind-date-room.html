@@ -1,338 +1,839 @@
 <!DOCTYPE html>
-<html lang="ur">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Party Room</title>
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>VoxaChat - Room</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
-body { background:#0d0d1a; color:#fff; height:100vh; display:flex; justify-content:center; }
-.app { width:100%; max-width:420px; height:100vh; background:linear-gradient(180deg,#1a1a2e,#0d0d1a); display:flex; flex-direction:column; position:relative; overflow:hidden; }
-
-.topbar { display:flex; align-items:center; padding:10px 12px; background:rgba(0,0,0,.3); }
-.back { font-size:20px; margin-right:8px; cursor:pointer; }
-.room-info { flex:1; }
-.room-name { font-size:15px; font-weight:600; }
-.room-sub { font-size:11px; color:#aaa; }
-.live { color:#ff4757; font-weight:700; font-size:11px; }
-.top-actions { display:flex; gap:14px; align-items:center; }
-.menu { font-size:20px; cursor:pointer; }
-.icon-btn { display:flex; flex-direction:column; align-items:center; cursor:pointer; }
-.icon-btn span:first-child { font-size:16px; }
-.icon-btn span:last-child { font-size:9px; color:#ccc; margin-top:1px; }
-
-.seats { flex:1; overflow-y:auto; padding:12px; }
-.seat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; align-content:start; }
-.seat { display:flex; flex-direction:column; align-items:center; position:relative; }
-.avatar { width:58px; height:58px; border-radius:50%; background:#2a2a4a; display:flex; align-items:center; justify-content:center; font-size:24px; border:2px solid #3d3d6b; }
-.seat-label { display:flex; justify-content:space-between; width:64px; margin-top:5px; font-size:10px; color:#bbb; }
-.seat-label .name { color:#fff; font-weight:600; }
-.mic-num { color:#888; }
-
-.bd-hosts { display:flex; justify-content:center; gap:40px; margin-bottom:18px; }
-.bd-pairs { display:flex; flex-direction:column; gap:18px; }
-.bd-row { display:flex; justify-content:space-around; align-items:center; }
-.bd-pair { display:flex; align-items:center; gap:6px; }
-.bd-heart { font-size:18px; }
-.bd-pair-gap { width:40px; }
-.pair-label { text-align:center; font-size:10px; color:#888; margin-top:4px; }
-
-.side-btns { position:absolute; right:10px; top:90px; display:flex; flex-direction:column; gap:10px; z-index:5; }
-.side-btn { width:44px; height:44px; border-radius:12px; background:rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; font-size:20px; cursor:pointer; backdrop-filter:blur(5px); }
-
-.announcements { padding:6px 12px; background:rgba(0,0,0,.35); font-size:12px; max-height:44px; overflow:hidden; }
-.ann-room { color:#ffd700; }
-.ann-pair { color:#ff6b9d; }
-
-.chat-box { height:100px; overflow-y:auto; padding:8px 12px; background:rgba(0,0,0,.35); font-size:12px; }
-.chat-msg { margin-bottom:5px; }
-.chat-msg b { color:#ffd700; margin-right:5px; }
-
-.input-bar { display:flex; align-items:center; gap:8px; padding:8px 10px; background:#161628; }
-.emoji-btn { font-size:18px; cursor:pointer; }
-.chat-input { flex:1; background:#252545; border:none; border-radius:20px; padding:9px 14px; color:#fff; font-size:13px; outline:none; }
-.gift-btn { font-size:20px; cursor:pointer; }
-.send-btn { background:#ff4757; border:none; color:#fff; width:34px; height:34px; border-radius:50%; font-size:15px; cursor:pointer; }
-.more-btn { font-size:20px; cursor:pointer; }
-
-.overlay { position:absolute; inset:0; background:rgba(0,0,0,.5); display:none; z-index:9; }
-.overlay.show { display:block; }
-.options-panel { position:absolute; bottom:0; left:0; right:0; background:#1e1e38; border-radius:20px 20px 0 0; padding:16px; transform:translateY(100%); transition:transform .3s; max-height:75vh; overflow-y:auto; z-index:10; }
-.options-panel.show { transform:translateY(0); }
-.panel-head { display:flex; justify-content:space-between; font-weight:700; margin-bottom:12px; }
-.section-title { font-size:12px; color:#888; margin:12px 0 8px; }
-.options-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.opt { background:#2a2a4a; border-radius:10px; padding:10px; font-size:13px; cursor:pointer; text-align:center; }
-.opt:active { background:#3d3d6b; }
-
-.gift-anim { position:absolute; top:40%; left:50%; transform:translateX(-50%); font-size:15px; background:rgba(255,71,87,.85); padding:6px 14px; border-radius:20px; display:none; z-index:6; }
-
-.emoji-float {
-  position: absolute;
-  bottom: 120px;
-  font-size: 32px;
-  z-index: 7;
-  animation: floatUp 3s ease-out forwards;
-  pointer-events: none;
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Segoe UI",Arial,sans-serif;
 }
-@keyframes floatUp {
-  0%   { transform: translateY(0) scale(1); opacity: 1; }
-  100% { transform: translateY(-350px) scale(1.5); opacity: 0; }
+body{
+  min-height:100svh;
+  background:#090812;
+  color:#fff;
+  display:flex;
+  justify-content:center;
 }
-.emoji-picker {
-  position: absolute;
-  bottom: 60px;
-  left: 10px;
-  background: #1e1e38;
-  border-radius: 14px;
-  padding: 10px;
-  display: none;
-  gap: 8px;
-  z-index: 8;
-  grid-template-columns: repeat(5, 1fr);
+button,input{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,input:focus-visible{
+  outline:2px solid #5eead4;
+  outline-offset:3px;
 }
-.emoji-picker.show { display: grid; }
-.emoji-picker span { font-size: 24px; cursor: pointer; padding: 4px; }
+.app{
+  width:100%;
+  max-width:480px;
+  height:100svh;
+  background:
+    radial-gradient(circle at 20% 10%,#51207755,transparent 50%),
+    linear-gradient(180deg,#1a112e,#0d0b18);
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  overflow:hidden;
+}
+.topbar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px;
+  background:#0b0916bb;
+  border-bottom:1px solid #ffffff12;
+}
+.icon{
+  width:36px;
+  height:36px;
+  border:1px solid #ffffff20;
+  border-radius:12px;
+  background:#ffffff09;
+  color:#fff;
+  display:grid;
+  place-items:center;
+  flex-shrink:0;
+}
+.room-info{flex:1;min-width:0}
+.room-name{
+  font-size:15px;
+  font-weight:750;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.room-sub{
+  color:#b7a8ca;
+  font-size:10px;
+  margin-top:4px;
+  overflow-wrap:anywhere;
+}
+.status{display:inline-block;color:#fbbf24}
+.mode-line{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  padding:10px 12px;
+}
+.mode-chip{
+  font-size:11px;
+  color:#dec8ff;
+  padding:6px 12px;
+  background:#a855f71a;
+  border:1px solid #a855f744;
+  border-radius:20px;
+}
+.role{font-size:10px;color:#7cebd8}
+.notice{
+  margin:0 12px 10px;
+  padding:9px 11px;
+  border:1px solid #fbbf2433;
+  background:#fbbf240b;
+  color:#e5d8b7;
+  border-radius:12px;
+  font-size:11px;
+  line-height:1.6;
+}
+.error{
+  display:none;
+  margin:10px 12px;
+  padding:12px;
+  border-radius:12px;
+  background:#f43f5e18;
+  border:1px solid #fb71854d;
+  color:#fecdd3;
+  font-size:12px;
+  overflow-wrap:anywhere;
+}
+.seats{
+  flex:1;
+  overflow-y:auto;
+  padding:12px 10px 24px;
+}
+.seat-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:20px 5px;
+}
+.seat{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px;
+  color:white;
+  background:none;
+  border:0;
+}
+.avatar{
+  width:clamp(42px,12vw,58px);
+  height:clamp(42px,12vw,58px);
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(145deg,#39294e,#211a33);
+  border:1px solid #bc8cf544;
+  font-size:23px;
+  overflow:hidden;
+  position:relative;
+}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.avatar.occupied{
+  border-color:#5eead4;
+  box-shadow:0 0 15px #2dd4bf18;
+}
+.seat-name{
+  width:100%;
+  max-width:75px;
+  text-align:center;
+  font-size:10px;
+  color:#e5dcf0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.seat-number{font-size:9px;color:#aa99bd}
+.hosts{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+  margin-bottom:28px;
+}
+.hosts .avatar{width:65px;height:65px}
+.pairs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:26px 15px;
+}
+.pair{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 15px minmax(0,1fr);
+  align-items:center;
+  gap:2px;
+}
+.pair-heart{
+  color:#f9a8d4;
+  font-size:14px;
+  text-align:center;
+}
+.announcement{
+  margin:0 12px 8px;
+  padding:9px 11px;
+  background:#d946ef12;
+  border:1px solid #d946ef33;
+  border-radius:12px;
+  color:#e9c6f2;
+  font-size:11px;
+}
+.chat{
+  height:108px;
+  overflow:auto;
+  padding:9px 12px;
+  background:#08071355;
+  border-top:1px solid #ffffff0c;
+}
+.chat-msg{
+  font-size:12px;
+  line-height:1.7;
+  color:#cdbedc;
+  margin-bottom:4px;
+}
+.chat-msg.system{color:#b7a3ce;font-size:11px}
+.input-bar{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 12px;
+  padding-bottom:max(10px,env(safe-area-inset-bottom));
+  background:#110d20;
+}
+.chat-input{
+  min-width:0;
+  flex:1;
+  padding:11px 13px;
+  border:1px solid #ffffff15;
+  border-radius:22px;
+  background:#ffffff08;
+  color:#fff;
+  font-size:12px;
+}
+.side{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  padding:0 12px 8px;
+}
+.side button{
+  color:white;
+  background:#ffffff0a;
+  border:1px solid #ffffff18;
+  border-radius:12px;
+  padding:8px 12px;
+  font-size:12px;
+}
+.bottom-controls{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  padding:10px;
+}
+.control{
+  color:#d5c5e7;
+  background:#ffffff08;
+  border:1px solid #ffffff18;
+  border-radius:15px;
+  padding:9px 13px;
+  font-size:11px;
+}
+.emoji-picker{
+  position:absolute;
+  bottom:70px;
+  left:10px;
+  display:none;
+  grid-template-columns:repeat(5,1fr);
+  gap:6px;
+  padding:12px;
+  border-radius:18px;
+  background:#261a3b;
+  border:1px solid #c084fc33;
+  z-index:12;
+}
+.emoji-picker.open{display:grid}
+.emoji-picker button{
+  border:0;
+  background:none;
+  font-size:25px;
+  padding:5px;
+}
+.emoji-float{
+  position:absolute;
+  bottom:140px;
+  pointer-events:none;
+  font-size:34px;
+  z-index:15;
+  animation:floatUp 2.8s ease-out forwards;
+}
+@keyframes floatUp{
+  to{transform:translateY(-330px) scale(1.5);opacity:0}
+}
+.overlay{
+  position:absolute;
+  inset:0;
+  background:#0009;
+  display:none;
+  z-index:20;
+}
+.overlay.open{display:block}
+.panel{
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+  max-height:78%;
+  overflow:auto;
+  padding:20px 15px;
+  padding-bottom:max(20px,env(safe-area-inset-bottom));
+  background:#1c142d;
+  border:1px solid #ffffff18;
+  border-radius:25px 25px 0 0;
+  transform:translateY(110%);
+  transition:transform .2s;
+  z-index:21;
+}
+.panel.open{transform:translateY(0)}
+.panel-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:16px;
+  font-size:16px;
+  font-weight:700;
+}
+.section-title{
+  font-size:10px;
+  color:#b39bc8;
+  letter-spacing:1px;
+  margin:18px 0 9px;
+}
+.options{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.opt{
+  color:#efe6f7;
+  background:#ffffff08;
+  border:1px solid #ffffff12;
+  border-radius:13px;
+  padding:12px 8px;
+  text-align:center;
+  font-size:12px;
+}
+.opt.active{border-color:#c084fc;background:#a855f71c}
+.panel-note{
+  color:#bba7cb;
+  font-size:11px;
+  line-height:1.6;
+  margin-top:12px;
+}
+dialog{
+  margin:auto;
+  width:calc(100% - 36px);
+  max-width:360px;
+  background:#21172f;
+  border:1px solid #c084fc44;
+  border-radius:22px;
+  padding:24px;
+  color:white;
+}
+dialog::backdrop{background:#000a}
+dialog h3{font-size:17px;margin-bottom:12px}
+dialog p{
+  color:#d0bfdc;
+  font-size:13px;
+  line-height:1.7;
+  white-space:pre-line;
+}
+.dialog-btn{
+  width:100%;
+  margin-top:18px;
+  padding:12px;
+  border:0;
+  border-radius:12px;
+  background:linear-gradient(110deg,#8754f6,#b44fcb);
+  color:white;
+}
+[hidden]{display:none!important}
+@media(prefers-reduced-motion:reduce){
+  .emoji-float{animation:none}
+  .panel{transition:none}
+}
 </style>
 </head>
+
 <body>
-<div class="app">
+<main class="app" id="app">
 
-  <div class="topbar">
-    <span class="back">←</span>
+  <header class="topbar">
+    <button class="icon" id="backBtn" aria-label="Back">←</button>
+
     <div class="room-info">
-      <div class="room-name" id="roomTitle">🎉 Party Room</div>
-      <div class="room-sub"><span id="roomCount">20</span> online · <span class="live">● LIVE</span></div>
+      <div class="room-name" id="roomTitle">Loading room…</div>
+      <div class="room-sub">
+        ID: <span id="roomID">—</span>
+        · <span class="status" id="roomStatus">Checking</span>
+      </div>
     </div>
-    <div class="top-actions">
-      <span class="menu">⋮</span>
-      <div class="icon-btn"><span>✕</span><span>Keep</span></div>
-      <div class="icon-btn"><span>⏻</span><span>Exit</span></div>
-    </div>
+
+    <button class="icon" id="keepBtn" aria-label="Keep room">✕</button>
+    <button class="icon" id="exitBtn" aria-label="Exit room">⏻</button>
+  </header>
+
+  <div class="mode-line">
+    <span class="mode-chip" id="modeLabel">Room</span>
+    <span class="role" id="roleLabel">Checking identity…</span>
   </div>
 
-  <div class="seats" id="seatsArea"></div>
+  <div class="error" id="errorBox" role="alert"></div>
 
-  <div class="announcements" id="announcements" style="display:none">
-    <div class="ann-room">📢 Round 1 start — sab log mic pe aao!</div>
-    <div class="ann-pair">💕 Ali ❤️ Sara — Naya pair ban gaya!</div>
+  <div class="notice">
+    Local room preview: voice, video, shared music aur
+    multi-device sync abhi connected nahi hain.
   </div>
 
-  <div class="chat-box" id="chatBox">
-    <div class="chat-msg"><b>Ali:</b> Salam sab ko!</div>
-    <div class="chat-msg"><b>Zoya:</b> 🎁 Gift bheja hai</div>
-    <div class="chat-msg"><b>Ahmed:</b> Mic pe aao yar 🔥</div>
+  <section class="seats" id="seatsArea"></section>
+
+  <div class="announcement" id="announcement" hidden></div>
+
+  <div class="side">
+    <button id="inboxBtn">✉ Inbox</button>
+    <button id="applyBtn" disabled>🙋 Apply for seat</button>
   </div>
+
+  <div class="bottom-controls">
+    <button class="control" id="micBtn">🎙 Microphone</button>
+    <button class="control" id="videoBtn">📹 Video</button>
+    <button class="control" id="musicBtn">♫ Music</button>
+  </div>
+
+  <section class="chat" id="chatBox" aria-live="polite"></section>
 
   <div class="input-bar">
-    <span class="emoji-btn" id="emojiBtn">🔊😀</span>
-    <input class="chat-input" placeholder="Type a message…" id="msgInput">
-    <span class="gift-btn" onclick="showGift()">🎁</span>
-    <button class="send-btn" onclick="sendMsg()">➤</button>
-    <span class="more-btn" onclick="openPanel()">⊞</span>
+    <button class="icon" id="emojiBtn" aria-label="Emoji">😀</button>
+    <input class="chat-input" id="msgInput"
+           maxlength="1000" placeholder="Room chat is not connected">
+    <button class="icon" id="giftBtn" aria-label="Gifts">🎁</button>
+    <button class="icon" id="sendBtn" aria-label="Send message">➤</button>
+    <button class="icon" id="optionsBtn" aria-label="Room options">⊞</button>
   </div>
-
-  <div class="side-btns">
-    <div class="side-btn">✉️</div>
-    <div class="side-btn">🙋</div>
-  </div>
-
-  <div class="gift-anim" id="giftAnim">✨ Sara ne 🎁 Rose bheja ✨</div>
 
   <div class="emoji-picker" id="emojiPicker">
-    <span onclick="sendEmoji('❤️')">❤️</span>
-    <span onclick="sendEmoji('😂')">😂</span>
-    <span onclick="sendEmoji('🔥')">🔥</span>
-    <span onclick="sendEmoji('👏')">👏</span>
-    <span onclick="sendEmoji('😍')">😍</span>
-    <span onclick="sendEmoji('🎉')">🎉</span>
-    <span onclick="sendEmoji('😘')">😘</span>
-    <span onclick="sendEmoji('👍')">👍</span>
-    <span onclick="sendEmoji('🌹')">🌹</span>
-    <span onclick="sendEmoji('💎')">💎</span>
+    <button data-emoji="❤️">❤️</button>
+    <button data-emoji="😂">😂</button>
+    <button data-emoji="🔥">🔥</button>
+    <button data-emoji="👏">👏</button>
+    <button data-emoji="😍">😍</button>
+    <button data-emoji="🎉">🎉</button>
+    <button data-emoji="😘">😘</button>
+    <button data-emoji="👍">👍</button>
+    <button data-emoji="🌹">🌹</button>
+    <button data-emoji="💎">💎</button>
   </div>
 
-  <div class="overlay" id="overlay" onclick="closePanel()"></div>
-  <div class="options-panel" id="panel">
-    <div class="panel-head"><span>⊞ All Options</span><span onclick="closePanel()" style="cursor:pointer">✕</span></div>
+  <div class="overlay" id="overlay"></div>
+
+  <section class="panel" id="panel">
+    <div class="panel-head">
+      <span>Room options</span>
+      <button class="icon" id="closePanelBtn" aria-label="Close">✕</button>
+    </div>
 
     <div class="section-title">ROOM MODES</div>
-    <div class="options-grid">
-      <div class="opt" onclick="switchRoom('normal')">💬 Chat</div>
-      <div class="opt" onclick="switchRoom('normal')">🎵 Disco</div>
-      <div class="opt" onclick="switchRoom('blind')">💕 Blind Date</div>
-      <div class="opt">⚔️ PK Battle</div>
+    <div class="options">
+      <button class="opt" data-mode="normal">💬 Chat</button>
+      <button class="opt" data-mode="disco">🎵 Disco</button>
+      <button class="opt" data-mode="blind">💕 Blind Date</button>
+      <button class="opt" data-feature="PK Battle">⚔️ PK Battle</button>
     </div>
 
-    <div class="section-title">BLIND DATE ONLY</div>
-    <div class="options-grid">
-      <div class="opt">💕 Pick Pair</div>
-      <div class="opt" onclick="pairMatch()">❤️ Match</div>
-      <div class="opt">💔 Unmatch</div>
-      <div class="opt">🔀 Shuffle Seats</div>
-      <div class="opt">⏱️ Round Timer</div>
-    </div>
+    <p class="panel-note" id="modeNote">
+      Mode controls are available to the local room owner/admin.
+    </p>
 
     <div class="section-title">ROOM CONTROL</div>
-    <div class="options-grid">
-      <div class="opt">📢 Room Announcement</div>
-      <div class="opt">💕 Pair Announcement</div>
+    <div class="options">
+      <button class="opt" id="seatCountBtn">🎤 Seat count</button>
+      <button class="opt" id="followRoomBtn">☆ Follow room</button>
+      <button class="opt" id="announcementBtn">📢 Announcement</button>
+      <button class="opt" data-feature="Seat approvals">🙋 Seat requests</button>
+    </div>
+
+    <div class="section-title">BLIND DATE</div>
+    <div class="options">
+      <button class="opt" data-feature="Pick Pair">💕 Pick Pair</button>
+      <button class="opt" data-feature="Match">❤️ Match</button>
+      <button class="opt" data-feature="Unmatch">💔 Unmatch</button>
+      <button class="opt" data-feature="Shuffle Seats">🔀 Shuffle Seats</button>
+      <button class="opt" data-feature="Round Timer">⏱ Round Timer</button>
+      <button class="opt" data-feature="Pair Announcement">📣 Pair Announcement</button>
     </div>
 
     <div class="section-title">GAMES</div>
-    <div class="options-grid">
-      <div class="opt">🃏 3 Patti</div><div class="opt">🎰 777 Original</div>
-      <div class="opt">🍀 Lucky 77</div><div class="opt">🍬 Crush</div>
-      <div class="opt">🏎️ Bounty Racing</div><div class="opt">💎 Crazy Gems</div>
-      <div class="opt">🍕 Greedy</div><div class="opt">🎲 Truth&Dare</div>
-      <div class="opt">🎯 Ludo</div>
+    <div class="options">
+      <button class="opt" data-feature="3 Patti">🃏 3 Patti</button>
+      <button class="opt" data-feature="777 Original">🎰 777 Original</button>
+      <button class="opt" data-feature="Lucky 77">🍀 Lucky 77</button>
+      <button class="opt" data-feature="Crush">🍬 Crush</button>
+      <button class="opt" data-feature="Bounty Racing">🏎 Bounty Racing</button>
+      <button class="opt" data-feature="Crazy Gems">💎 Crazy Gems</button>
+      <button class="opt" data-feature="Greedy">🍕 Greedy</button>
+      <button class="opt" data-feature="Truth & Dare">🎲 Truth & Dare</button>
+      <button class="opt" data-feature="Ludo">🎯 Ludo</button>
     </div>
 
     <div class="section-title">MEDIA</div>
-    <div class="options-grid">
-      <div class="opt">🎵 Music</div><div class="opt">💡 Lights</div>
-      <div class="opt">📹 Video</div>
+    <div class="options">
+      <button class="opt" data-feature="Shared music">🎵 Music</button>
+      <button class="opt" data-feature="Lights">💡 Lights</button>
+      <button class="opt" data-feature="Live video">📹 Video</button>
     </div>
-  </div>
 
-</div>
+    <p class="panel-note">
+      Local mode/seat changes doosre devices par sync nahi hote.
+      Pending services ko connected nahi dikhaya ja raha.
+    </p>
+  </section>
+
+</main>
+
+<dialog id="messageDialog">
+  <h3 id="dialogTitle">VoxaChat</h3>
+  <p id="dialogText"></p>
+  <button class="dialog-btn" id="dialogOK">OK</button>
+</dialog>
+
 <script>
-let currentRoom = 'normal';
+"use strict";
 
-const normalUsers = [
-  {name:"Ali",   state:"user", emoji:"🧑"},
-  {name:"",      state:"empty"},
-  {name:"",      state:"locked"},
-  {name:"Sara",  state:"user", emoji:"👩"},
-  {name:"",      state:"empty"},
-  {name:"Ahmed", state:"user", emoji:"🧑"},
-  {name:"",      state:"empty"},
-  {name:"",      state:"locked"},
-  {name:"Zoya",  state:"user", emoji:"👩"},
-  {name:"Usman", state:"user", emoji:"🧑"},
-  {name:"",      state:"empty"},
-  {name:"Hina",  state:"user", emoji:"👩"},
+const E = id => document.getElementById(id);
+
+const ROOM_KEYS = [
+  "voxa_managed_rooms",
+  "voxa_followed_rooms",
+  "voxa_recent_rooms",
+  "voxa_explore_rooms"
 ];
 
-const blindPairs = [
-  [{name:"Ali", emoji:"🧑"}, {name:"Sara", emoji:"👩"}],
-  [{name:"Bilal", emoji:"🧑"}, {name:"Hina", emoji:"👩"}],
-  [{name:"Zoya", emoji:"👩"}, {name:"Ahmed", emoji:"🧑"}],
-  [{name:"", emoji:"🎤"}, {name:"", emoji:"🔒"}],
-];
+const OFFICIAL_ROOM = {
+  id:"10001",
+  name:"🎧 Customer Support 💬",
+  emoji:"🎧",
+  permanent:true,
+  live:true,
+  category:"official",
+  type:"official",
+  owner:"creator_main_id",
+  admins:[],
+  onlineUsers:[],
+  level:1,
+  language:"en",
+  rules:"",
+  image:"",
+  alwaysVisible:true
+};
 
-function seatHTML(u, micNum){
-  if(u.name){
-    return `<div class="seat">
-      <div class="avatar">${u.emoji}</div>
-      <div class="seat-label"><span class="mic-num">Mic ${micNum}</span><span class="name">${u.name}</span></div>
-    </div>`;
-  } else if(u.emoji === '🔒'){
-    return `<div class="seat">
-      <div class="avatar" style="background:#222">🔒</div>
-      <div class="seat-label"><span class="mic-num">Mic ${micNum}</span></div>
-    </div>`;
-  } else {
-    return `<div class="seat">
-      <div class="avatar" style="background:#1e1e38">🎤</div>
-      <div class="seat-label"><span class="mic-num">Mic ${micNum}</span></div>
-    </div>`;
+let sb = null;
+let room = null;
+let profile = null;
+let authUser = null;
+let legacyID = null;
+let canManage = false;
+let localRole = "member";
+let currentMode = "normal";
+let seatCount = 20;
+let ready = false;
+
+function error(message) {
+  E("errorBox").textContent = message;
+  E("errorBox").style.display = "block";
+}
+
+function message(title, text) {
+  E("dialogTitle").textContent = title;
+  E("dialogText").textContent = text;
+
+  if (!E("messageDialog").open) {
+    E("messageDialog").showModal();
   }
 }
 
-function renderNormal(){
-  document.getElementById('roomTitle').textContent = '🎉 Party Room';
-  document.getElementById('roomCount').textContent = '20';
-  document.getElementById('announcements').style.display = 'none';
-  const area = document.getElementById('seatsArea');
-  area.innerHTML = '<div class="seat-grid" id="grid"></div>';
-  const grid = document.getElementById('grid');
-  normalUsers.forEach((u,i)=> { grid.innerHTML += seatHTML(u, i+1); });
+function unavailable(feature) {
+  message(
+    feature,
+    "Ye feature abhi backend/service se connected nahi hai.\n" +
+    "Koi request, message, gift ya media stream send nahi hui."
+  );
 }
 
-function renderBlind(){
-  document.getElementById('roomTitle').textContent = '💕 Blind Date Room';
-  document.getElementById('roomCount').textContent = '10';
-  document.getElementById('announcements').style.display = 'block';
-  const area = document.getElementById('seatsArea');
-  let html = `
-    <div class="bd-hosts">
-      <div class="seat"><div class="avatar">👑</div><div class="seat-label"><span class="name">Host</span></div></div>
-      <div class="seat"><div class="avatar">🧑</div><div class="seat-label"><span class="name">Co-Host</span></div></div>
-    </div>
-    <div class="bd-pairs">`;
-  let mic = 1;
-  blindPairs.forEach((pair, idx)=>{
-    html += `<div class="bd-row"><div class="bd-pair">
-      ${seatHTML(pair[0], mic)}
-      <span class="bd-heart">💕</span>
-      ${seatHTML(pair[1], mic+1)}
-    </div>`;
-    if(idx === 0) html += `<div class="bd-pair-gap"></div>`;
-    html += `</div><div class="pair-label">${mic}+${mic+1}</div>`;
-    mic += 2;
+function readRooms(key) {
+  try {
+    const data = JSON.parse(localStorage.getItem(key) || "[]");
+    return Array.isArray(data) ? data : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+function writeRooms(key, rooms) {
+  localStorage.setItem(key, JSON.stringify(rooms));
+}
+
+function findRoom(id) {
+  for (const key of ROOM_KEYS) {
+    const found = readRooms(key).find(
+      item => String(item.id) === String(id)
+    );
+
+    if (found) return found;
+  }
+
+  return String(id) === String(OFFICIAL_ROOM.id)
+    ? { ...OFFICIAL_ROOM }
+    : null;
+}
+
+function updateCopies(updated) {
+  let found = false;
+
+  for (const key of ROOM_KEYS) {
+    const list = readRooms(key);
+
+    const index = list.findIndex(
+      item => String(item.id) === String(updated.id)
+    );
+
+    if (index !== -1) {
+      list[index] = { ...updated };
+      writeRooms(key, list);
+      found = true;
+    }
+  }
+
+  if (!found) {
+    throw new Error("Room record is no longer available.");
+  }
+}
+
+function localIdentityMatches(value) {
+  if (value === null || value === undefined) return false;
+
+  const ids = [
+    authUser?.id,
+    profile?.id,
+    legacyID
+  ].filter(Boolean).map(String);
+
+  return ids.includes(String(value));
+}
+
+function determineRole() {
+  const owner = localIdentityMatches(room.owner);
+
+  const admin = Array.isArray(room.admins) &&
+    room.admins.some(localIdentityMatches);
+
+  localRole = owner ? "owner" : admin ? "admin" : "member";
+  canManage = owner || admin;
+}
+
+function getSeats() {
+  return Array.isArray(room.seats) ? room.seats : [];
+}
+
+function seatByID(id) {
+  return getSeats().find(
+    seat => String(seat.number) === String(id)
+  ) || {
+    number:id,
+    user_id:null,
+    locked:false
+  };
+}
+
+function safePhoto(value) {
+  if (!value) return "";
+
+  try {
+    const url = new URL(value, location.href);
+
+    if (["https:", "http:"].includes(url.protocol)) {
+      return url.href;
+    }
+
+    if (/^data:image\/(png|jpeg|webp);base64,/i.test(value)) {
+      return value;
+    }
+  } catch (_) {}
+
+  return "";
+}
+
+function seatElement(id, label) {
+  const seat = seatByID(id);
+  const occupied = Boolean(seat.user_id);
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "seat";
+
+  const avatar = document.createElement("span");
+  avatar.className = "avatar" + (occupied ? " occupied" : "");
+
+  const photo = safePhoto(seat.photo);
+
+  if (occupied && photo) {
+    const image = document.createElement("img");
+    image.src = photo;
+    image.alt = seat.name || "Participant";
+    avatar.appendChild(image);
+  } else {
+    avatar.textContent = occupied
+      ? "👤"
+      : seat.locked ? "🔒" : "🎤";
+  }
+
+  const name = document.createElement("span");
+  name.className = "seat-name";
+  name.textContent = occupied
+    ? (seat.name || "Saved participant")
+    : seat.locked ? "Locked" : "Empty";
+
+  const number = document.createElement("span");
+  number.className = "seat-number";
+  number.textContent = label;
+
+  button.append(avatar, name, number);
+
+  button.onclick = () => {
+    if (canManage && !occupied) {
+      toggleLock(id);
+    } else {
+      unavailable(
+        occupied ? "Seat controls" : "Apply for seat"
+      );
+    }
+  };
+
+  return button;
+}
+
+function renderSeats() {
+  const area = E("seatsArea");
+  area.replaceChildren();
+
+  if (!room) return;
+
+  if (currentMode === "blind") {
+    const hosts = document.createElement("div");
+    hosts.className = "hosts";
+
+    hosts.append(
+      seatElement("host_admin", "HOST · Admin"),
+      seatElement("host_user", "HOST · User")
+    );
+
+    const pairs = document.createElement("div");
+    pairs.className = "pairs";
+
+    [[1,2],[3,4],[5,6],[7,8]].forEach(([first,second]) => {
+      const pair = document.createElement("div");
+      pair.className = "pair";
+
+      const heart = document.createElement("span");
+      heart.className = "pair-heart";
+      heart.textContent = "💕";
+
+      pair.append(
+        seatElement(first, "Mic " + first),
+        heart,
+        seatElement(second, "Mic " + second)
+      );
+
+      pairs.appendChild(pair);
+    });
+
+    area.append(hosts, pairs);
+  } else {
+    const grid = document.createElement("div");
+    grid.className = "seat-grid";
+
+    for (let i = 1; i <= seatCount; i++) {
+      grid.appendChild(seatElement(i, "Mic " + i));
+    }
+
+    area.appendChild(grid);
+  }
+}
+
+function render() {
+  if (!room) return;
+
+  E("roomTitle").textContent = room.name || "VoxaChat Room";
+  E("roomID").textContent = String(room.id);
+
+  E("roomStatus").textContent = room.live
+    ? "Saved status: ON"
+    : "Saved status: OFF";
+
+  const modes = {
+    normal:"💬 Chat",
+    disco:"🎵 Disco",
+    blind:"💕 Blind Date"
+  };
+
+  E("modeLabel").textContent = modes[currentMode] || modes.normal;
+  E("roleLabel").textContent = "Local role: " + localRole;
+
+  document.querySelectorAll("[data-mode]").forEach(button => {
+    button.disabled = !canManage;
+
+    button.classList.toggle(
+      "active",
+      button.dataset.mode === currentMode
+    );
   });
-  html += '</div>';
-  area.innerHTML = html;
+
+  E("seatCountBtn").disabled =
+    !canManage || currentMode === "blind";
+
+  E("announcementBtn").disabled = !canManage;
+  E("applyBtn").disabled = !ready;
+
+  E("modeNote").textContent = canManage
+    ? "Owner/Admin: local mode aur seat settings change kar sakte ho."
+    : "Mode aur seat-count controls sirf owner/admin ke liye hain.";
+
+  const following = readRooms("voxa_followed_rooms").some(
+    item => String(item.id) === String(room.id)
+  );
+
+  E("followRoomBtn").textContent = following
+    ? "★ Following room"
+    : "☆ Follow room";
+
+  const announcement = String(room.announcement || "");
+
+  E("announcement").hidden = !announcement;
+  E("announcement").textContent = announcement;
+
+  renderSeats();
 }
 
-function switchRoom(mode){
-  currentRoom = mode;
-  if(mode === 'blind') renderBlind();
-  else renderNormal();
-  closePanel();
-}
-
-function sendMsg(){
-  const input = document.getElementById('msgInput');
-  if(!input.value.trim()) return;
-  const box = document.getElementById('chatBox');
-  const div = document.createElement('div');
-  div.className = 'chat-msg';
-  div.innerHTML = `<b>You:</b> ${input.value}`;
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-  input.value = '';
-}
-
-function showGift(){
-  const g = document.getElementById('giftAnim');
-  g.style.display = 'block';
-  setTimeout(()=> g.style.display='none', 2500);
-}
-
-function sendEmoji(emoji) {
-  const app = document.querySelector('.app');
-  const el = document.createElement('div');
-  el.className = 'emoji-float';
-  el.textContent = emoji;
-  el.style.left = (20 + Math.random() * 70) + '%';
-  app.appendChild(el);
-  setTimeout(() => el.remove(), 3000);
-  document.getElementById('emojiPicker').classList.remove('show');
-}
-
-function pairMatch(){
-  const ann = document.getElementById('announcements');
-  ann.style.display = 'block';
-  ann.innerHTML += '<div class="ann-pair">💕 Ali ❤️ Sara — Naya pair ban gaya!</div>';
-  closePanel();
-}
-
-function openPanel(){
-  document.getElementById('overlay').classList.add('show');
-  document.getElementById('panel').classList.add('show');
-}
-function closePanel(){
-  document.getElementById('overlay').classList.remove('show');
-  document.getElementById('panel').classList.remove('show');
-}
-
-document.getElementById('emojiBtn').addEventListener('click', function() {
-  document.getElementById('emojiPicker').classList.toggle('show');
-});
-
-renderNormal();
-</script>
-</body>
-</html>
