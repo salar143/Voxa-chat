@@ -981,3 +981,495 @@ function render() {
 
   renderSeats();
 }
+function savePatch(patch) {
+  if (!canManage) {
+    throw new Error("Owner/admin permission required.");
+  }
+
+  const latest = findRoom(room.id);
+
+  if (!latest) {
+    throw new Error("Room no longer exists in this browser.");
+  }
+
+  const updated = { ...latest, ...patch };
+
+  updateCopies(updated);
+  room = updated;
+
+  currentMode = ["normal","disco","blind"].includes(room.mode)
+    ? room.mode
+    : room.category === "blinded" ? "blind" : "normal";
+
+  const count = Number(room.seatCount);
+
+  seatCount = Number.isInteger(count) && count >= 5 && count <= 20
+    ? count
+    : 20;
+
+  render();
+}
+
+function switchRoom(mode) {
+  if (!ready || !canManage) return;
+
+  if (!["normal","disco","blind"].includes(mode)) return;
+
+  if (mode === currentMode) {
+    closePanel();
+    return;
+  }
+
+  let seats = [...getSeats()];
+
+  const removed = mode === "blind"
+    ? seats.filter(s => Number(s.number) > 8)
+    : seats.filter(
+        s => ["host_admin","host_user"].includes(String(s.number))
+      );
+
+  const affected = removed.filter(s => s.user_id);
+
+  if (
+    affected.length &&
+    !confirm(
+      affected.length +
+      " occupied saved seats will be removed. " +
+      "Their users stay in the room as audience. Continue?"
+    )
+  ) {
+    return;
+  }
+
+  const removedIDs = new Set(
+    removed.map(s => String(s.number))
+  );
+
+  seats = seats.filter(
+    s => !removedIDs.has(String(s.number))
+  );
+
+  try {
+    savePatch({ mode, seats });
+    closePanel();
+
+    const modeName = mode === "blind"
+      ? "Blind Date"
+      : mode === "disco" ? "Disco" : "Chat";
+
+    systemMessage(
+      "Local layout changed to " + modeName +
+      ". This change is not synced to other devices."
+    );
+  } catch (e) {
+    error(e.message);
+  }
+}
+
+function changeSeatCount() {
+  if (!ready || !canManage || currentMode === "blind") return;
+
+  const answer = prompt(
+    "Normal/Disco seats: enter 5, 10, 15 or 20.",
+    String(seatCount)
+  );
+
+  if (answer === null) return;
+
+  const count = Number(answer.trim());
+
+  if (![5,10,15,20].includes(count)) {
+    message("Seat count", "Choose 5, 10, 15 or 20.");
+    return;
+  }
+
+  const seats = getSeats();
+  const removed = seats.filter(s => Number(s.number) > count);
+  const occupied = removed.filter(s => s.user_id);
+
+  if (
+    occupied.length &&
+    !confirm(
+      occupied.length +
+      " occupied seats will be removed. " +
+      "Users will become audience, not leave the room. Continue?"
+    )
+  ) {
+    return;
+  }
+
+  try {
+    savePatch({
+      seatCount:count,
+      seats:seats.filter(s => Number(s.number) <= count)
+    });
+  } catch (e) {
+    error(e.message);
+  }
+}
+
+function toggleLock(id) {
+  if (!ready || !canManage) return;
+
+  const existing = seatByID(id);
+
+  if (existing.user_id) {
+    unavailable("Occupied seat controls");
+    return;
+  }
+
+  const action = existing.locked ? "Unlock" : "Lock";
+
+  if (!confirm(action + " this local seat?")) return;
+
+  const seats = getSeats().filter(
+    seat => String(seat.number) !== String(id)
+  );
+
+  seats.push({
+    ...existing,
+    number:id,
+    locked:!existing.locked
+  });
+
+  try {
+    savePatch({ seats });
+  } catch (e) {
+    error(e.message);
+  }
+}
+
+function systemMessage(text) {
+  const row = document.createElement("div");
+
+  row.className = "chat-msg system";
+  row.textContent = text;
+
+  E("chatBox").appendChild(row);
+  E("chatBox").scrollTop = E("chatBox").scrollHeight;
+}
+
+function openPanel() {
+  E("emojiPicker").classList.remove("open");
+  E("overlay").classList.add("open");
+  E("panel").classList.add("open");
+}
+
+function closePanel() {
+  E("overlay").classList.remove("open");
+  E("panel").classList.remove("open");
+}
+
+function followRoom() {
+  if (!ready) return;
+
+  try {
+    const key = "voxa_followed_rooms";
+
+    let list = readRooms(key);
+
+    const exists = list.some(
+      item => String(item.id) === String(room.id)
+    );
+
+    list = list.filter(
+      item => String(item.id) !== String(room.id)
+    );
+
+    if (!exists) {
+      list.unshift({ ...room });
+    }
+
+    writeRooms(key, list);
+    render();
+  } catch (e) {
+    error("Follow preference save failed: " + e.message);
+  }
+}
+
+function saveAnnouncement() {
+  if (!ready || !canManage) return;
+
+  const value = prompt(
+    "Local room announcement, up to 300 characters:",
+    room.announcement || ""
+  );
+
+  if (value === null) return;
+
+  if (value.length > 300) {
+    message("Announcement", "Maximum 300 characters.");
+    return;
+  }
+
+  try {
+    savePatch({ announcement:value.trim() });
+    closePanel();
+  } catch (e) {
+    error(e.message);
+  }
+}
+
+function animateEmoji(emoji) {
+  const el = document.createElement("span");
+
+  el.className = "emoji-float";
+  el.textContent = emoji;
+  el.style.left = 15 + Math.random() * 65 + "%";
+
+  E("app").appendChild(el);
+  E("emojiPicker").classList.remove("open");
+
+  setTimeout(() => el.remove(), 3000);
+
+  systemMessage(
+    "Emoji preview only — not sent to participants."
+  );
+}
+
+function rememberRecent() {
+  const key = "voxa_recent_rooms";
+
+  const list = readRooms(key).filter(
+    item => String(item.id) !== String(room.id)
+  );
+
+  list.unshift({ ...room });
+  writeRooms(key, list.slice(0,100));
+}
+
+function keepRoom() {
+  if (!ready) {
+    location.href = "party.html";
+    return;
+  }
+
+  message(
+    "Keep room",
+    "Background voice connection is not available yet. " +
+    "Your room is saved in Recent; " +
+    "no live membership banner was created."
+  );
+}
+
+function exitRoom() {
+  location.href = "party.html";
+}
+
+E("backBtn").onclick = () => {
+  location.href = "party.html";
+};
+
+E("keepBtn").onclick = keepRoom;
+E("exitBtn").onclick = exitRoom;
+
+E("optionsBtn").onclick = openPanel;
+E("closePanelBtn").onclick = closePanel;
+E("overlay").onclick = closePanel;
+
+E("dialogOK").onclick = () => {
+  E("messageDialog").close();
+};
+
+E("inboxBtn").onclick = () => {
+  location.href = "inbox.html";
+};
+
+E("applyBtn").onclick = () => {
+  unavailable("Seat application");
+};
+
+E("micBtn").onclick = () => {
+  unavailable("Voice connection");
+};
+
+E("videoBtn").onclick = () => {
+  unavailable("Live video");
+};
+
+E("musicBtn").onclick = () => {
+  unavailable("Shared music");
+};
+
+E("giftBtn").onclick = () => {
+  unavailable("Gifts");
+};
+
+E("sendBtn").onclick = () => {
+  unavailable("Room chat");
+};
+
+E("msgInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    unavailable("Room chat");
+  }
+});
+
+E("emojiBtn").onclick = () => {
+  E("emojiPicker").classList.toggle("open");
+};
+
+E("seatCountBtn").onclick = changeSeatCount;
+E("followRoomBtn").onclick = followRoom;
+E("announcementBtn").onclick = saveAnnouncement;
+
+document.querySelectorAll("[data-mode]").forEach(button => {
+  button.onclick = () => {
+    switchRoom(button.dataset.mode);
+  };
+});
+
+document.querySelectorAll("[data-feature]").forEach(button => {
+  button.onclick = () => {
+    unavailable(button.dataset.feature);
+  };
+});
+
+document.querySelectorAll("[data-emoji]").forEach(button => {
+  button.onclick = () => {
+    animateEmoji(button.dataset.emoji);
+  };
+});
+
+window.addEventListener("storage", event => {
+  if (!ready || !ROOM_KEYS.includes(event.key)) return;
+
+  const updated = findRoom(room.id);
+
+  if (!updated) return;
+
+  room = updated;
+  determineRole();
+
+  currentMode = ["normal","disco","blind"].includes(room.mode)
+    ? room.mode
+    : room.category === "blinded" ? "blind" : "normal";
+
+  seatCount = [5,10,15,20].includes(Number(room.seatCount))
+    ? Number(room.seatCount)
+    : 20;
+
+  render();
+});
+
+(async function init() {
+  try {
+    const id = new URLSearchParams(location.search).get("id");
+
+    if (!id?.trim()) {
+      throw new Error(
+        "Room ID missing. Open this room from party.html."
+      );
+    }
+
+    room = findRoom(id.trim());
+
+    if (!room) {
+      throw new Error(
+        "This room was not found in this browser. " +
+        "Open it from your Party page."
+      );
+    }
+
+    if (!window.supabase) {
+      throw new Error("Supabase library failed to load.");
+    }
+
+    sb = window.supabase.createClient(
+      "https://mblcbygpqbogmtzacbtz.supabase.co",
+      "sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV"
+    );
+
+    const auth = await sb.auth.getUser();
+
+    if (auth.error) throw auth.error;
+
+    authUser = auth.data.user;
+
+    if (!authUser) {
+      throw new Error(
+        "Please sign in from index.html first."
+      );
+    }
+
+    const result = await sb
+      .from("profiles")
+      .select("id,uid,name,dp,photo,deleted_at")
+      .eq("id",authUser.id)
+      .maybeSingle();
+
+    if (result.error) throw result.error;
+
+    profile = result.data;
+
+    if (!profile) {
+      throw new Error(
+        "Profile not found. " +
+        "Complete your profile from index.html."
+      );
+    }
+
+    if (profile.deleted_at) {
+      throw new Error(
+        "Account deactivated. Contact support."
+      );
+    }
+
+    legacyID = localStorage.getItem("voxa_user_id");
+
+    determineRole();
+
+    if (!room.live && !room.alwaysVisible) {
+      if (!canManage) {
+        throw new Error(
+          "This room is OFF. Members cannot enter."
+        );
+      }
+
+      if (
+        !confirm(
+          "This room is OFF. Turn its local status ON?"
+        )
+      ) {
+        location.replace("party.html");
+        return;
+      }
+
+      room = { ...room, live:true };
+      updateCopies(room);
+    }
+
+    currentMode = ["normal","disco","blind"].includes(room.mode)
+      ? room.mode
+      : room.category === "blinded" ? "blind" : "normal";
+
+    seatCount = [5,10,15,20].includes(Number(room.seatCount))
+      ? Number(room.seatCount)
+      : 20;
+
+    rememberRecent();
+
+    ready = true;
+    render();
+
+    systemMessage(
+      "Loaded room " + room.id +
+      " from your Party page. " +
+      "Live membership is not connected."
+    );
+
+  } catch (e) {
+    ready = false;
+
+    E("roomTitle").textContent = "Unable to open room";
+    E("roomStatus").textContent = "Not connected";
+    E("roleLabel").textContent = "";
+
+    error(e.message || "Room load failed.");
+  }
+})();
+</script>
+
+</body>
+</html>    
