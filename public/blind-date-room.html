@@ -917,4 +917,553 @@ dialog p {
 
 <script>
 "use strict";
+/*
+  DEFAULT: local room mode.
+
+  sharedBackend ko true tabhi karna jab supplied SQL setup
+  aur voxa_rooms records properly configure ho chuke hon.
+
+  Voice ke server secrets kabhi HTML mein mat rakhna.
+*/
+const CONFIG = {
+  sharedBackend: false,
+
+  supabaseUrl:
+    "https://mblcbygpqbogmtzacbtz.supabase.co",
+
+  supabaseKey:
+    "sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV",
+
+  voiceTokenEndpoint: "",
+  livekitUrl: ""
+};
+
+const E = id => document.getElementById(id);
+
+const KEYS = [
+  "voxa_managed_rooms",
+  "voxa_followed_rooms",
+  "voxa_recent_rooms",
+  "voxa_explore_rooms"
+];
+
+let sb = null;
+let room = null;
+let authUser = null;
+let profile = null;
+
+let ready = false;
+let canManage = false;
+let currentMode = "normal";
+let seatCount = 20;
+let busy = false;
+
+let roomMuted = false;
+let voiceRoom = null;
+let micOn = false;
+
+let refreshTimer = null;
+let previousFocus = null;
+
+const official = {
+  id: "10001",
+  name: "🎧 Customer Support 💬",
+  owner: "creator_main_id",
+  admins: [],
+  live: true,
+  alwaysVisible: true,
+  mode: "normal",
+  seatCount: 20,
+  seats: []
+};
+
+/* SVG ICON HELPERS */
+
+const svg = name => `
+  <svg aria-hidden="true">
+    <use href="#${name}"></use>
+  </svg>
+`;
+
+const buttonIcons = {
+  shareBtn: "share",
+  moreBtn: "more",
+  powerBtn: "power",
+  audioBtn: "audio",
+  emojiBtn: "smile",
+  chatBtn: "chat",
+  sendBtn: "send",
+  inboxBtn: "chat",
+  applyBtn: "apply",
+  micBtn: "mic",
+  optionsBtn: "grid"
+};
+
+for (const [id, name] of Object.entries(buttonIcons)) {
+  E(id).innerHTML = svg(name);
+}
+
+/* LOCAL ROOM STORAGE */
+
+function read(key) {
+  try {
+    const value = JSON.parse(
+      localStorage.getItem(key) || "[]"
+    );
+
+    return Array.isArray(value) ? value : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+function find(id) {
+  for (const key of KEYS) {
+    const found = read(key).find(
+      item => String(item.id) === String(id)
+    );
+
+    if (found) return found;
+  }
+
+  return String(id) === "10001"
+    ? { ...official }
+    : null;
+}
+
+function store(updated) {
+  let found = false;
+
+  for (const key of KEYS) {
+    const rows = read(key);
+
+    const index = rows.findIndex(
+      item => String(item.id) === String(updated.id)
+    );
+
+    if (index >= 0) {
+      rows[index] = updated;
+
+      localStorage.setItem(
+        key,
+        JSON.stringify(rows)
+      );
+
+      found = true;
+    }
+  }
+
+  if (!found) {
+    localStorage.setItem(
+      KEYS[2],
+      JSON.stringify([
+        updated,
+        ...read(KEYS[2])
+      ])
+    );
+  }
+}
+
+/* STATUS AND MESSAGES */
+
+function error(text) {
+  E("errorBox").textContent = text;
+  E("errorBox").hidden = false;
+}
+
+function message(title, text) {
+  E("dialogTitle").textContent = title;
+  E("dialogText").textContent = text;
+
+  if (!E("messageDialog").open) {
+    E("messageDialog").showModal();
+  }
+}
+
+let toastTimer = null;
+
+function toast(text) {
+  clearTimeout(toastTimer);
+
+  E("toast").textContent = text;
+  E("toast").hidden = false;
+
+  toastTimer = setTimeout(() => {
+    E("toast").hidden = true;
+  }, 4200);
+}
+
+function system(text) {
+  const row = document.createElement("div");
+
+  row.className = "msg system";
+  row.textContent = text;
+
+  E("chatBox").append(row);
+
+  E("chatBox").scrollTop =
+    E("chatBox").scrollHeight;
+}
+
+function photo(value) {
+  if (!value || typeof value !== "string") {
+    return "";
+  }
+
+  try {
+    const url = new URL(value, location.href);
+
+    return ["https:", "http:"].includes(url.protocol)
+      ? url.href
+      : "";
+  } catch (_) {
+    return "";
+  }
+}
+
+/* OWNER / ADMIN ROLE */
+
+function roles() {
+  if (!room || !authUser) {
+    canManage = false;
+    return;
+  }
+
+  /*
+    Shared mode uses authenticated UUIDs only.
+    Legacy IDs are recognised only for local preview.
+  */
+  const identities = CONFIG.sharedBackend
+    ? [authUser.id]
+    : [
+        authUser.id,
+        profile?.id,
+        localStorage.getItem("voxa_user_id")
+      ].filter(Boolean);
+
+  const idsAsStrings = identities.map(String);
+
+  const owner = idsAsStrings.includes(
+    String(room.owner)
+  );
+
+  const admin =
+    Array.isArray(room.admins) &&
+    room.admins.some(
+      id => idsAsStrings.includes(String(id))
+    );
+
+  canManage = owner || admin;
+}
+
+/* SEAT HELPERS */
+
+function ids() {
+  if (currentMode === "blind") {
+    return [
+      "host_admin",
+      "host_user",
+      ...Array.from(
+        { length: 8 },
+        (_, index) => String(index + 1)
+      )
+    ];
+  }
+
+  return Array.from(
+    { length: seatCount },
+    (_, index) => String(index + 1)
+  );
+}
+
+function seats() {
+  return Array.isArray(room?.seats)
+    ? room.seats.filter(
+        item => item && typeof item === "object"
+      )
+    : [];
+}
+
+function seat(id) {
+  return seats().find(
+    item => String(item.number) === String(id)
+  ) || {
+    number: String(id),
+    user_id: null,
+    locked: false
+  };
+}
+
+function mySeat() {
+  if (!authUser) return null;
+
+  return seats().find(
+    item => String(item.user_id) === authUser.id
+  ) || null;
+}
+
+/* CREATE ONE SEAT */
+
+function seatButton(id, label) {
+  id = String(id);
+
+  const savedSeat = seat(id);
+  const occupied = Boolean(savedSeat.user_id);
+
+  const button = document.createElement("button");
+
+  button.type = "button";
+  button.className = "seat";
+
+  const avatar = document.createElement("span");
+
+  avatar.className =
+    "avatar" + (occupied ? " occupied" : "");
+
+  const imageURL = photo(savedSeat.photo);
+
+  if (occupied && imageURL) {
+    const image = document.createElement("img");
+
+    image.src = imageURL;
+    image.alt = savedSeat.name || "Participant";
+
+    image.onerror = () => {
+      image.remove();
+
+      avatar.insertAdjacentHTML(
+        "afterbegin",
+        svg("user")
+      );
+    };
+
+    avatar.append(image);
+  } else {
+    const icon = occupied
+      ? "user"
+      : savedSeat.locked
+      ? "lock"
+      : "mic";
+
+    avatar.innerHTML = svg(icon);
+  }
+
+  const badge = document.createElement("span");
+
+  badge.className = "badge";
+  badge.textContent = id.startsWith("host")
+    ? "H"
+    : id;
+
+  avatar.append(badge);
+
+  const name = document.createElement("span");
+
+  name.className = "name";
+
+  name.textContent = occupied
+    ? (savedSeat.name || "Participant")
+    : savedSeat.locked
+    ? "Locked"
+    : (label || "Seat " + id);
+
+  button.setAttribute(
+    "aria-label",
+    (label || "Seat " + id) + ": " +
+    (
+      occupied
+        ? (savedSeat.name || "Occupied")
+        : savedSeat.locked
+        ? "Locked"
+        : "Empty"
+    )
+  );
+
+  button.append(avatar, name);
+
+  button.onclick = () => {
+    seatMenu(id);
+  };
+
+  return button;
+}
+
+/* RENDER ROOM */
+
+function render() {
+  if (!room) return;
+
+  roles();
+
+  currentMode = ["normal", "disco", "blind"].includes(
+    room.mode
+  )
+    ? room.mode
+    : room.category === "blinded"
+    ? "blind"
+    : "normal";
+
+  seatCount = [5, 10, 15, 20].includes(
+    Number(room.seatCount)
+  )
+    ? Number(room.seatCount)
+    : 20;
+
+  E("roomTitle").textContent =
+    room.name || "VoxaChat Room";
+
+  E("roomID").textContent = String(room.id);
+
+  E("modeLabel").textContent =
+    currentMode === "blind"
+      ? "Blind Date · 2 Hosts + 8 Seats"
+      : (
+          currentMode === "disco"
+            ? "Disco"
+            : "Normal"
+        ) + " · " + seatCount + " Seats";
+
+  E("roomStatus").textContent =
+    CONFIG.sharedBackend
+      ? "Shared seats · voice separate"
+      : "Local seats · voice not connected";
+
+  E("applyBtn").disabled = !ready || busy;
+  E("micBtn").disabled = !ready || busy;
+
+  E("announcement").textContent =
+    room.announcement || "";
+
+  E("announcement").hidden =
+    !room.announcement;
+
+  const area = E("seatsArea");
+  const previousScroll = area.scrollTop;
+
+  area.replaceChildren();
+
+  if (currentMode === "blind") {
+    const hosts = document.createElement("div");
+
+    hosts.className = "hosts";
+
+    hosts.append(
+      seatButton("host_admin", "Admin Host"),
+      seatButton("host_user", "User Host")
+    );
+
+    const pairs = document.createElement("div");
+
+    pairs.className = "pairs";
+
+    for (const [first, second] of [
+      [1, 2],
+      [3, 4],
+      [5, 6],
+      [7, 8]
+    ]) {
+      const pair = document.createElement("div");
+
+      pair.className = "pair";
+
+      const heart = document.createElement("span");
+
+      heart.className = "heart";
+      heart.textContent = "♡";
+      heart.setAttribute("aria-hidden", "true");
+
+      pair.append(
+        seatButton(String(first)),
+        heart,
+        seatButton(String(second))
+      );
+
+      pairs.append(pair);
+    }
+
+    area.append(hosts, pairs);
+  } else {
+    /*
+      One continuous 5-column grid.
+      No separate group cards or Seats 1–5 headings.
+    */
+    const grid = document.createElement("div");
+
+    grid.className = "grid";
+
+    for (let index = 1; index <= seatCount; index++) {
+      grid.append(
+        seatButton(String(index))
+      );
+    }
+
+    area.append(grid);
+  }
+
+  area.scrollTop = previousScroll;
+
+  const ownSeat = mySeat();
+
+  if (
+    voiceRoom &&
+    (
+      !ownSeat ||
+      !ids().includes(String(ownSeat.number))
+    )
+  ) {
+    stopVoice().catch(err => {
+      error("Voice cleanup failed: " + err.message);
+    });
+  }
+}
+
+/* PANEL HELPERS */
+
+function closePanel() {
+  E("panel").hidden = true;
+  E("overlay").hidden = true;
+
+  previousFocus?.focus();
+}
+
+function panel(title) {
+  if (E("panel").hidden) {
+    previousFocus = document.activeElement;
+  }
+
+  E("panelTitle").textContent = title;
+  E("panelBody").replaceChildren();
+
+  E("emojiPicker").hidden = true;
+  E("panel").hidden = false;
+  E("overlay").hidden = false;
+
+  E("closePanelBtn").focus();
+
+  return E("panelBody");
+}
+
+function action(parent, label, handler, disabled = false) {
+  const button = document.createElement("button");
+
+  button.type = "button";
+  button.className = "opt wide";
+  button.textContent = label;
+  button.disabled = disabled;
+  button.onclick = handler;
+
+  parent.append(button);
+
+  return button;
+}
+
+function note(parent, text) {
+  const paragraph = document.createElement("p");
+
+  paragraph.className = "note";
+  paragraph.textContent = text;
+
+  parent.append(paragraph);
+}
+
 
