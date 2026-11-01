@@ -863,7 +863,6 @@ function normalSeatElement(id) {
 
   return button;
 }
-
 function renderSeats() {
   const area = E("seatsArea");
   area.replaceChildren();
@@ -901,30 +900,14 @@ function renderSeats() {
 
     area.append(hosts, pairs);
   } else {
-    const groups = document.createElement("div");
-    groups.className = "normal-groups";
+    const grid = document.createElement("div");
+    grid.className = "seat-grid";
 
-    for (let start = 1; start <= seatCount; start += 5) {
-      const end = Math.min(start + 4, seatCount);
-
-      const card = document.createElement("div");
-      card.className = "normal-group-card";
-
-      const title = document.createElement("h3");
-      title.textContent = "Seats " + start + "–" + end;
-
-      const grid = document.createElement("div");
-      grid.className = "normal-seat-grid";
-
-      for (let i = start; i <= end; i++) {
-        grid.appendChild(normalSeatElement(i));
-      }
-
-      card.append(title, grid);
-      groups.appendChild(card);
+    for (let i = 1; i <= seatCount; i++) {
+      grid.appendChild(seatElement(i, "Mic " + i));
     }
 
-    area.appendChild(groups);
+    area.appendChild(grid);
   }
 }
 
