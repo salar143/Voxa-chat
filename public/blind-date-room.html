@@ -2500,6 +2500,8 @@ async function init() {
       const { data: userData, error: userError } =
         await sb.auth.getUser();
 
+      alert("Session check: " + (userData?.user?.id || userError?.message || "no session"));
+
       if (userError) throw userError;
 
       if (!userData?.user) {
