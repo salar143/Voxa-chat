@@ -1197,11 +1197,17 @@ for (let i = 0; i < 18; i++) {
       );
     }
 
-    sb = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
-
+sb = window.supabase.createClient(
+  CONFIG.supabaseUrl,
+  CONFIG.supabaseAnonKey,
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  }
+);
     sb.auth.onAuthStateChange(event => {
       if (event === "SIGNED_OUT") {
         reset();
