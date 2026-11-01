@@ -1257,9 +1257,77 @@ E("dialogOK").onclick = () => {
 E("inboxBtn").onclick = () => {
   location.href = "inbox.html";
 };
+E("applyBtn").onclick = applyForSeat;
 
-E("applyBtn").onclick = () => {
-  unavailable("Seat application");
+function applyForSeat() {
+  if (!ready) {
+    error("Room load failed. Please reopen the room.");
+    return;
+  }
+
+  if (currentMode === "blind") {
+    message(
+      "Apply for seat",
+      "Blind Date mode mein seat application available nahi hai."
+    );
+    return;
+  }
+
+  const seats = getSeats();
+
+  const emptySeat = seats.find(
+    seat =>
+      !seat.user_id &&
+      !seat.locked &&
+      Number(seat.number) <= seatCount
+  );
+
+  if (!emptySeat) {
+    message(
+      "Apply for seat",
+      "Koi empty unlocked seat available nahi hai."
+    );
+    return;
+  }
+
+  const alreadySeated = seats.some(
+    seat =>
+      seat.user_id &&
+      localIdentityMatches(seat.user_id)
+  );
+
+  if (alreadySeated) {
+    message(
+      "Apply for seat",
+      "Tum already ek seat par ho."
+    );
+    return;
+  }
+
+  const updatedSeats = seats.map(seat => {
+    if (String(seat.number) === String(emptySeat.number)) {
+      return {
+        ...seat,
+        user_id: authUser.id,
+        name: profile.name || "You",
+        photo: profile.dp || profile.photo || ""
+      };
+    }
+
+    return seat;
+  });
+
+  try {
+    savePatch({ seats: updatedSeats });
+
+    systemMessage(
+      "Seat " + emptySeat.number +
+      " par tumhari local seat apply ho gayi."
+    );
+  } catch (e) {
+    error(e.message);
+  }
+}
 };
 
 E("micBtn").onclick = () => {
