@@ -783,9 +783,9 @@ function seatElement(id, label) {
     image.alt = seat.name || "Participant";
     avatar.appendChild(image);
   } else {
-    avatar.textContent = occupied
-      ? "👤"
-      : seat.locked ? "🔒" : "🎤";
+   avatar.textContent = occupied
+  ? "👤"
+  : seat.locked ? "🔒" : "";
   }
 
   const name = document.createElement("span");
