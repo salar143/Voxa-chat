@@ -1079,4 +1079,160 @@ E("finishBtn").onclick = async () => {
     } catch (_) {}
 
     location.replace(PROFILE_URL);
+        
+  } catch (error) {
+    /*
+      If a response was lost after a successful save,
+      confirm completion before removing an uploaded photo.
+    */
+    let completionKnown = false;
+    let completed = false;
+
+    try {
+      const confirmation = await rpc("voxa_index_status");
+
+      if (
+        confirmation &&
+        typeof confirmation.complete === "boolean"
+      ) {
+        completionKnown = true;
+        completed = confirmation.complete;
+      }
+    } catch (_) {}
+
+    if (completed) {
+      uploadedPath = null;
+      location.replace(PROFILE_URL);
+      return;
+    }
+
+    if (uploadedPath && completionKnown) {
+      try {
+        await sb.storage
+          .from("avatars")
+          .remove([uploadedPath]);
+      } catch (_) {}
+    }
+
+    err(error.message || "Profile save failed.");
+
+  } finally {
+    setBusy(false);
+  }
+};
+
+E("signoutBtn").onclick = async () => {
+  if (busy || !sb) return;
+
+  try {
+    const { error } = await sb.auth.signOut();
+
+    if (error) throw error;
+
+    reset();
+    go(1);
+
+  } catch (error) {
+    err(error.message || "Sign out failed.");
+  }
+};
+
+function addOption(id, value, text) {
+  const item = document.createElement("option");
+
+  item.value = value;
+  item.textContent = text;
+
+  E(id).appendChild(item);
+}
+
+addOption("bday", "", "Day");
+addOption("bmon", "", "Month");
+addOption("byear", "", "Year");
+
+for (let day = 1; day <= 31; day++) {
+  addOption("bday", day, day);
+}
+
+[
+  "January", "February", "March", "April",
+  "May", "June", "July", "August",
+  "September", "October", "November", "December"
+].forEach((month, index) => {
+  addOption("bmon", index + 1, month);
+});
+
+for (
+  let year = new Date().getFullYear();
+  year >= 1900;
+  year--
+) {
+  addOption("byear", year, year);
+}
+
+for (let i = 0; i < 18; i++) {
+  const heart = document.createElement("div");
+
+  heart.className = "heart";
+  heart.textContent = "♡";
+  heart.style.left = Math.random() * 100 + "%";
+  heart.style.fontSize = 14 + Math.random() * 20 + "px";
+  heart.style.animationDuration = 8 + Math.random() * 10 + "s";
+  heart.style.animationDelay = -Math.random() * 15 + "s";
+
+  E("hearts").appendChild(heart);
+}
+
+(async function init() {
+  try {
+    if (!/^https?:$/.test(location.protocol)) {
+      throw new Error(
+        "Open this page on your hosted website."
+      );
+    }
+
+    if (!window.supabase) {
+      throw new Error(
+        "Supabase library failed to load. Check your internet."
+      );
+    }
+
+    sb = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+    sb.auth.onAuthStateChange(event => {
+      if (event === "SIGNED_OUT") {
+        reset();
+        go(1);
+      }
+    });
+
+    const query = new URLSearchParams(location.search);
+    const hash = new URLSearchParams(location.hash.slice(1));
+
+    const oauthError =
+      query.get("error_description") ||
+      hash.get("error_description");
+
+    if (oauthError) {
+      throw new Error(oauthError);
+    }
+
+    await loadSession();
+
+  } catch (error) {
+    err(error.message || "Unable to load login.");
+
+  } finally {
+    if (sb) {
+      E("googleBtn").disabled = false;
+    }
+  }
+})();
+</script>
+
+</body>
+</html>
  
