@@ -497,8 +497,294 @@ body{
       </div>
     </div>
   </div>
-  </div>
-  <script>
+          </div>
+         <script>
+const SUPABASE_URL = "https://mblcbygpqbogmtzacbtz.supabase.co";
+const SUPABASE_KEY = "sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV";
+
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+const VIP_DURATION_DAYS = 95;
+const VIP_DURATION_MS =
+  VIP_DURATION_DAYS * 24 * 60 * 60 * 1000;
+
+const VIP_LEVELS = [
+  {level:1, exp:1000, name:"Bronze Crown"},
+  {level:2, exp:1500, name:"Silver Crown"},
+  {level:3, exp:2500, name:"Gold Crown"},
+  {level:4, exp:4000, name:"Royal Crown"},
+  {level:5, exp:6000, name:"Diamond Crown"},
+  {level:6, exp:10000, name:"Platinum Crown"},
+  {level:7, exp:25000, name:"Elite Crown"},
+  {level:8, exp:50000, name:"Supreme Crown"},
+  {level:9, exp:100000, name:"Legend Crown"},
+  {level:10, exp:200000, name:"Imperial Crown"}
+];
+
+const VIP_PRIVILEGES = {
+  1:[
+    {name:"Badge",icon:"🏅"},
+    {name:"Avatar Frame",icon:"🖼️"},
+    {name:"Chat Bubble",icon:"💬"},
+    {name:"Profile Card",icon:"🪪"}
+  ],
+  2:[
+    {name:"Custom Avatar",icon:"😎"},
+    {name:"Join Alert",icon:"🔔"}
+  ],
+  3:[
+    {name:"Mic Effect",icon:"🎤"},
+    {name:"Mute Protection",icon:"🔇"}
+  ],
+  4:[
+    {name:"Name Color",icon:"🎨"},
+    {name:"Store Discount",icon:"🏷️"}
+  ],
+  5:[
+    {name:"Room Background",icon:"🌌"},
+    {name:"Bubble Effects",icon:"✨"}
+  ],
+  6:[
+    {name:"GIF Avatar",icon:"🎞️"},
+    {name:"Premium Gifts",icon:"🎁"},
+    {name:"Kick Protection",icon:"🛡️"}
+  ],
+  7:[
+    {name:"Royal Entry Effect",icon:"👑"},
+    {name:"Message Blast",icon:"📢"}
+  ],
+  8:[
+    {name:"Stealth Mode",icon:"🕵️"},
+    {name:"Room Broadcast",icon:"📡"}
+  ],
+  9:[
+    {name:"Special ID Style",icon:"🆔"}
+  ],
+  10:[
+    {name:"Crown Bubble",icon:"👑"},
+    {name:"Gold Diamond Frame",icon:"💎"},
+    {name:"Luxury Profile Card",icon:"🪪"},
+    {name:"Royal Entry Effect",icon:"👑"}
+  ]
+};
+
+let currentUser = null;
+let userEXP = 0;
+let vipStartDate = Date.now();
+let history = [];
+let profileLoaded = false;
+
+async function getCurrentUser(){
+  const { data, error } = await supabase.auth.getUser();
+
+  if(error){
+    console.error(error);
+    return null;
+  }
+
+  currentUser = data.user;
+  return currentUser;
+}
+
+async function getCurrentUserID(){
+  if(!currentUser){
+    await getCurrentUser();
+  }
+
+  return currentUser?.id || null;
+}
+
+function getVIPPeriodNumber(){
+  const passed = Date.now() - vipStartDate;
+  return Math.floor(passed / VIP_DURATION_MS) + 1;
+}
+
+function getCurrentPeriodStart(){
+  return vipStartDate +
+    (getVIPPeriodNumber() - 1) * VIP_DURATION_MS;
+}
+
+function getCurrentPeriodEnd(){
+  return getCurrentPeriodStart() + VIP_DURATION_MS;
+}
+
+function getDaysLeft(){
+  const left = getCurrentPeriodEnd() - Date.now();
+
+  return Math.max(
+    0,
+    Math.ceil(left / (24 * 60 * 60 * 1000))
+  );
+}
+
+function isVIPExpired(){
+  return Date.now() >= getCurrentPeriodEnd();
+}
+
+function getVIP(exp){
+  let vip = VIP_LEVELS[0];
+
+  VIP_LEVELS.forEach(item=>{
+    if(exp >= item.exp){
+      vip = item;
+    }
+  });
+
+  return vip;
+}
+
+function getNextVIP(exp){
+  return VIP_LEVELS.find(item=>item.exp > exp);
+}
+
+function canUseGifAvatar(){
+  return getVIP(userEXP).level >= 6;
+}
+
+async function loadVIPProfile(){
+  const userID = await getCurrentUserID();
+
+  if(!userID){
+    alert("Please login first.");
+    return false;
+  }
+
+  const { data, error } = await supabase
+    .from("vip_profiles")
+    .select("*")
+    .eq("user_id", userID)
+    .maybeSingle();
+
+  if(error){
+    console.error(error);
+    alert("Could not load VIP profile.");
+    return false;
+  }
+
+  if(!data){
+    const { error: insertError } = await supabase
+      .from("vip_profiles")
+      .insert({
+        user_id:userID,
+        username:"SALAR Heer",
+        vip_exp:0,
+        vip_start:new Date().toISOString()
+      });
+
+    if(insertError){
+      console.error(insertError);
+      alert("Could not create VIP profile.");
+      return false;
+    }
+
+    userEXP = 0;
+    vipStartDate = Date.now();
+  }else{
+    userEXP = data.vip_exp || 0;
+    vipStartDate = new Date(data.vip_start).getTime();
+  }
+
+  profileLoaded = true;
+  return true;
+}
+
+async function loadHistory(){
+  const userID = await getCurrentUserID();
+
+  if(!userID) return;
+
+  const { data, error } = await supabase
+    .from("vip_history")
+    .select("*")
+    .eq("user_id", userID)
+    .order("created_at", { ascending:false });
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  history = data.map(item=>({
+    title:item.title,
+    amount:item.amount,
+    date:new Date(item.created_at).toLocaleString()
+  }));
+
+  renderHistory();
+}
+
+async function addHistory(title, amount){
+  const userID = await getCurrentUserID();
+
+  if(!userID) return;
+
+  const { data, error } = await supabase
+    .from("vip_history")
+    .insert({
+      user_id:userID,
+      title,
+      amount
+    })
+    .select();
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  if(data?.[0]){
+    history.push({
+      title:data[0].title,
+      amount:data[0].amount,
+      date:new Date(data[0].created_at).toLocaleString()
+    });
+
+    renderHistory();
+  }
+}
+
+async function startNewVIPPeriod(){
+  const userID = await getCurrentUserID();
+
+  if(!userID) return;
+
+  vipStartDate = Date.now();
+  userEXP = 0;
+
+  const { error } = await supabase
+    .from("vip_profiles")
+    .update({
+      vip_exp:0,
+      vip_start:new Date(vipStartDate).toISOString(),
+      updated_at:new Date().toISOString()
+    })
+    .eq("user_id", userID);
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  await addHistory(
+    `VIP Period ${getVIPPeriodNumber()} Started`,
+    "EXP Reset"
+  );
+}
+
+async function checkVIPPeriod(){
+  if(isVIPExpired()){
+    await addHistory(
+      `VIP Period ${getVIPPeriodNumber() - 1} Ended`,
+      "EXP Reset"
+    );
+
+    await startNewVIPPeriod();
+  }
+} 
+          <script>
 function renderPrivileges(level){
   const grid = document.getElementById("privilegesGrid");
   grid.innerHTML = "";
