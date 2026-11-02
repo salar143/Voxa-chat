@@ -2417,7 +2417,16 @@ async function loadShared() {
   if (roomError) throw roomError;
 
   if (!roomData) {
-    throw new Error("Room not found.");
+  const urlID = new URLSearchParams(
+    window.location.search
+  ).get("id");
+
+  throw new Error(
+    "Room not found | URL id: " +
+    urlID +
+    " | Queried id: " +
+    String(room.id)
+  );
   }
 
   room = roomData;
