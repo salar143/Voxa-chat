@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoxaChat - VIP Center</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --bg:#0b0d16;
+  --card:#111827;
+  --gold:#f59e0b;
+  --gold-light:#fde047;
+  --muted:#94a3b8;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  padding:20px;
+  min-height:100vh;
+  background:var(--bg);
+  color:#fff;
+  font-family:'Segoe UI',Roboto,Arial,sans-serif;
+  display:flex;
+  justify-content:center;
+}
+.vip-container{
+  width:100%;
+  max-width:450px;
+  background:var(--card);
+  border-radius:24px;
+  padding:20px;
+  box-shadow:0 10px 25px rgba(0,0,0,.5);
+}
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:20px;
+}
+.header h2{
+  margin:0;
+  font-size:20px;
+}
+.top-actions{
+  display:flex;
+  gap:10px;
+}
+.icon-btn{
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.15);
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  transition:.25s;
+}
+.icon-btn:hover{
+  border-color:var(--gold-light);
+  box-shadow:0 0 12px rgba(253,224,71,.35);
+  transform:translateY(-2px);
+}
+.icon-btn svg{
+  width:20px;
+  height:20px;
+  fill:#e2e8f0;
+}
+.icon-btn:hover svg{
+  fill:var(--gold-light);
+}
+.vip-card{
+  background:linear-gradient(135deg,#1e293b,#0f172a);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:16px;
+  padding:16px;
+  margin-bottom:25px;
+}
+.user-info{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:15px;
+}
+.avatar{
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  background:#334155;
+  display:grid;
+  place-items:center;
+  font-weight:bold;
+  border:2px solid var(--gold);
+  object-fit:cover;
+}
+.username{
+  font-weight:bold;
+}
+.profile-id{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:4px;
+}
+.profile-vip{
+  display:inline-block;
+  margin-top:6px;
+  padding:3px 10px;
+  border-radius:12px;
+  font-size:11px;
+  font-weight:bold;
+  color:#000;
+  background:linear-gradient(90deg,#ffe066,#f59e0b,#b45309);
+}
+.points-text{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:4px;
+}
+.level-labels{
+  display:flex;
+  justify-content:space-between;
+  font-size:14px;
+  font-weight:bold;
+  color:var(--muted);
+  margin-bottom:6px;
+}
+.level-current{
+  color:var(--gold);
+}
+.progress-bar{
+  height:8px;
+  background:#334155;
+  border-radius:4px;
+  overflow:hidden;
+  margin-bottom:12px;
+}
+.progress-fill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#ffe066,#f59e0b,#b45309);
+  transition:width .4s ease;
+}
+.card-footer{
+  display:flex;
+  justify-content:space-between;
+  font-size:11px;
+  color:var(--muted);
+}
+.badge-display{
+  text-align:center;
+  margin-bottom:30px;
+}
+.badge{
+  width:120px;
+  height:120px;
+  margin:auto;
+  background:linear-gradient(135deg,#fef08a,#ca8a04);
+  clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  color:#000;
+}
+.badge small{
+  font-size:11px;
+  font-weight:bold;
+}
+.badge-title{
+  font-size:20px;
+  font-weight:900;
+}
+.badge-name{
+  font-size:10px;
+  font-weight:bold;
+  margin-top:3px;
+}
+.badge-exp{
+  margin-top:15px;
+  font-size:12px;
+  background:rgba(0,0,0,.4);
+  color:#fff;
+  padding:4px 12px;
+  border-radius:12px;
+  display:inline-block;
+}
+.section-title{
+  color:var(--gold);
+  font-weight:600;
+  border-left:4px solid var(--gold);
+  padding-left:8px;
+  margin-bottom:12px;
+}
+.privileges-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-bottom:25px;
+}
+.privilege-card{
+  background:#1f2937;
+  border:1px solid rgba(255,255,255,.05);
+  border-radius:12px;
+  padding:12px;
+  text-align:center;
+  font-size:11px;
+  color:var(--muted);
+}
+.privilege-card.unlocked{
+  border-color:var(--gold);
+  color:var(--gold-light);
+  box-shadow:0 0 10px rgba(245,158,11,.2);
+}
+.privilege-card .icon{
+  display:block;
+  font-size:18px;
+  margin-bottom:6px;
+}
+.privilege-card .status{
+  margin-top:6px;
+  font-size:10px;
+}
+.privilege-card.unlocked .status{
+  color:#4ade80;
+}
+.gif-section{
+  margin-bottom:25px;
+}
+.gif-upload{
+  width:100%;
+  padding:12px;
+  border-radius:14px;
+  border:1px dashed var(--gold);
+  background:rgba(245,158,11,.08);
+  color:var(--gold-light);
+  font-weight:bold;
+  cursor:pointer;
+}
+.gif-upload:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+.recharge-btn{
+  width:100%;
+  padding:14px;
+  border:0;
+  border-radius:30px;
+  background:linear-gradient(90deg,#ffe066,#f59e0b,#b45309);
+  color:#000;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  box-shadow:0 4px 15px rgba(245,158,11,.4);
+}
+.recharge-btn:hover{
+  transform:scale(1.02);
+}
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.75);
+  backdrop-filter:blur(5px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  pointer-events:none;
+  transition:.3s;
+  z-index:1000;
+}
+.modal-overlay.active{
+  opacity:1;
+  pointer-events:auto;
+}
+.modal-box{
+  width:90%;
+  max-width:380px;
+  max-height:80vh;
+  overflow:hidden;
+  background:linear-gradient(135deg,#16192b,#0f111e);
+  border:1px solid rgba(253,224,71,.25);
+  border-radius:16px;
+  padding:20px;
+  transform:scale(.85);
+  transition:.3s;
+}
+.modal-overlay.active .modal-box{
+  transform:scale(1);
+}
+.modal-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.1);
+  padding-bottom:12px;
+  margin-bottom:15px;
+}
+.modal-header h3{
+  margin:0;
+  color:var(--gold-light);
+  font-size:18px;
+}
+.close-btn{
+  background:none;
+  border:0;
+  color:#a0aec0;
+  font-size:22px;
+  cursor:pointer;
+}
+.close-btn:hover{
+  color:#fff;
+}
+.modal-content{
+  max-height:55vh;
+  overflow-y:auto;
+  padding-right:5px;
+}
+.modal-content::-webkit-scrollbar{
+  width:4px;
+}
+.modal-content::-webkit-scrollbar-thumb{
+  background:rgba(253,224,71,.3);
+  border-radius:4px;
+}
+.history-item{
+  background:rgba(255,255,255,.04);
+  border-left:3px solid var(--gold-light);
+  border-radius:4px;
+  padding:10px 12px;
+  margin-bottom:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.history-item p{
+  margin:0;
+  font-size:14px;
+  font-weight:600;
+}
+.history-item span{
+  font-size:11px;
+  color:var(--muted);
+}
+.history-amount{
+  color:#48bb78;
+  font-weight:bold;
+  font-size:13px;
+}
+.faq-item{
+  margin-bottom:12px;
+}
+.faq-item h4{
+  margin:0 0 4px;
+  font-size:14px;
+  color:#e2e8f0;
+}
+.faq-item p{
+  margin:0;
+  font-size:12px;
+  color:#a0aec0;
+  line-height:1.5;
+}
+.vip10 .badge{
+  background:linear-gradient(135deg,#fff,#fde047,#f59e0b);
+  box-shadow:0 0 30px rgba(253,224,71,.7);
+}
+.vip10 .avatar{
+  border-color:var(--gold-light);
+  box-shadow:0 0 15px rgba(253,224,71,.5);
+}
+.vip10 .username{
+  background:linear-gradient(90deg,#fde047,#f59e0b);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.vip10 .profile-vip{
+  box-shadow:0 0 12px rgba(253,224,71,.6);
+}
+</style>
+</head>
+<body>
+
+<div class="vip-container" id="vipContainer">
+
+  <div class="header">
+    <span>←</span>
+    <h2>VIP Center</h2>
+
+    <div class="top-actions">
+      <div class="icon-btn" onclick="toggleModal('historyModal')" title="VIP History">
+        <svg viewBox="0 0 24 24">
+          <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+        </svg>
+      </div>
+
+      <div class="icon-btn" onclick="toggleModal('helpModal')" title="VIP Rules & Help">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="vip-card">
+    <div class="user-info">
+      <div class="avatar" id="avatar">S</div>
+
+      <div>
+        <div class="username" id="username">SALAR Heer</div>
+        <div class="profile-id">263863782</div>
+        <div class="profile-vip" id="profileVip">VIP 1</div>
+        <div class="points-text" id="expText">0 / 1000 EXP</div>
+      </div>
+    </div>
+
+    <div class="level-labels">
+      <span class="level-current" id="currentLevel">VIP 1</span>
+      <span id="nextLevel">VIP 2</span>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card-footer">
+      <span>1000 recharge = 100 EXP</span>
+      <span id="vipDaysLeft">95 days left</span>
+    </div>
+  </div>
+
+  <div class="badge-display">
+    <div class="badge" id="badge">
+      <small>LEVEL</small>
+      <div class="badge-title" id="badgeLevel">VIP 1</div>
+      <div class="badge-name" id="badgeName">Bronze Crown</div>
+    </div>
+    <div class="badge-exp" id="badgeExp">Exp 1000</div>
+  </div>
+
+  <div class="section-title">Privileges</div>
+  <div class="privileges-grid" id="privilegesGrid"></div>
+
+  <div class="section-title">GIF Avatar</div>
+  <div class="gif-section">
+    <input type="file" id="gifAvatarInput" accept="image/gif" hidden>
+    <button class="gif-upload" id="gifUploadButton" onclick="document.getElementById('gifAvatarInput').click()">
+      GIF Avatar unlocks at VIP 6
+    </button>
+  </div>
+
+  <button class="recharge-btn" id="rechargeButton" onclick="addRecharge(1000)">
+    Recharge Now
+  </button>
+
+</div>
+
+<div id="historyModal" class="modal-overlay" onclick="closeOnOverlay(event,'historyModal')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>💎 VIP Record</h3>
+      <button class="close-btn" onclick="toggleModal('historyModal')">&times;</button>
+    </div>
+    <div class="modal-content" id="historyContent"></div>
+  </div>
+</div>
+
+<div id="helpModal" class="modal-overlay" onclick="closeOnOverlay(event,'helpModal')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>❓ VIP Rules & Help</h3>
+      <button class="close-btn" onclick="toggleModal('helpModal')">&times;</button>
+    </div>
+    <div class="modal-content">
+      <div class="faq-item">
+        <h4>How do I increase VIP EXP?</h4>
+        <p>Every 1,000 recharge gives 100 VIP EXP. VIP EXP increases your VIP level.</p>
+      </div>
+      <div class="faq-item">
+        <h4>What is the VIP period?</h4>
+        <p>Each VIP period lasts 95 days. At the end of every period, EXP resets and a new 95-day period begins.</p>
+      </div>
+      <div class="faq-item">
+        <h4>When can I use a GIF avatar?</h4>
+        <p>GIF Avatar unlocks from VIP 6. VIP 6 and higher users can upload an animated GIF avatar.</p>
+      </div>
+      <div class="faq-item">
+        <h4>What are the VIP levels?</h4>
+        <p>VIP has 10 levels: VIP 1 to VIP 10. Each level unlocks more privileges.</p>
+      </div>
+      <div class="faq-item">
+        <h4>What is included in VIP 10?</h4>
+        <p>VIP 10 includes Crown Bubble, Gold Diamond Frame, Luxury Profile Card, and Royal Entry Effect.</p>
+      </div>
+    </div>
+  </div>
+  </div>
