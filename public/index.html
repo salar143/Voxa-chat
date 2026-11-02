@@ -617,7 +617,19 @@ function err(message) {
   E("err").textContent = String(message);
   E("err").style.display = "block";
 }
+  const CONFIG = {
+  sharedBackend: true,
 
+        
+  supabaseUrl:
+    "https://mblcbygpqbogmtzacbtz.supabase.co",
+
+  supabaseAnonKey:
+    "sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV",
+
+  voiceTokenEndpoint: "",
+  livekitUrl: ""
+};
 function clearError() {
   E("err").textContent = "";
   E("err").style.display = "none";
