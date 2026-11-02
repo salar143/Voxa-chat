@@ -1196,7 +1196,19 @@ for (let i = 0; i < 18; i++) {
         "Supabase library failed to load. Check your internet."
       );
     }
+const CONFIG = {
+  sharedBackend: true,
 
+  supabaseUrl:
+    "https://mblcbygpqbgomtzacbtz.supabase.co",
+
+  supabaseAnonKey:
+    "sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV",
+
+  voiceTokenEndpoint: "",
+  livekitUrl: ""
+};
+        
 sb = window.supabase.createClient(
   CONFIG.supabaseUrl,
   CONFIG.supabaseAnonKey,
