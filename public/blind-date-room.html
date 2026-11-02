@@ -2417,18 +2417,22 @@ async function loadShared() {
 
   if (roomError) throw roomError;
 
-  if (!roomData) {
-  const urlID = new URLSearchParams(
-    window.location.search
-  ).get("id");
+if (!roomData) {
+  const { data: visibleRooms, error: listError } =
+    await sb
+      .from("voxa_rooms")
+      .select("id")
+      .limit(10);
 
   throw new Error(
-    "Room not found | URL id: " +
-    urlID +
-    " | Queried id: " +
-    String(room.id)
+    "Backend: " + sb.supabaseUrl +
+    " | Wanted: " + String(room.id) +
+    " | Visible IDs: " +
+    JSON.stringify(visibleRooms) +
+    " | Error: " +
+    (listError ? listError.message : "none")
   );
-  }
+}
 
   room = roomData;
 
