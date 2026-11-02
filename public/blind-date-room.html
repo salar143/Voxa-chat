@@ -1264,11 +1264,11 @@ function seatButton(id, label) {
 
   name.className = "name";
 
-  name.textContent = occupied
+    name.textContent = occupied
     ? (savedSeat.name || "Participant")
     : savedSeat.locked
     ? "Locked"
-    : (label || "Seat " + id);
+    : id;
 
   button.setAttribute(
     "aria-label",
