@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>VoxaChat Room</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#110c19;color:#fff;font:13px Arial,sans-serif;display:flex;justify-content:center}
+button,input{font:inherit}
+button{color:inherit;cursor:pointer}
+button:disabled{opacity:.4;cursor:not-allowed}
+[hidden]{display:none!important}
+button:focus-visible,input:focus-visible{outline:2px solid #f6d697;outline-offset:3px}
+.app{--bg:radial-gradient(ellipse at 10% 32%,#bd985c70,transparent 48%),linear-gradient(160deg,#4c2357,#513544 42%,#211c32 78%,#100d1b);width:100%;max-width:480px;height:100svh;min-height:450px;background:var(--bg);display:flex;flex-direction:column;position:relative;overflow:hidden}
+.app[data-theme="midnight"]{--bg:radial-gradient(at 20% 10%,#492c7566,transparent 55%),linear-gradient(#1a112e,#0d0b18)}
+.app[data-theme="ocean"]{--bg:radial-gradient(at 15% 30%,#2fafa966,transparent 55%),linear-gradient(#173343,#101522)}
+.app[data-theme="rose"]{--bg:radial-gradient(at 15% 30%,#c9658c55,transparent 55%),linear-gradient(#532844,#221327)}
+.topbar{display:flex;align-items:center;gap:8px;padding:12px 10px 8px;padding-top:max(12px,env(safe-area-inset-top));flex-shrink:0}
+.room-photo{width:43px;height:43px;border:2px solid #edd18e;border-radius:11px;display:grid;place-items:center;overflow:hidden;background:#2a1f37;flex-shrink:0;cursor:pointer}
+.room-photo img{width:100%;height:100%;object-fit:cover}
+.info{flex:1;min-width:0;cursor:pointer}
+.title{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub{font-size:10px;color:#ecdbea;margin-top:5px}
+.icon{background:none;border:0;width:32px;height:36px;display:grid;place-items:center;flex-shrink:0}
+svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.line{display:flex;justify-content:space-between;gap:10px;padding:2px 12px 10px;font-size:10px;color:#f0deef;align-items:center}
+.livecount{display:flex;align-items:center;gap:5px;color:#7ee7a0;font-size:14px;font-weight:700;cursor:pointer;background:none;border:0;padding:0}
+.livecount svg{width:16px;height:16px;stroke:#7ee7a0}
+.seats{flex-shrink:0;overflow-y:auto;padding:10px 8px 0;scrollbar-width:none;max-height:60%}
+.seats::-webkit-scrollbar{display:none}
+.grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:22px 4px}
+.seat{border:0;background:none;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px}
+.avatar{width:clamp(42px,12.8vw,59px);height:clamp(42px,12.8vw,59px);border:1px solid #ffffff66;background:#ffffff12;border-radius:50%;display:grid;place-items:center;position:relative}
+.avatar svg{color:#dfc9e7;width:23px;height:23px}
+.avatar.occupied{border:2px solid #edd18e}
+.avatar.muted svg{color:#ffa6bb}
+.mute-badge{position:absolute;right:-4px;bottom:-4px;width:18px;height:18px;border-radius:50%;background:#1a1020;border:1px solid #ffa6bb;display:grid;place-items:center}
+.mute-badge svg{width:11px;height:11px;stroke:#ffa6bb;stroke-width:2}
+.seat-num{font-size:10px;color:#e5dcf0}
+.announcement{margin:2px 12px 4px;font-size:13px;color:#f2dca7;overflow-wrap:anywhere}
+.lower{flex:1;min-height:0;position:relative;padding:6px 60px 6px 12px;display:flex;flex-direction:column}
+.chat{flex:1;min-height:0;overflow-y:auto;font-size:11px;line-height:1.7;overflow-wrap:anywhere}
+.msg{margin-bottom:5px}
+.side{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:12px}
+.side button{width:39px;height:39px;border:1px solid #ffffff44;border-radius:12px;background:#ffffff18;display:grid;place-items:center}
+.side .inbox{background:#687ac7bb}
+.side .invite{background:#8754f6bb}
+.bottom{display:flex;justify-content:space-between;align-items:center;gap:5px;padding:8px 12px;padding-bottom:max(10px,env(safe-area-inset-bottom));background:#130d22b0;flex-shrink:0}
+.left{display:flex;align-items:center;gap:13px}
+.muted{color:#ffa6bb}
+.gold{color:#f4d28b}
+.composer{display:flex;gap:6px;padding:9px;background:#271a36}
+.composer input{min-width:0;flex:1;border:1px solid #ffffff33;border-radius:22px;background:#ffffff0a;padding:10px 12px;color:white}
+.emoji{position:absolute;bottom:65px;left:12px;background:#2b1c39;border:1px solid #ffffff33;border-radius:14px;padding:10px;display:grid;grid-template-columns:repeat(5,1fr);z-index:5}
+.emoji button{border:0;background:none;font-size:24px;padding:6px}
+.overlay{position:absolute;inset:0;background:#0009;z-index:8}
+.panel{position:absolute;bottom:0;left:0;right:0;max-height:85%;overflow:auto;background:#261a35;border:1px solid #ffffff22;border-radius:24px 24px 0 0;padding:18px 15px max(20px,env(safe-area-inset-bottom));z-index:9}
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.panel h2{font-size:19px}
+.opt{border:1px solid #ffffff26;background:#ffffff08;border-radius:12px;padding:13px 9px;text-align:center;width:100%;margin-top:9px}
+.opt.big-blue{background:#2563eb;border-color:#60a5fa;color:#fff;font-weight:700;padding:15px}
+.opt.big-white{background:#fff;color:#1d1230;border-color:#fff;font-weight:700;padding:15px}
+.note{font-size:11px;color:#d1bddb;line-height:1.6;margin:12px 0}
+.toast{position:absolute;bottom:80px;left:15px;right:15px;padding:12px;background:#21132ef5;border:1px solid #ffffff44;border-radius:12px;z-index:15;font-size:12px;line-height:1.6;text-align:center}
+dialog{margin:auto;width:calc(100% - 36px);max-width:360px;background:#291b38;border:1px solid #ffffff44;border-radius:18px;color:white;padding:20px}
+dialog::backdrop{background:#0009}
+dialog p{white-space:pre-line;font-size:12px;line-height:1.7;margin:12px 0}
+.restore{position:fixed;bottom:20px;right:18px;background:#3b284c;border:1px solid #f4d28b;border-radius:30px;padding:13px 18px;color:#fff;z-index:50}
+.page{position:absolute;inset:0;background:var(--bg);z-index:20;display:flex;flex-direction:column;overflow:hidden}
+.page-head{display:flex;align-items:center;gap:8px;padding:14px 12px;padding-top:max(14px,env(safe-area-inset-top));border-bottom:1px solid #ffffff22;flex-shrink:0;flex-wrap:wrap}
+.page-head h2{font-size:17px;flex-shrink:0}
+.page-head .hide-tabs{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.hide-tab{border:1px solid #ffffff26;background:#ffffff08;border-radius:12px;padding:11px 14px;font-size:13px;font-weight:600;color:#d1bddb}
+.hide-tab.active{background:#8754f6;border-color:#a78bfa;color:#fff}
+.page-body{flex:1;overflow-y:auto;padding:16px 14px max(20px,env(safe-area-inset-bottom))}
+.setting-row{display:flex;align-items:center;gap:12px;border:1px solid #ffffff22;background:#ffffff08;border-radius:14px;padding:14px 12px;margin-top:10px;cursor:pointer}
+.setting-row .row-icon{width:38px;height:38px;border-radius:11px;background:linear-gradient(145deg,#3a2a4e,#241a33);border:1px solid #ffffff22;display:grid;place-items:center;flex-shrink:0}
+.setting-row .row-icon svg{width:20px;height:20px;stroke:#f4d28b}
+.setting-row .row-label{flex:1;font-size:13px;font-weight:600}
+.setting-row .row-arrow{color:#d1bddf}
+.list-item{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid #ffffff18;border-radius:12px;margin-top:8px;background:#ffffff08;font-size:12px}
+.list-item .li-icon{width:34px;height:34px;border-radius:10px;background:#ffffff10;display:grid;place-items:center}
+.list-item .li-icon svg{width:18px;height:18px;stroke:#f4d28b}
+.hidden-input{display:none}
+.game-logo{width:54px;height:54px;border-radius:14px;display:grid;place-items:center;margin:0 auto 6px}
+.game-logo svg{width:30px;height:30px}
+.game-item{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;padding:8px 4px}
+.game-item .g-name{font-size:10px;color:#e5dcf0;text-align:center}
+.game-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.game-result{margin-top:12px;padding:12px;border:1px solid #ffffff33;border-radius:12px;background:#ffffff08;font-size:13px;line-height:1.7;text-align:center}
+.lights-on{position:absolute;inset:0;z-index:30;pointer-events:none;animation:lights 1.2s infinite}
+@keyframes lights{0%{background:#ff008022}25%{background:#00ff8822}50%{background:#0080ff22}75%{background:#ffff0022}100%{background:#ff008022}}
+</style>
+</head>
+<body>
+<svg style="position:absolute;width:0;height:0" aria-hidden="true"><defs>
+<symbol id="mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"/></symbol>
+<symbol id="mic-off" viewBox="0 0 24 24"><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 11V5a3 3 0 0 0-5.94-.6M5 10v2a7 7 0 0 0 11.62 5.24M19 10v2a7 7 0 0 1-.5 2.6M12 19v3M8 22h8M3 3l18 18"/></symbol>
+<symbol id="share" viewBox="0 0 24 24"><path d="M14 3h7v7M21 3L10 14M10 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/></symbol>
+<symbol id="more" viewBox="0 0 24 24"><path d="M12 4h.01M12 12h.01M12 20h.01" stroke-width="4"/></symbol>
+<symbol id="power" viewBox="0 0 24 24"><path d="M12 2v10M6 5a9 9 0 1 0 12 0"/></symbol>
+<symbol id="audio" viewBox="0 0 24 24"><path d="M10 4L5 8H2v8h3l5 4zM14 8a6 6 0 0 1 0 8M17 4a11 11 0 0 1 0 16"/></symbol>
+<symbol id="smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 14a4.5 4.5 0 0 0 8 0M8 9h.01M16 9h.01"/></symbol>
+<symbol id="chat" viewBox="0 0 24 24"><path d="M20 3H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3v3l5-3h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM7 11h.01M12 11h.01M17 11h.01"/></symbol>
+<symbol id="features" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><path d="M17.5 14v7M14 17.5h7"/></symbol>
+<symbol id="send" viewBox="0 0 24 24"><path d="M22 2L9 15M22 2l-7 20-6-7-7-6z"/></symbol>
+<symbol id="invite" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a5 5 0 0 1 5-5h2a5 5 0 0 1 5 5v2M18 8v6M15 11h6"/></symbol>
+<symbol id="user" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3"/></symbol>
+<symbol id="users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a5 5 0 0 1 5-5h2a5 5 0 0 1 5 5v2M16 4a3 3 0 0 1 0 6M21 20v-2a5 5 0 0 0-3-4.5"/></symbol>
+<symbol id="back" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></symbol>
+<symbol id="image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></symbol>
+<symbol id="pencil" viewBox="0 0 24 24"><path d="M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></symbol>
+<symbol id="diamond" viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l3 6 3-6M12 21l-3-12M12 21l3-12"/></symbol>
+<symbol id="seatgrid" viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="7" rx="2"/><rect x="14" y="4" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
+<symbol id="megaphone" viewBox="0 0 24 24"><path d="M3 11v3a1 1 0 0 0 1 1h2l4 4V6L6 10H4a1 1 0 0 0-1 1zM15 8a5 5 0 0 1 0 8M18 5a9 9 0 0 1 0 14"/></symbol>
+<symbol id="palette" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="10" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="15.5" cy="10" r="1"/><path d="M12 21a9 9 0 0 0 0-18"/></symbol>
+<symbol id="trophy" viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 5M17 6h3a3 3 0 0 1-3 5"/></symbol>
+<symbol id="calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></symbol>
+<symbol id="broom" viewBox="0 0 24 24"><path d="M19 3l-7 7M14 8l3 3-8 8H4v-5z"/><path d="M4 21h16"/></symbol>
+<symbol id="crown" viewBox="0 0 24 24"><path d="M3 18l2-9 4 4 3-7 3 7 4-4 2 9zM3 18h18"/></symbol>
+<symbol id="gift" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4"/><rect x="5" y="12" width="14" height="9"/><path d="M12 8v13M12 8c-2-4-7-4-7-1s5 1 7 1zM12 8c2-4 7-4 7-1s-5 1-7 1z"/></symbol>
+<symbol id="cards" viewBox="0 0 24 24"><rect x="3" y="5" width="12" height="16" rx="2"/><path d="M8 3h10a2 2 0 0 1 2 2v12"/><path d="M7 11h4M7 15h4"/></symbol>
+<symbol id="slot" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="3"/><path d="M8 8v6M12 8v6M16 8v6M12 18v3"/></symbol>
+<symbol id="clover" viewBox="0 0 24 24"><path d="M12 21v-7"/><path d="M12 14c-4 0-7-2.5-7-5.5S8 3 12 6c4-3 7 0 7 2.5S16 14 12 14z"/></symbol>
+<symbol id="candy" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><path d="M6 9L2 6l2 5-2 4 4-2M18 9l4-3-2 5 2 4-4-2"/></symbol>
+<symbol id="car" viewBox="0 0 24 24"><path d="M5 16l1.5-5h11L19 16"/><rect x="3" y="16" width="18" height="4" rx="2"/><circle cx="7" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/></symbol>
+<symbol id="gem" viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/></symbol>
+<symbol id="pizza" viewBox="0 0 24 24"><path d="M12 21L3 6a14 14 0 0 1 18 0z"/><circle cx="9" cy="10" r="1"/><circle cx="14" cy="12" r="1"/><circle cx="11" cy="15" r="1"/></symbol>
+<symbol id="dice" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.3"/><circle cx="16" cy="8" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="8" cy="16" r="1.3"/><circle cx="16" cy="16" r="1.3"/></symbol>
+<symbol id="target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+<symbol id="music" viewBox="0 0 24 24"><circle cx="7" cy="18" r="3"/><circle cx="17" cy="16" r="3"/><path d="M10 18V5l10-2v13"/></symbol>
+<symbol id="bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3 11v2h6v-2a6 6 0 0 0-3-11z"/></symbol>
+<symbol id="video" viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="3"/><path d="M16 10l6-3v10l-6-3"/></symbol>
+<symbol id="heart" viewBox="0 0 24 24"><path d="M12 21C7 16.5 3 13 3 9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 4-4 7.5-9 12z"/></symbol>
+<symbol id="shuffle" viewBox="0 0 24 24"><path d="M3 7h4l10 10h4M21 17l-3-3M21 17l-3 3M3 17h4l3-3M14 7h7M21 7l-3-3M21 7l-3 3"/></symbol>
+<symbol id="timer" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></symbol>
+</defs></svg>
+<main class="app" id="app" data-theme="sunset">
+<header class="topbar">
+<div class="room-photo" id="roomPhoto" title="Room settings">♫</div>
+<div class="info" id="roomInfoTap" title="Room settings">
+<div class="title" id="roomTitle">VoxaChat Room</div>
+<div class="sub">ID: <span id="roomID">—</span></div>
+</div>
+<button type="button" class="icon" id="shareBtn" aria-label="Share room"><svg><use href="#share"/></svg></button>
+<button type="button" class="icon" id="moreBtn" aria-label="Room menu"><svg><use href="#more"/></svg></button>
+<button type="button" class="icon" id="powerBtn" aria-label="Exit or minimize"><svg><use href="#power"/></svg></button>
+</header>
+<div class="line"><span id="modeLabel">Normal · 20 Seats</span><button type="button" class="livecount" id="liveCountBtn"><svg><use href="#users"/></svg><span id="liveCount">1 online</span></button></div>
+<section class="seats" id="seatsArea"></section>
+<section class="lower">
+<div class="announcement" id="announcement" hidden></div>
+<section class="chat" id="chatBox" aria-live="polite"></section>
+<div class="side">
+<button type="button" class="inbox" id="inboxBtn" aria-label="Inbox"><svg><use href="#chat"/></svg></button>
+<button type="button" class="invite" id="inviteBtn" aria-label="Invite seat"><svg><use href="#invite"/></svg></button>
+</div>
+</section>
+<form class="composer" id="composer" hidden>
+<input id="msgInput" maxlength="1000" placeholder="Message…" autocomplete="off">
+<button type="submit" class="icon" id="sendBtn" aria-label="Send"><svg><use href="#send"/></svg></button>
+<button type="button" class="icon" id="closeComposer" aria-label="Close">×</button>
+</form>
+<footer class="bottom">
+<div class="left">
+<button type="button" class="icon" id="micBtn" aria-label="Mute or unmute microphone"><svg><use href="#mic"/></svg></button>
+<button type="button" class="icon" id="audioBtn" aria-label="Mute room audio"><svg><use href="#audio"/></svg></button>
+<button type="button" class="icon" id="emojiBtn" aria-label="Emoji"><svg><use href="#smile"/></svg></button>
+<button type="button" class="icon" id="chatBtn" aria-label="Write message"><svg><use href="#chat"/></svg></button>
+</div>
+<button type="button" class="icon gold" id="optionsBtn" aria-label="Room features"><svg><use href="#features"/></svg></button>
+</footer>
+<div class="emoji" id="emojiPicker" hidden></div>
+<div class="overlay" id="overlay" hidden></div>
+<section class="panel" id="panel" hidden>
+<div class="panel-head"><h2 id="panelTitle">Room</h2><button type="button" class="icon" id="closePanelBtn" aria-label="Close">×</button></div>
+<div id="panelBody"></div>
+</section>
+<div class="toast" id="toast" hidden></div>
+<input type="file" id="dpInput" class="hidden-input" accept="image/*">
+<input type="file" id="songInput" class="hidden-input" accept="audio/*">
+</main>
+<button type="button" class="restore" id="restoreBtn" hidden>♫ Return to room</button>
+<dialog id="messageDialog"><h3 id="dialogTitle">VoxaChat</h3><p id="dialogText"></p><button type="button" class="opt" id="dialogOK">OK</button></dialog>
+<script>
+"use strict";
+const E=id=>document.getElementById(id);
+let mode="normal",seatCount=20,muted=false,micOn=false,micStream=null,mySeatNumber=null,lightsOn=false;
+const roomID=new URLSearchParams(location.search).get("id")||new URLSearchParams(location.search).get("room")||"10001";
+E("roomID").textContent=roomID;
+const seatKey="voxa_room_seats_"+roomID;
+const roomKey="voxa_room_data_"+roomID;
+function loadJSON(key,fallback){try{const v=JSON.parse(localStorage.getItem(key)||"null");return v??fallback}catch(_){return fallback}}
+function saveJSON(key,v){try{localStorage.setItem(key,JSON.stringify(v))}catch(_){}}
+let seatStates=loadJSON(seatKey,{});
+let roomData=loadJSON(roomKey,{name:"VoxaChat Room",dp:"",announcement:"Welcome to VoxaChat Room!",theme:"sunset",bonusAvailable:0,bonusDate:null,followers:[],events:[],achievements:[]});
+function saveRoom(){saveJSON(roomKey,roomData)}
+function toast(t){const el=E("toast");el.textContent=t;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(()=>el.hidden=true,3000)}
+function message(title,text){E("dialogTitle").textContent=title;E("dialogText").textContent=text;if(!E("messageDialog").open)E("messageDialog").showModal()}
+function closePanel(){E("panel").hidden=true;E("overlay").hidden=true;stopLights()}
+function panel(title){E("panelTitle").textContent=title;E("panelBody").replaceChildren();E("emojiPicker").hidden=true;E("panel").hidden=false;E("overlay").hidden=false;return E("panelBody")}
+function action(parent,label,fn,cls){const b=document.createElement("button");b.type="button";b.className="opt"+(cls?" "+cls:"");b.textContent=label;b.onclick=fn;parent.append(b);return b}
+function note(parent,t){const p=document.createElement("p");p.className="note";p.textContent=t;parent.append(p)}
+const isOwner=true;
+function openPage(title,render){
+  const old=document.getElementById("fullPage");
+  if(old)old.remove();
+  const page=document.createElement("section");
+  page.className="page";
+  page.id="fullPage";
+  page.innerHTML='<div class="page-head"><button type="button" class="icon" id="pageBack" aria-label="Back"><svg><use href="#back"/></svg></button><h2>'+title+'</h2><div class="hide-tabs" id="hideTabs"></div></div><div class="page-body" id="pageBody"></div>';
+  E("app").append(page);
+  page.querySelector("#pageBack").onclick=()=>page.remove();
+  render(page.querySelector("#pageBody"));
+  return page;
+}
+function settingRow(parent,iconId,label,fn){
+  const row=document.createElement("div");
+  row.className="setting-row";
+  row.innerHTML='<span class="row-icon"><svg><use href="#'+iconId+'"/></svg></span><span class="row-label">'+label+'</span><span class="row-arrow">›</span>';
+  row.onclick=fn;
+  parent.append(row);
+  return row;
+}
+function listRow(parent,iconId,text){
+  const d=document.createElement("div");
+  d.className="list-item";
+  d.innerHTML='<span class="li-icon"><svg><use href="#'+iconId+'"/></svg></span><span>'+text+'</span>';
+  parent.append(d);
+}
+function buildHideTabs(pageHead,pageBody){
+  const tabs=pageHead.querySelector("#hideTabs");
+  const sections={};
+  const labels={settings:"Room Settings",followers:"Followers",events:"Event",achievements:"Achievements"};
+  [["settings","Room Settings"],["followers","Followers"],["events","Event"],["achievements","Achievements"]].forEach(([key,label])=>{
+    const b=document.createElement("button");
+    b.type="button";
+    b.className="hide-tab";
+    b.textContent=label;
+    b.onclick=()=>showTab(key);
+    tabs.append(b);
+    const sec=document.createElement("div");
+    sec.dataset.key=key;
+    sec.style.display="none";
+    pageBody.append(sec);
+    sections[key]=sec;
+  });
+  function showTab(key){
+    Object.keys(sections).forEach(k=>{sections[k].style.display="none"});
+    [...tabs.children].forEach(t=>t.classList.remove("active"));
+    sections[key].style.display="block";
+    [...tabs.children].find(t=>t.textContent===labels[key]).classList.add("active");
+    if(key==="settings")renderSettingsInto(sections[key]);
+    else if(key==="followers")renderFollowersInto(sections[key]);
+    else if(key==="events")renderEventsInto(sections[key]);
+    else renderAchievementsInto(sections[key]);
+  }
+  showTab("settings");
+  return sections;
+}
+function renderSettingsInto(sec){
+  sec.replaceChildren();
+  const following=roomData.followers.includes("me");
+  action(sec,following?"✓ Following":"Follow Room",()=>{
+    if(following){roomData.followers=roomData.followers.filter(f=>f!=="me");toast("Unfollowed.")}
+    else{roomData.followers.push("me");toast("Room followed.")}
+    saveRoom();renderSettingsInto(sec);
+  },following?"big-white":"big-blue");
+  if(isOwner){
+    note(sec,"OWNER / ADMIN SETTINGS");
+    settingRow(sec,"image","Room DP Edit",()=>E("dpInput").click());
+    settingRow(sec,"pencil","Room Name Edit",()=>{const v=prompt("Room name:",roomData.name);if(v===null)return;roomData.name=v.trim()||roomData.name;saveRoom();applyRoom();renderSettingsInto(sec);toast("Room name updated")});
+    settingRow(sec,"diamond","Room Bonus ("+(roomData.bonusAvailable||0)+" diamonds)",claimBonus);
+    settingRow(sec,"seatgrid","Seat Count",()=>{const a=prompt("Enter 5, 10, 15 or 20:",String(seatCount));if(a===null)return;const c=Number(a.trim());if(![5,10,15,20].includes(c)){toast("Choose 5, 10, 15 or 20.");return}seatCount=c;update();renderSeats();renderSettingsInto(sec);toast("Seats: "+c)});
+    settingRow(sec,"megaphone","Announcement",()=>{const v=prompt("Announcement (max 300 chars):",roomData.announcement||"");if(v===null)return;if(v.length>300){toast("Maximum 300 characters.");return}roomData.announcement=v.trim();saveRoom();applyRoom();renderSettingsInto(sec);toast("Announcement saved")});
+    settingRow(sec,"palette","Change Theme",themes);
+    settingRow(sec,"broom","Reset Seats",()=>{
+      if(!confirm("Reset all seats?"))return;
+      seatStates={};mySeatNumber=null;saveJSON(seatKey,seatStates);renderSeats();renderSettingsInto(sec);toast("All seats reset.");
+    });
+  }
+}
+function renderFollowersInto(sec){
+  sec.replaceChildren();
+  note(sec,"Total followers: "+roomData.followers.length);
+  if(roomData.followers.length===0)note(sec,"Koi follower nahi.");
+  roomData.followers.forEach(f=>listRow(sec,"user",f==="me"?"You":"Follower"));
+}
+function renderEventsInto(sec){
+  sec.replaceChildren();
+  note(sec,"Room events");
+  if(roomData.events.length===0)note(sec,"Koi active event nahi.");
+  roomData.events.forEach(ev=>listRow(sec,"calendar",ev.name));
+}
+function renderAchievementsInto(sec){
+  sec.replaceChildren();
+  note(sec,"Room achievements");
+  if(roomData.achievements.length===0)note(sec,"Koi achievement nahi.");
+  roomData.achievements.forEach(a=>listRow(sec,"trophy",a.name));
+}
+function openSettingsPage(){
+  openPage("Room Settings",(pageBody)=>{
+    const pageHead=document.getElementById("fullPage").querySelector(".page-head");
+    buildHideTabs(pageHead,pageBody);
+  });
+}
+function claimBonus(){
+  const today=new Date().toDateString();
+  if(!roomData.bonusAvailable||roomData.bonusDate!==today){toast("Aaj ka bonus available nahi ya expire ho gaya.");return}
+  const amount=roomData.bonusAvailable;
+  roomData.bonusAvailable=0;saveRoom();
+  message("Rewards","🎉 "+amount+" diamonds room bonus ke roop me mile!");
+  openSettingsPage();
+}
+function themes(){
+  const body=panel("Change Theme");
+  [["sunset","Warm room"],["midnight","Midnight purple"],["ocean","Ocean"],["rose","Rose"]].forEach(([k,l])=>{
+    action(body,l,()=>{roomData.theme=k;saveRoom();E("app").dataset.theme=k;closePanel();toast(l)});
+  });
+  note(body,"Themes events/tasks se unlock hote hain.");
+}
+function applyRoom(){
+  E("roomTitle").textContent=roomData.name;
+  E("announcement").textContent=roomData.announcement||"";
+  E("announcement").hidden=!roomData.announcement;
+  E("app").dataset.theme=roomData.theme||"sunset";
+  const photo=E("roomPhoto");
+  if(roomData.dp){photo.innerHTML='<img src="'+roomData.dp+'" alt="Room DP">'}else{photo.textContent="♫"}
+  updateLiveCount();
+}
+function updateLiveCount(){
+  const count=Object.keys(seatStates).length+(mySeatNumber?0:1);
+  E("liveCount").textContent=count+" online";
+}
+E("liveCountBtn").onclick=()=>{
+  const body=panel("Users in Room");
+  const ids=Object.keys(seatStates).map(k=>"User "+k);
+  if(!mySeatNumber)ids.unshift("You (ID: "+roomID+")");
+  note(body,"Total online: "+ids.length);
+  if(ids.length===0)note(body,"Koi user online nahi.");
+  ids.forEach(id=>listRow(body,"user",id));
+};
+/* DP upload with square center-crop */
+E("dpInput").onchange=e=>{
+  const file=e.target.files[0];
+  if(!file)return;
+  const img=new Image();
+  const reader=new FileReader();
+  reader.onload=()=>{img.src=reader.result};
+  img.onload=()=>{
+    const size=Math.min(img.width,img.height);
+    const canvas=document.createElement("canvas");
+    canvas.width=300;canvas.height=300;
+    const ctx=canvas.getContext("2d");
+    ctx.drawImage(img,(img.width-size)/2,(img.height-size)/2,size,size,0,0,300,300);
+    roomData.dp=canvas.toDataURL("image/jpeg",0.85);
+    saveRoom();applyRoom();openSettingsPage();toast("Room DP cropped & updated");
+  };
+  reader.readAsDataURL(file);
+};
+E("roomPhoto").onclick=openSettingsPage;
+E("roomInfoTap").onclick=openSettingsPage;
+function gameItem(parent,logoBg,iconId,name,fn){
+  const b=document.createElement("button");
+  b.type="button";
+  b.className="game-item";
+  b.innerHTML='<span class="game-logo" style="background:'+logoBg+'"><svg style="stroke:#fff"><use href="#'+iconId+'"/></svg></span><span class="g-name">'+name+'</span>';
+  b.onclick=fn;
+  parent.append(b);
+}
+function resultBox(parent,text){
+  const d=document.createElement("div");
+  d.className="game-result";
+  d.textContent=text;
+  parent.append(d);
+  return d;
+}
+function game3Patti(){
+  const body=panel("3 Patti");
+  const btn=action(body,"🃏 Deal Cards",()=>{});
+  const res=resultBox(body,"Cards deal karne ke liye button dabao.");
+  btn.onclick=()=>{
+    const suits=["♠","♥","♦","♣"],ranks=["2","3","4","5","6","7","8","9","10","J","Q","K","A"];
+    const card=()=>ranks[Math.floor(Math.random()*13)]+suits[Math.floor(Math.random()*4)];
+    const mine=[card(),card(),card()],bot=[card(),card(),card()];
+    const val=c=>ranks.indexOf(c.slice(0,-1));
+    const myHigh=Math.max(...mine.map(val)),botHigh=Math.max(...bot.map(val));
+    res.textContent="You: "+mine.join(" ")+"\nBot: "+bot.join(" ")+"\n"+(myHigh>botHigh?"🎉 You Win!":(myHigh<botHigh?"😢 Bot Wins":"🤝 Tie"));
+  };
+}
+function game777(){
+  const body=panel("777 Original");
+  const btn=action(body,"🎰 Spin",()=>{});
+  const res=resultBox(body,"Spin karne ke liye button dabao.");
+  btn.onclick=()=>{
+    const sym=["7","🍒","🍋","🔔","⭐"];
+    const a=sym[Math.floor(Math.random()*5)],b=sym[Math.floor(Math.random()*5)],c=sym[Math.floor(Math.random()*5)];
+    res.textContent=a+" | "+b+" | "+c+"\n"+(a===b&&b===c?"🎉 JACKPOT!":"Try again");
+  };
+}
+function gameLucky77(){
+  const body=panel("Lucky 77");
+  const btn=action(body,"🍀 Roll Dice",()=>{});
+  const res=resultBox(body,"Dice roll karne ke liye button dabao.");
+  btn.onclick=()=>{
+    const n=1+Math.floor(Math.random()*6);
+    res.textContent="🎲 You rolled: "+n+"\n"+(n===7?"🎉 Lucky 7!":"Not 7, try again");
+  };
+}
+function gameCrush(){
+  const body=panel("Crush");
+  const btn=action(body,"🍬 Find Match",()=>{});
+  const res=resultBox(body,"Match dhundne ke liye button dabao.");
+  btn.onclick=()=>{
+    const emojis=["🍬","🍭","🍫","🧁"];
+    const a=emojis[Math.floor(Math.random()*4)],b=emojis[Math.floor(Math.random()*4)],c=emojis[Math.floor(Math.random()*4)];
+    res.textContent=a+" "+b+" "+c+"\n"+(a===b&&b===c?"🎉 Crush Match!":"No match");
+  };
+}
+function gameRacing(){
+  const body=panel("Bounty Racing");
+  const btn=action(body,"🏎 Start Race",()=>{});
+  const res=resultBox(body,"Race start karne ke liye button dabao.");
+  btn.onclick=()=>{
+    const cars=["🏎","🚗","🚙","🏁"];
+    res.textContent="Race started...\nWinner: "+cars[Math.floor(Math.random()*cars.length)];
+  };
+}
+function gameGems(){
+  const body=panel("Crazy Gems");
+  const btn=action(body,"💎 Match Gems",()=>{});
+  const res=resultBox(body,"Gems match karne ke liye button dabao.");
+  btn.onclick=()=>{
+    const gems=["💎","🔷","🔶","🟣"];
+    const a=gems[Math.floor(Math.random()*4)],b=gems[Math.floor(Math.random()*4)],c=gems[Math.floor(Math.random()*4)];
+    res.textContent=a+" "+b+" "+c+"\n"+(a===b&&b===c?"🎉 Gem Match!":"No match");
+  };
+}
+function gameGreedy(){
+  const body=panel("Greedy");
+  const btn=action(body,"🍕 Grab Pizza",()=>{});
+  const res=resultBox(body,"Pizza grab karne ke liye button dabao.");
+  btn.onclick=()=>{
+    const n=1+Math.floor(Math.random()*10);
+    res.textContent="🍕 You grabbed "+n+" slices!\n"+(n>=7?"🎉 Big Win!":"Keep trying");
+  };
+}
+function gameTruthDare(){
+  const body=panel("Truth & Dare");
+  const t=action(body,"🎲 Truth",()=>{});
+  const d=action(body,"🎯 Dare",()=>{});
+  const res=resultBox(body,"Truth ya Dare choose karo.");
+  const truths=["Sabse embarrassing moment?","Kisi ko secret crush?","Kabhi jhooth bola?","Sabse ajeeb habit?"];
+  const dares=["20 jumping jacks karo","Kisi ko funny voice me call ka naam bolo","10 pushups karo","Apni last photo dikhao"];
+  t.onclick=()=>res.textContent="Truth: "+truths[Math.floor(Math.random()*truths.length)];
+  d.onclick=()=>res.textContent="Dare: "+dares[Math.floor(Math.random()*dares.length)];
+}
+function gameLudo(){
+  const body=panel("Ludo");
+  const btn=action(body,"🎯 Roll & Move",()=>{});
+  const res=resultBox(body,"Ludo start karne ke liye button dabao.");
+  let pos=0;
+  btn.onclick=()=>{
+    const n=1+Math.floor(Math.random()*6);
+    pos+=n;
+    res.textContent="🎲 Rolled: "+n+"\nPosition: "+pos+"/20\n"+(pos>=20?"🎉 You Win!":"Keep rolling");
+    if(pos>=20)pos=0;
+  };
+}
+function mediaMusic(){
+  const body=panel("Shared Music");
+  note(body,"Sirf Owner/Admin apne phone ki downloaded songs play kar sakte hain.");
+  action(body,"🎵 Choose Song",()=>E("songInput").click());
+  const res=resultBox(body,"Koi song select nahi hua.");
+  let audio=null;
+  E("songInput").onchange=e=>{
+    const file=e.target.files[0];
+    if(!file)return;
+    if(audio)audio.pause();
+    audio=new Audio(URL.createObjectURL(file));
+    audio.play();
+    res.textContent="▶ Playing: "+file.name;
+    toast("Song playing");
+  };
+  action(body,"⏸ Pause",()=>{if(audio){audio.pause();res.textContent="⏸ Paused"}});
+  action(body,"▶ Resume",()=>{if(audio){audio.play();res.textContent="▶ Playing"}});
+  action(body,"⏹ Stop",()=>{if(audio){audio.pause();audio=null;res.textContent="⏹ Stopped"}});
+}
+function startLights(){
+  if(lightsOn)return;
+  lightsOn=true;
+  const d=document.createElement("div");
+  d.className="lights-on";
+  d.id="lightsLayer";
+  E("app").append(d);
+}
+function stopLights(){
+  lightsOn=false;
+  const l=document.getElementById("lightsLayer");
+  if(l)l.remove();
+}
+function mediaLights(){
+  const body=panel("Lights");
+  note(body,"Room lights effect on/off karo.");
+  action(body,lightsOn?"💡 Lights OFF":"💡 Lights ON",()=>{if(lightsOn){stopLights();toast("Lights off")}else{startLights();toast("Lights on")}closePanel()});
+}
+function mediaYouTube(){
+  const body=panel("Live Video (YouTube)");
+  note(body,"YouTube link paste karo — live video room me chal jayega.");
+  const input=document.createElement("input");
+  input.placeholder="https://youtube.com/watch?v=...";
+  input.style.cssText="width:100%;border:1px solid #ffffff33;border-radius:10px;background:#ffffff0a;padding:10px;color:#fff;margin-top:10px";
+  body.append(input);
+  action(body,"📹 Play Video",()=>{
+    const url=input.value.trim();
+    if(!url){toast("YouTube link daalo.");return}
+    const m=url.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/);
+    if(!m){toast("Valid YouTube link daalo.");return}
+    closePanel();
+    const v=document.createElement("div");
+    v.style.cssText="position:absolute;inset:0;z-index:25;background:#000;display:flex;flex-direction:column";
+    v.innerHTML='<iframe width="100%" height="80%" src="https://www.youtube.com/embed/'+m[1]+'?autoplay=1" frameborder="0" allow="autoplay" allowfullscreen></iframe><button style="margin:10px auto;padding:10px 20px;border-radius:20px;border:0;background:#8754f6;color:#fff" id="closeVideo">Close Video</button>';
+    E("app").append(v);
+    v.querySelector("#closeVideo").onclick=()=>v.remove();
+  });
+}
+function featuresMenu(){
+  const body=panel("Room Options");
+  note(body,"ROOM MODE");
+  action(body,(mode==="normal"?"✓ ":"")+"Normal Room",()=>{mode="normal";update();closePanel();toast("Normal mode")});
+  action(body,(mode==="chat"?"✓ ":"")+"Chat Mode",()=>{mode="chat";update();closePanel();toast("Chat mode")});
+  action(body,(mode==="disco"?"✓ ":"")+"Disco Mode",()=>{mode="disco";update();closePanel();toast("Disco mode")});
+  action(body,(mode==="blind"?"✓ ":"")+"Blind Date Mode",()=>{mode="blind";update();closePanel();toast("Blind Date mode")});
+  note(body,"BLIND DATE");
+  action(body,"💘 Pick Pair",()=>toast("Pick Pair coming soon"));
+  action(body,"❤️ Match",()=>toast("Match coming soon"));
+  action(body,"💔 Unmatch",()=>toast("Unmatch coming soon"));
+  action(body,"🔀 Shuffle Seats",()=>{seatStates={};mySeatNumber=null;saveJSON(seatKey,seatStates);renderSeats();toast("Seats shuffled")});
+  action(body,"⏱ Round Timer",()=>toast("Round Timer coming soon"));
+  action(body,"📣 Pair Announcement",()=>toast("Pair Announcement coming soon"));
+  note(body,"GAMES");
+  const grid=document.createElement("div");
+  grid.className="game-grid";
+  gameItem(grid,"linear-gradient(145deg,#16a34a,#065f46)","cards","3 Patti",game3Patti);
+  gameItem(grid,"linear-gradient(145deg,#dc2626,#7f1d1d)","slot","777 Original",game777);
+  gameItem(grid,"linear-gradient(145deg,#16a34a,#14532d)","clover","Lucky 77",gameLucky77);
+  gameItem(grid,"linear-gradient(145deg,#db2777,#831843)","candy","Crush",gameCrush);
+  gameItem(grid,"linear-gradient(145deg,#2563eb,#1e3a8a)","car","Bounty Racing",gameRacing);
+  gameItem(grid,"linear-gradient(145deg,#7c3aed,#4c1d95)","gem","Crazy Gems",gameGems);
+  gameItem(grid,"linear-gradient(145deg,#ea580c,#7c2d12)","pizza","Greedy",gameGreedy);
+  gameItem(grid,"linear-gradient(145deg,#0891b2,#164e63)","dice","Truth & Dare",gameTruthDare);
+  gameItem(grid,"linear-gradient(145deg,#ca8a04,#713f12)","target","Ludo",gameLudo);
+  body.append(grid);
+  note(body,"MEDIA MODE");
+  action(body,"🎵 Shared Music",mediaMusic);
+  action(body,"💡 Lights",mediaLights);
+  action(body,"📹 Live Video (YouTube)",mediaYouTube);
+}
+function optionsMenu(){featuresMenu()}
+function update(){E("modeLabel").textContent=(mode==="blind"?"Blind Date · 2 Hosts + 8 Seats":(mode==="disco"?"Disco":(mode==="chat"?"Chat":"Normal"))+" · "+seatCount+" Seats")}
+function joinSeat(n){
+  if(mySeatNumber){toast("Pehle apni seat leave karo.");return}
+  seatStates=loadJSON(seatKey,{});
+  if(seatStates[n]){toast("Seat occupied.");return}
+  seatStates[n]={user:"You",muted:false};
+  mySeatNumber=n;
+  saveJSON(seatKey,seatStates);
+  renderSeats();closePanel();toast("Seat "+n+" joined.");
+}
+function leaveSeat(){
+  if(!mySeatNumber){toast("Tum kisi seat par nahi ho.");return}
+  stopMic();
+  delete seatStates[mySeatNumber];
+  mySeatNumber=null;
+  saveJSON(seatKey,seatStates);
+  renderSeats();closePanel();toast("Seat left.");
+}
+async function startMic(){
+  if(!navigator.mediaDevices?.getUserMedia){toast("Microphone not available.");return}
+  try{
+    micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+    micOn=true;E("micBtn").classList.remove("muted");toast("Microphone on");
+  }catch(e){toast("Microphone permission denied.")}
+}
+function stopMic(){
+  if(micStream){micStream.getTracks().forEach(t=>t.stop());micStream=null}
+  micOn=false;E("micBtn").classList.add("muted");
+}
+function toggleMic(){
+  if(micOn){
+    if(micStream){micStream.getTracks().forEach(t=>{if(t.kind==="audio")t.enabled=false})}
+    micOn=false;E("micBtn").classList.add("muted");toast("Microphone muted");
+  }else{
+    if(micStream){micStream.getTracks().forEach(t=>{if(t.kind==="audio")t.enabled=true})}
+    else{startMic();return}
+    micOn=true;E("micBtn").classList.remove("muted");toast("Microphone unmuted");
+  }
+  if(mySeatNumber){
+    seatStates=loadJSON(seatKey,{});
+    if(seatStates[mySeatNumber]){seatStates[mySeatNumber].muted=!micOn;saveJSON(seatKey,seatStates)}
+  }
+  renderSeats();
+}
+function seatMenu(n){
+  const body=panel("Seat "+n);
+  if(String(mySeatNumber)===String(n)){
+    action(body,"Leave seat",leaveSeat);
+    action(body,micOn?"Mute microphone":"Unmute microphone",()=>{toggleMic();closePanel()});
+    note(body,"Ye tumhari seat hai.");
+  }else if(seatStates[n]){
+    note(body,"Ye seat occupied hai.");
+  }else{
+    action(body,"Join seat",()=>joinSeat(n));
+    note(body,"Empty seat.");
+  }
+}
+function renderSeats(){
+  const area=E("seatsArea");
+  area.replaceChildren();
+  const grid=document.createElement("div");
+  grid.className="grid";
+  for(let i=1;i<=seatCount;i++){
+    const b=document.createElement("button");
+    b.type="button";
+    b.className="seat";
+    const occupied=seatStates[i];
+    const isMine=String(mySeatNumber)===String(i);
+    const isMuted=occupied&&occupied.muted;
+    let inner='<span class="avatar'+(occupied?" occupied":"")+(isMine&&!micOn?" muted":"")+'">';
+    inner+='<svg><use href="#mic"/></svg>';
+    if(isMine&&isMuted)inner+='<span class="mute-badge"><svg><use href="#mic-off"/></svg></span>';
+    inner+='</span><span class="seat-num">'+i+'</span>';
+    b.innerHTML=inner;
+    b.onclick=()=>seatMenu(i);
+    grid.append(b);
+  }
+  area.append(grid);
+  updateLiveCount();
+}
+E("moreBtn").onclick=()=>{const body=panel("Room");action(body,"👑 Room Premium",()=>toast("Room Premium coming soon"));action(body,"🎁 Gift Effect",()=>toast("Gift Effect coming soon"));action(body,"Change Theme",themes);action(body,"Follow room",()=>toast("Room followed."))};
+E("optionsBtn").onclick=featuresMenu;
+E("closePanelBtn").onclick=closePanel;
+E("overlay").onclick=closePanel;
+E("dialogOK").onclick=()=>E("messageDialog").close();
+E("powerBtn").onclick=()=>{const body=panel("Room");action(body,"Minimize room",()=>{closePanel();E("emojiPicker").hidden=true;E("app").hidden=true;E("restoreBtn").hidden=false});action(body,"Exit room",()=>{stopMic();location.href="party.html"});note(body,"Minimize keeps this page open.")};
+E("restoreBtn").onclick=()=>{E("app").hidden=false;E("restoreBtn").hidden=true};
+E("shareBtn").onclick=async()=>{try{if(navigator.share){await navigator.share({title:roomData.name,url:location.href})}else if(navigator.clipboard){await navigator.clipboard.writeText(location.href);toast("Room link copied.")}else{prompt("Copy room link:",location.href)}}catch(e){if(e.name!=="AbortError")toast("Unable to share.")}};
+E("inboxBtn").onclick=()=>location.href="inbox.html";
+E("inviteBtn").onclick=()=>toast("Invite seat coming soon");
+E("chatBtn").onclick=()=>{E("composer").hidden=false;E("emojiPicker").hidden=true;E("msgInput").focus()};
+E("closeComposer").onclick=()=>{E("composer").hidden=true};
+E("emojiBtn").onclick=()=>{E("emojiPicker").hidden=!E("emojiPicker").hidden};
+["❤️","😂","👏","😍","🔥","😊","🎉","👍","🌹","👋"].forEach(em=>{const b=document.createElement("button");b.textContent=em;b.onclick=()=>{E("composer").hidden=false;E("msgInput").value+=em;E("emojiPicker").hidden=true};E("emojiPicker").append(b)});
+E("composer").onsubmit=e=>{e.preventDefault();const v=E("msgInput").value.trim();if(!v)return;const r=document.createElement("div");r.className="msg";r.textContent="You: "+v;E("chatBox").append(r);E("chatBox").scrollTop=E("chatBox").scrollHeight;E("msgInput").value=""};
+E("audioBtn").onclick=()=>{muted=!muted;E("audioBtn").classList.toggle("muted",muted);toast(muted?"Room audio muted":"Room audio unmuted")};
+E("micBtn").onclick=()=>{if(!mySeatNumber){toast("Pehle seat join karo.");return}toggleMic()};
+applyRoom();
+update();
+renderSeats();
+</script>
+</body>
+</html>
