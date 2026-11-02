@@ -498,3 +498,293 @@ body{
     </div>
   </div>
   </div>
+  <script>
+function renderPrivileges(level){
+  const grid = document.getElementById("privilegesGrid");
+  grid.innerHTML = "";
+
+  VIP_LEVELS.forEach(levelItem=>{
+    VIP_PRIVILEGES[levelItem.level].forEach(privilege=>{
+      const unlocked = levelItem.level <= level;
+
+      const card = document.createElement("div");
+      card.className = "privilege-card" + (unlocked ? " unlocked" : "");
+
+      const icon = document.createElement("span");
+      icon.className = "icon";
+      icon.textContent = unlocked ? privilege.icon : "🔒";
+
+      const name = document.createElement("div");
+      name.textContent = privilege.name;
+
+      const status = document.createElement("div");
+      status.className = "status";
+      status.textContent = unlocked ? "Unlocked" : "Locked";
+
+      card.append(icon, name, status);
+      grid.appendChild(card);
+    });
+  });
+}
+
+function renderHistory(){
+  const box = document.getElementById("historyContent");
+  box.innerHTML = "";
+
+  if(history.length === 0){
+    const empty = document.createElement("div");
+    empty.className = "history-item";
+
+    const left = document.createElement("div");
+    const title = document.createElement("p");
+    title.textContent = "No VIP record yet";
+    const date = document.createElement("span");
+    date.textContent = "Recharge to earn VIP EXP";
+
+    left.append(title, date);
+
+    const amount = document.createElement("div");
+    amount.className = "history-amount";
+    amount.textContent = "—";
+
+    empty.append(left, amount);
+    box.appendChild(empty);
+    return;
+  }
+
+  history.forEach(item=>{
+    const row = document.createElement("div");
+    row.className = "history-item";
+
+    const left = document.createElement("div");
+    const title = document.createElement("p");
+    title.textContent = item.title;
+
+    const date = document.createElement("span");
+    date.textContent = item.date;
+
+    left.append(title, date);
+
+    const amount = document.createElement("div");
+    amount.className = "history-amount";
+    amount.textContent = item.amount;
+
+    row.append(left, amount);
+    box.appendChild(row);
+  });
+}
+
+function updateProfileVIP(){
+  const vip = getVIP(userEXP);
+
+  document.getElementById("profileVip").textContent =
+    "VIP " + vip.level;
+}
+
+function updateGifAccess(){
+  const allowed = canUseGifAvatar();
+
+  document.getElementById("gifUploadButton").disabled =
+    !allowed;
+
+  document.getElementById("gifUploadButton").textContent =
+    allowed
+      ? "Upload GIF Avatar"
+      : "GIF Avatar unlocks at VIP 6";
+}
+
+function updateVIP(){
+  const vip = getVIP(userEXP);
+  const next = getNextVIP(userEXP);
+
+  document.getElementById("expText").textContent =
+    `${userEXP} / ${next ? next.exp : "MAX"} EXP`;
+
+  document.getElementById("currentLevel").textContent =
+    `VIP ${vip.level}`;
+
+  document.getElementById("nextLevel").textContent =
+    next ? `VIP ${next.level}` : "MAX VIP";
+
+  document.getElementById("badgeLevel").textContent =
+    `VIP ${vip.level}`;
+
+  document.getElementById("badgeName").textContent =
+    vip.name;
+
+  document.getElementById("badgeExp").textContent =
+    `Exp ${vip.exp}`;
+
+  let percent = 100;
+
+  if(next){
+    percent =
+      ((userEXP - vip.exp) / (next.exp - vip.exp)) * 100;
+  }
+
+  document.getElementById("progressFill").style.width =
+    `${percent}%`;
+
+  document.getElementById("vipDaysLeft").textContent =
+    `${getDaysLeft()} days left`;
+
+  renderPrivileges(vip.level);
+  updateProfileVIP();
+  updateGifAccess();
+
+  document.getElementById("vipContainer").classList.toggle(
+    "vip10",
+    vip.level === 10
+  );
+}
+
+async function addRecharge(amount){
+  await checkVIPPeriod();
+
+  const userID = await getCurrentUserID();
+
+  if(!userID || !profileLoaded){
+    alert("Please login first.");
+    return;
+  }
+
+  const exp = Math.floor((amount / 1000) * 100);
+  const previousVIP = getVIP(userEXP).level;
+
+  userEXP += exp;
+
+  const { error } = await supabase
+    .from("vip_profiles")
+    .update({
+      vip_exp:userEXP,
+      updated_at:new Date().toISOString()
+    })
+    .eq("user_id", userID);
+
+  if(error){
+    console.error(error);
+    alert("Could not save VIP EXP.");
+    return;
+  }
+
+  await addHistory(
+    `Recharge ${amount} Points`,
+    `+${exp} EXP`
+  );
+
+  const newVIP = getVIP(userEXP).level;
+
+  if(newVIP > previousVIP){
+    await addHistory(
+      `VIP ${newVIP} Unlocked`,
+      "Success"
+    );
+  }
+
+  updateVIP();
+
+  alert(
+    `${amount} recharge added.\n` +
+    `${exp} VIP EXP received.`
+  );
+}
+
+const gifInput = document.getElementById("gifAvatarInput");
+const profileAvatar = document.getElementById("avatar");
+
+async function uploadGifAvatar(file){
+  if(!canUseGifAvatar()){
+    alert("GIF Avatar is available from VIP 6.");
+    gifInput.value = "";
+    return;
+  }
+
+  if(!file || file.type !== "image/gif"){
+    alert("Please select a GIF file.");
+    gifInput.value = "";
+    return;
+  }
+
+  const userID = await getCurrentUserID();
+
+  if(!userID){
+    alert("Please login first.");
+    return;
+  }
+
+  const filePath = `${userID}/avatar.gif`;
+
+  const { error } = await supabase.storage
+    .from("avatars")
+    .upload(filePath, file, {
+      upsert:true
+    });
+
+  if(error){
+    console.error(error);
+    alert("GIF upload failed.");
+    return;
+  }
+
+  const { data } = supabase.storage
+    .from("avatars")
+    .getPublicUrl(filePath);
+
+  const { error: updateError } = await supabase
+    .from("vip_profiles")
+    .update({
+      gif_avatar_url:data.publicUrl,
+      updated_at:new Date().toISOString()
+    })
+    .eq("user_id", userID);
+
+  if(updateError){
+    console.error(updateError);
+    alert("Could not save GIF avatar.");
+    return;
+  }
+
+  profileAvatar.src = data.publicUrl;
+  alert("GIF Avatar updated.");
+}
+
+gifInput.addEventListener("change", function(){
+  const file = gifInput.files[0];
+
+  if(file){
+    uploadGifAvatar(file);
+  }
+});
+
+function toggleModal(id){
+  document.getElementById(id).classList.toggle("active");
+}
+
+function closeOnOverlay(event, id){
+  if(event.target.id === id){
+    toggleModal(id);
+  }
+}
+
+async function initVIPCenter(){
+  await getCurrentUser();
+
+  if(!currentUser){
+    alert("Please login to use VIP Center.");
+    return;
+  }
+
+  const loaded = await loadVIPProfile();
+
+  if(!loaded) return;
+
+  await loadHistory();
+  await checkVIPPeriod();
+  updateVIP();
+}
+
+initVIPCenter();
+</script>
+
+</body>
+</html>
