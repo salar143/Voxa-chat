@@ -977,7 +977,9 @@ E('logoutSwitch').addEventListener('change',async e=>{
  try{await logout()}catch(error){e.target.checked=false;err(messageOf(error))}
 });
 init();
- 
+ function openVIPCenter(){
+  window.location.href = "vip-center.html";
+ }
 </script>
 </body>
 </html>
