@@ -1,0 +1,211 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VoxaChat VIP Center</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><style>
+:root{color-scheme:dark;--gold:#ffdf86}*{box-sizing:border-box}body{margin:0;background:#07090c;color:#eee;font:14px Arial,sans-serif}button{color:inherit;font:inherit;cursor:pointer}main{max-width:460px;margin:auto;padding-bottom:130px;min-height:100vh;background:radial-gradient(at 50% 0,#33434a88,transparent 50%),#090b0f}header{display:flex;align-items:center;gap:10px;height:86px;padding:14px}header h1{font-size:19px;text-align:center;flex:1}.round{border:1px solid #ffffff20;border-radius:50%;background:#ffffff0a;width:35px;height:35px}.profile{margin:12px;padding:18px;border-radius:20px 44px 18px 18px;color:#345369;background:linear-gradient(140deg,#f1f5ff,#c0c8f5 50%,#75a9c0);border:1px solid #fff8}.identity{display:flex;align-items:center;gap:12px}.avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;background:#182631;color:white;display:grid;place-items:center}.identity small{display:block;margin-top:5px;font-size:10px;overflow-wrap:anywhere}.row{display:flex;align-items:center;gap:8px;margin:10px 0}.bar{flex:1;height:6px;background:#fff8;border-radius:10px;overflow:hidden}.fill{height:100%;width:0;background:#35849f}.meta{display:flex;justify-content:space-between;gap:10px;font-size:10px;line-height:1.5}.tabs{display:flex;overflow:auto;gap:7px;padding:15px 12px;scrollbar-width:none}.tabs button{white-space:nowrap;border:1px solid #ffffff20;border-radius:18px;background:#ffffff09;padding:7px 12px;color:#aaa}.tabs .active{color:var(--gold);border-color:#ab9154}.carousel{position:relative;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 22%;scrollbar-width:none}.slide{flex:0 0 100%;scroll-snap-align:center;text-align:center;padding:12px 0;opacity:.35;transform:scale(.8);transition:.2s}.slide.active{opacity:1;transform:scale(1)}.badge{width:100%;height:190px;object-fit:contain}.missing{height:190px;display:grid;place-content:center;color:#b7aa8a;border:1px dashed #ffffff22;border-radius:22px;font-size:12px;line-height:1.6;padding:15px}.slide h2{font-size:16px;margin:5px}.slide p{font-size:11px;color:#999}.hint,.notice{font-size:11px;color:#b3a78e;line-height:1.6;padding:0 14px}.hint{text-align:center}.title{font-size:13px;text-align:center;border-top:1px solid #b69b5a55;padding:15px;margin:0;color:#c5bfae}.dressing{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:8px 12px 20px;background:linear-gradient(#4c606944,transparent)}.dress{border:1px solid #ffffff30;border-radius:12px;background:#ffffff08;padding:8px 2px;min-width:0}.dress img{width:100%;height:65px;object-fit:contain}.dress span{display:block;font-size:9px;line-height:1.6}.placeholder{height:65px;display:grid!important;place-items:center;color:#7e8089}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px 7px;padding:16px 10px}.priv{border:0;background:transparent;min-height:112px;padding:0 3px;text-align:center}.disc{width:54px;height:54px;display:grid;place-items:center;margin:0 auto 9px;border-radius:50%;border:1px solid #aa8c6e;background:radial-gradient(at 30% 10%,#72716a99,#191b21);color:#e8c4a0;font-size:14px}.locked .disc{opacity:.27;filter:grayscale(1)}.name{display:block;font-size:10px;line-height:1.5}.status{display:block;font-size:9px;color:#ad9f88;margin-top:4px}.locked .name{color:#73737d}.wallet{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px}.balance{background:#ffffff07;border:1px solid #ffffff20;border-radius:13px;padding:12px 5px;text-align:center;font-size:11px}.balance strong{display:block;color:var(--gold);font-size:25px;margin-bottom:6px}.footer{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,460px);padding:16px 32px calc(16px + env(safe-area-inset-bottom));background:linear-gradient(transparent,#090b0e 25%)}.recharge{border:0;border-radius:30px;background:linear-gradient(90deg,#ffcb48,#fff0a3);color:#65431e;padding:17px;width:100%;font-weight:bold}.tools{text-align:center;padding:15px}.tools button,.action{background:#292820;border:1px solid #80704d;border-radius:10px;padding:10px;margin:4px}.notice:empty{display:none}dialog{width:min(92%,420px);max-height:82vh;overflow:auto;border:1px solid #756348;border-radius:18px;background:#16191f;color:#eee;padding:20px}dialog::backdrop{background:#000b}dialog p{white-space:pre-line;font-size:13px;line-height:1.7}dialog img{max-width:100%;max-height:250px;display:block;margin:auto}dialog h2{font-size:18px}video{width:100%}@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style></head><body><main><header><button class="round" id="back" aria-label="Back">←</button><h1>VIP Center</h1><button class="round" id="history" aria-label="Records">◷</button><button class="round" id="help" aria-label="Help">?</button></header><section class="profile"><div class="identity"><div class="avatar" id="avatar">?</div><div><strong id="username">Loading…</strong><small id="userid">—</small></div></div><div class="meta" style="margin-top:12px"><span id="exp">— EXP</span><span id="own">—</span></div><div class="row"><span id="from">—</span><div class="bar"><div class="fill" id="fill"></div></div><span id="to">—</span></div><div class="meta"><span id="validity">—</span><span id="remaining">—</span></div></section><p class="notice" id="notice" role="status"></p><nav class="tabs" id="tabs" aria-label="VIP levels"></nav><section class="carousel" id="carousel" tabindex="0" aria-label="VIP previews"></section><p class="hint" id="hint"></p><h3 class="title">Level dressing up</h3><section class="dressing" id="dressing"></section><h3 class="title" id="count">Privileges</h3><section class="grid" id="grid"></section><h3 class="title">My cards</h3><section class="wallet" id="wallet"></section><p class="hint" id="schedule"></p><div class="tools"><button id="refresh">Refresh VIP & cards</button><button id="expiry">Card expiry details</button></div><div class="footer"><button class="recharge" id="recharge">Recharge Now</button></div></main><dialog id="modal"><button class="round" id="close" style="float:right" aria-label="Close">×</button><h2 id="title"></h2><div id="body"></div></dialog><script>
+const CONFIG={
+  "supabaseUrl": "https://mblcbygpqbogmtzacbtz.supabase.co",
+  "supabaseKey": "sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV",
+  "rechargeUrl": "",
+  "backUrl": "index.html",
+  "levels": [
+    {
+      "level": 1,
+      "exp": 1000,
+      "badgeImage": "assets/vip/badge-1.webp"
+    },
+    {
+      "level": 2,
+      "exp": 1500,
+      "badgeImage": "assets/vip/badge-2.webp"
+    },
+    {
+      "level": 3,
+      "exp": 2500,
+      "badgeImage": "assets/vip/badge-3.webp"
+    },
+    {
+      "level": 4,
+      "exp": 4000,
+      "badgeImage": "assets/vip/badge-4.webp"
+    },
+    {
+      "level": 5,
+      "exp": 6000,
+      "badgeImage": "assets/vip/badge-5.webp"
+    },
+    {
+      "level": 6,
+      "exp": 10000,
+      "badgeImage": "assets/vip/badge-6.webp"
+    },
+    {
+      "level": 7,
+      "exp": 25000,
+      "badgeImage": "assets/vip/badge-7.webp"
+    },
+    {
+      "level": 8,
+      "exp": 50000,
+      "badgeImage": "assets/vip/badge-8.webp"
+    },
+    {
+      "level": 9,
+      "exp": 100000,
+      "badgeImage": "assets/vip/badge-9.webp"
+    },
+    {
+      "level": 10,
+      "exp": 200000,
+      "badgeImage": "assets/vip/badge-10.webp"
+    }
+  ],
+  "privileges": [
+    {
+      "id": "perk-1-1",
+      "name": "VIP Badge",
+      "unlock": 1
+    },
+    {
+      "id": "perk-1-2",
+      "name": "Avatar Frame",
+      "unlock": 1
+    },
+    {
+      "id": "perk-1-3",
+      "name": "Chat Bubble",
+      "unlock": 1
+    },
+    {
+      "id": "perk-1-4",
+      "name": "Profile Card",
+      "unlock": 1
+    },
+    {
+      "id": "perk-1-5",
+      "name": "Normal Entry",
+      "unlock": 1
+    },
+    {
+      "id": "perk-2-1",
+      "name": "Custom Avatar",
+      "unlock": 2
+    },
+    {
+      "id": "perk-2-2",
+      "name": "Join Alert",
+      "unlock": 2
+    },
+    {
+      "id": "perk-3-1",
+      "name": "Mic Effect",
+      "unlock": 3
+    },
+    {
+      "id": "perk-3-2",
+      "name": "Mute Protection",
+      "unlock": 3
+    },
+    {
+      "id": "perk-4-1",
+      "name": "Name Color",
+      "unlock": 4
+    },
+    {
+      "id": "perk-4-2",
+      "name": "Store Discount",
+      "unlock": 4
+    },
+    {
+      "id": "perk-5-1",
+      "name": "Room Background",
+      "unlock": 5
+    },
+    {
+      "id": "perk-5-2",
+      "name": "Bubble Effects",
+      "unlock": 5
+    },
+    {
+      "id": "perk-6-1",
+      "name": "GIF Avatar",
+      "unlock": 6
+    },
+    {
+      "id": "perk-6-2",
+      "name": "Premium Gifts",
+      "unlock": 6
+    },
+    {
+      "id": "perk-6-3",
+      "name": "Royal Entry",
+      "unlock": 6
+    },
+    {
+      "id": "perk-7-1",
+      "name": "Kick Protection",
+      "unlock": 7
+    },
+    {
+      "id": "perk-7-2",
+      "name": "Kick Cards",
+      "unlock": 7
+    },
+    {
+      "id": "perk-7-3",
+      "name": "Global Message Blast Cards",
+      "unlock": 7
+    },
+    {
+      "id": "perk-7-4",
+      "name": "Room Message Card",
+      "unlock": 7
+    },
+    {
+      "id": "perk-8-1",
+      "name": "Stealth Mode",
+      "unlock": 8
+    },
+    {
+      "id": "perk-8-2",
+      "name": "Room Broadcast",
+      "unlock": 8
+    },
+    {
+      "id": "perk-9-1",
+      "name": "Special ID Style",
+      "unlock": 9
+    },
+    {
+      "id": "perk-10-1",
+      "name": "Crown Bubble",
+      "unlock": 10
+    },
+    {
+      "id": "perk-10-2",
+      "name": "Gold Diamond Frame",
+      "unlock": 10
+    },
+    {
+      "id": "perk-10-3",
+      "name": "Luxury Profile Card",
+      "unlock": 10
+    }
+  ]
+};
+const $=id=>document.getElementById(id);let client=null,user=null,state=null,selected=1,busy=false;
+const make=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e};
+function safe(v){if(!v)return '';try{const u=new URL(v,location.href);return ['https:','http:'].includes(u.protocol)?u.href:''}catch{return ''}}
+function picture(src,alt,height){const e=make('img');e.src=src;e.alt=alt;if(height)e.style.height=height+'px';e.onerror=()=>e.replaceWith(make('div','Artwork not installed','missing'));return e}
+function modal(title,body){$('title').textContent=title;$('body').replaceChildren(typeof body==='string'?make('p',body):body);if(!$('modal').open)$('modal').showModal()}
+$('close').onclick=()=>$('modal').close();$('modal').onclick=e=>{if(e.target===$('modal'))$('modal').close()};$('back').onclick=()=>{if(window.history.length>1)window.history.back();else location.href=CONFIG.backUrl};
+function active(){const a=state?.account;return !!a&&Date.now()>=Date.parse(a.period_start)&&Date.now()<Date.parse(a.period_end)}
+function actual(){return active()?state.level:0}
+function center(l,behavior='smooth'){const c=$('carousel'),s=c.children[l-1];c.scrollTo({left:s.offsetLeft-(c.clientWidth-s.clientWidth)/2,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':behavior})}
+function choose(l,move=true){selected=l;[...$('tabs').children].forEach((e,i)=>{e.classList.toggle('active',i+1===l);e.setAttribute('aria-pressed',String(i+1===l))});[...$('carousel').children].forEach((e,i)=>e.classList.toggle('active',i+1===l));if(move)center(l);details()}
+function details(){const own=actual();$('hint').textContent=`Preview VIP ${selected} · Your VIP ${own} · Preview does not upgrade your account`;$('dressing').replaceChildren();for(const kind of ['frame','entry','profile','badge']){const item=state?.items?.find(i=>i.level===selected&&i.kind===kind),b=make('button',undefined,'dress');if(safe(item?.asset_url))b.append(picture(safe(item.asset_url),item.name,65));else b.append(make('span','Asset pending','placeholder'));b.append(make('span',kind==='entry'?`${selected<=5?'Normal':'Royal'} Entry ${selected}`:`VIP ${selected} ${kind}`));b.onclick=()=>item?itemDialog(item):modal('Asset pending','Install SQL and configure original artwork first.');$('dressing').append(b)}$('count').textContent=`Privileges (${CONFIG.privileges.filter(p=>p.unlock<=selected).length}/${CONFIG.privileges.length})`;$('grid').replaceChildren();CONFIG.privileges.forEach(p=>{const unlocked=p.unlock<=selected,b=make('button',undefined,'priv'+(unlocked?'':' locked'));b.append(make('span',unlocked?p.name.split(' ').map(s=>s[0]).join('').slice(0,3):'🔒','disc'),make('span',p.name,'name'),make('span',unlocked?'Unlocked at selected level':`Unlock at VIP ${p.unlock}`,'status'));b.onclick=()=>modal(p.name,`Available from VIP ${p.unlock}.\n${own>=p.unlock?'Your active VIP meets this requirement.':'Your account does not currently meet this requirement.'}\n\n${p.name.includes('Entry')?'VIP 1–5 have distinct Normal Entries. VIP 6–10 have distinct Royal Entries. Original animations must be installed.':p.name.includes('Card')?'See My cards for authoritative balance and expiry. Actual use takes place in the connected room/global feature.':'This privilege must be enforced and rendered in its destination feature.'}`);$('grid').append(b)})}
+function itemDialog(i){const body=make('div');if(safe(i.animation_url)){const v=make('video');v.src=safe(i.animation_url);v.controls=true;v.playsInline=true;v.loop=true;body.append(v)}else if(safe(i.asset_url))body.append(picture(safe(i.asset_url),i.name));else body.append(make('p','Original artwork/animation has not been installed. No fake artwork is substituted.'));const eq=state?.equipped?.some(e=>e.item_id===i.id);body.append(make('p',`Requires VIP ${i.level}. ${eq?'Equipped.':''}`));if(i.kind==='badge')body.append(make('p','Badge follows your actual VIP automatically; previewing a higher badge does not equip it.'));else{const b=make('button',eq?'Equipped':'Equip','action');b.disabled=actual()<i.level||(!i.asset_url&&!i.animation_url)||eq;b.onclick=async()=>{b.disabled=true;try{const {error}=await client.rpc('voxa_vip_equip',{p_item:i.id});if(error)throw error;await refresh();modal('Equipped','Selection saved. Room/profile/chat integration must read this selection to render it.')}catch(e){b.disabled=false;modal('Could not equip',e.message)}};body.append(b)}modal(i.name,body)}
+function render(){const a=state?.account,m=user?.user_metadata||{},name=m.display_name||m.full_name||m.username||'User';$('username').textContent=user?name:'Not signed in';$('userid').textContent=user?'ID: '+(m.public_id||user.id):'—';$('avatar').replaceChildren();if(safe(m.avatar_url)){const im=picture(safe(m.avatar_url),name,48);im.className='avatar';$('avatar').append(im)}else $('avatar').textContent=user?name.slice(0,1).toUpperCase():'?';const own=actual(),exp=active()?Number(a.exp):0,rules=state?.rules||CONFIG.levels.map(l=>({level:l.level,exp_required:l.exp})),next=rules.find(r=>r.exp_required>exp),base=rules.find(r=>r.level===own)?.exp_required||0,pct=next?Math.max(0,Math.min(100,(exp-base)/(next.exp_required-base)*100)):100;$('exp').textContent=a?`${exp.toLocaleString()} / ${next?Number(next.exp_required).toLocaleString():'MAX'} EXP`:'No VIP period';$('own').textContent='VIP '+own;$('from').textContent='LV'+own;$('to').textContent=next?'LV'+next.level:'MAX';$('fill').style.width=(a?pct:0)+'%';$('validity').textContent=a?`Valid until: ${new Date(a.period_end).toLocaleString()}${active()?'':' · Inactive'}`:'No active VIP';$('remaining').textContent=next?`${Math.max(0,next.exp_required-exp).toLocaleString()} EXP to level up`:'Maximum VIP';$('wallet').replaceChildren();for(const [kind,label] of [['kick','Kick Cards'],['global','Global Blast'],['room','Room Message']]){const cards=state?.cards||[],n=active()?cards.filter(c=>c.kind===kind&&Date.parse(c.expires_at)>Date.now()).reduce((s,c)=>s+c.quantity-c.used,0):0,b=make('div',undefined,'balance');b.append(make('strong',String(n)),make('span',label));$('wallet').append(b)}const quota={7:3,8:5,9:7,10:10}[selected];$('schedule').textContent=quota?`VIP ${selected}: ${quota} Kick + ${quota} Global Blast each week; 1 Room Message each day. Each card expires after 7 days.`:'Cards start at VIP 7.';details()}
+async function refresh(initial=false){if(busy)return;busy=true;$('refresh').disabled=true;try{if(!client)throw Error('Supabase library failed to load.');const {data,error}=await client.auth.getUser();if(error)throw error;user=data.user;state=null;if(!user){$('notice').textContent='Log in on this same website. Previews remain available.';render();return}const result=await client.rpc('voxa_vip_state');if(result.error)throw result.error;state=result.data;$('notice').textContent=state.account?'':'No authoritative VIP account yet. Existing profiles require reviewed backend migration; no demo EXP is assigned.';render();if(initial)choose(Math.max(1,actual()));}catch(e){state=null;$('notice').textContent=e.message+' · Apply reviewed SQL setup; previews remain available.';render()}finally{busy=false;$('refresh').disabled=false}}
+CONFIG.levels.forEach(l=>{const b=make('button',`VIP ${l.level}`);b.onclick=()=>choose(l.level);$('tabs').append(b);const s=make('article',undefined,'slide'),im=picture(safe(l.badgeImage),`VIP ${l.level} metallic badge`);im.className='badge';s.append(im,make('h2',`VIP ${l.level}`),make('p',`EXP ${l.exp.toLocaleString()}`));$('carousel').append(s)});let timer;$('carousel').onscroll=()=>{clearTimeout(timer);timer=setTimeout(()=>{const r=$('carousel').getBoundingClientRect(),middle=r.left+r.width/2;let nearest=1,distance=Infinity;[...$('carousel').children].forEach((s,i)=>{const a=s.getBoundingClientRect(),d=Math.abs(a.left+a.width/2-middle);if(d<distance){distance=d;nearest=i+1}});choose(nearest,false);render()},120)};$('carousel').onkeydown=e=>{if(['ArrowRight','ArrowLeft'].includes(e.key)){e.preventDefault();choose(Math.max(1,Math.min(10,selected+(e.key==='ArrowRight'?1:-1))))}};window.onresize=()=>center(selected,'auto');
+$('refresh').onclick=()=>refresh();$('recharge').onclick=()=>{if(safe(CONFIG.rechargeUrl))location.href=safe(CONFIG.rechargeUrl);else modal('Recharge','Real payment flow not connected. Set CONFIG.rechargeUrl. Only verified server-side payment processing may credit VIP EXP.')};$('history').onclick=()=>modal('VIP Record',state?.records?.length?state.records.map(r=>`${new Date(r.created_at).toLocaleString()} · ${r.title}`).join('\n'):'No records loaded.');$('expiry').onclick=()=>modal('Card batches',state?.cards?.length?state.cards.map(c=>`${c.kind}: ${c.quantity-c.used} remaining\nExpires: ${new Date(c.expires_at).toLocaleString()}`).join('\n\n'):'No unexpired card batches.');$('help').onclick=()=>modal('VIP rules','VIP 1–5: individual Normal Entries. VIP 6–10: individual Royal Entries.\nVIP 7–10: owner-only kick exception; Kick Card cannot bypass protected VIP or room owner. Users may leave voluntarily.\nWeekly Kick/Global cards: 3,5,7,10. Daily Room card: 1. Card validity: 7 days. VIP period: 95 days.\nOriginal assets and room/payment integration are not installed by this page.');
+choose(1,false);render();requestAnimationFrame(()=>center(1,'auto'));if(window.supabase){client=window.supabase.createClient(CONFIG.supabaseUrl,CONFIG.supabaseKey);client.auth.onAuthStateChange(e=>{if(e==='SIGNED_OUT'){user=null;state=null;render()}})}refresh(true);setInterval(()=>{if(state)render()},30000);
+</script></body></html>
