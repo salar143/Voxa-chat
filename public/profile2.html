@@ -217,7 +217,9 @@ input,textarea,select{width:100%;padding:11px;border-radius:11px;border:1px soli
    <div class="mitem" onclick="alert('Relationship coming soon!')"><span class="mi">💞</span>Relationship</div>
    <div class="mitem" onclick="alert('Wallet coming soon!')"><span class="mi">👛</span>Wallet</div>
    <div class="mitem" onclick="alert('Noble coming soon!')"><span class="mi">🎩</span>Noble</div>
-   <div class="mitem" onclick="alert('VIP Center coming soon!')"><span class="mi">👑</span>VIP Center</div>
+   <div class="mitem" onclick="openVIPCenter()">
+  <span class="mi">👑</span>VIP Center
+   </div>
    <div class="mitem" onclick="alert('Backpack coming soon!')"><span class="mi">🎒</span>Backpack</div>
    <div class="mitem" onclick="alert('Room Premium coming soon!')"><span class="mi">🏠</span>Room Premium</div>
    <div class="mitem" onclick="alert('Matchmaker coming soon!')"><span class="mi">💘</span>Matchmaker</div>
@@ -975,6 +977,7 @@ E('logoutSwitch').addEventListener('change',async e=>{
  try{await logout()}catch(error){e.target.checked=false;err(messageOf(error))}
 });
 init();
+ 
 </script>
 </body>
 </html>
