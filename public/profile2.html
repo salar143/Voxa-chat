@@ -158,22 +158,75 @@ input,textarea,select{width:100%;padding:11px;border-radius:11px;border:1px soli
 </div>
 <div class="err" id="err" role="alert"></div>
 
-<div class="pcard">
- <div class="pbg" id="pbg"><div class="bgavatar" id="bgAv">🧑</div></div>
+ <div class="pcard">
+ <div class="pbg" id="pbg">
+  <div class="bgavatar" id="bgAv">🧑</div>
+ </div>
+
  <div class="pbody">
   <div class="prow">
    <div class="pleft">
     <div class="avatar">
-     <span id="pAv">👤</span><div class="ring" id="ring"></div>
+     <span id="pAv">👤</span>
+     <div class="ring" id="ring"></div>
     </div>
-    <h2 id="pName" style="font-size:16px;margin-top:6px">Loading...</h2>
-    <div id="genderBadge" class="gender-badge" style="margin-top:4px">⚧ —</div>
-    <div class="uid" style="margin-top:4px">ID: <span id="pUid">—</span></div>
-    <div id="profileBadges" class="profile-badges" hidden>
-  <span id="profileVipBadge" class="profile-vip-badge">
-    <span class="vip-crown" aria-hidden="true">♛</span>
-    <span id="profileVipText"></span>
-  </span>
+
+    <h2 id="pName" style="font-size:16px;margin-top:6px">
+     Loading...
+    </h2>
+
+    <div id="genderBadge"
+         class="gender-badge"
+         style="margin-top:4px">⚧ —</div>
+
+    <div class="uid" style="margin-top:4px">
+     ID: <span id="pUid">—</span>
+    </div>
+
+    <div id="profileBadges"
+         class="profile-badges"
+         hidden
+         style="margin-top:10px;">
+
+     <span id="profileVipBadge"
+           style="
+             display:inline-flex;
+             align-items:center;
+             justify-content:center;
+             gap:7px;
+             min-width:100px;
+             padding:5px 14px;
+             box-sizing:border-box;
+             border:2px solid #d9ac49;
+             border-radius:5px;
+             background:linear-gradient(
+               135deg,#071528,#164b77,#061426
+             );
+             box-shadow:
+               inset 0 0 0 1px #ffe9a3,
+               0 2px 5px rgba(0,0,0,.3);
+           ">
+
+      <span aria-hidden="true"
+            style="
+              color:#ffd76a;
+              font-size:25px;
+              line-height:1;
+              text-shadow:0 1px 3px #000;
+            ">♛</span>
+
+      <span id="profileVipText"
+            style="
+              color:#ffe49a;
+              font-family:Georgia,serif;
+              font-size:16px;
+              font-weight:900;
+              font-style:italic;
+              letter-spacing:1px;
+              text-shadow:0 1px 3px #000;
+            "></span>
+
+     </span>
     </div>
    </div>
   </div>
