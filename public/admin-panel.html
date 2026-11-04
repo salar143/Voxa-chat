@@ -264,7 +264,8 @@ h3 { font-size: 15px; }
     grid-template-columns: 1fr;
   }
 }
-</style>
+  </style>
+  
 </head>
 
 <body>
@@ -386,7 +387,7 @@ h3 { font-size: 15px; }
           </p>
         </div>
       </section>
-      
+
       <section id="moderation" class="section">
         <h1>Moderation</h1>
 
@@ -462,11 +463,12 @@ h3 { font-size: 15px; }
 
 <script>
 /*
-  Replace these placeholders with your Supabase project URL
-  and publishable/anon key. Never use the service-role key here.
+  Use your Supabase project URL and publishable/anon key.
+  Never put a service-role or secret key in browser code.
 */
 const SUPABASE_URL = "https://mblcbygpqbogmtzacbtz.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV";
+
 const configured =
   SUPABASE_URL.startsWith("https://") &&
   !SUPABASE_URL.includes("YOUR_SUPABASE") &&
@@ -606,6 +608,7 @@ async function refreshSession() {
 }
 
 $("loginForm").addEventListener("submit", async event => {
+  
   event.preventDefault();
 
   if (!db) {
@@ -617,17 +620,21 @@ $("loginForm").addEventListener("submit", async event => {
 
   showLoginMessage("Signing in...");
 
-  const { error } = await db.auth.signInWithPassword({
-    email: $("email").value.trim(),
-    password: $("password").value
-  });
+  try {
+    const { error } = await db.auth.signInWithPassword({
+      email: $("email").value.trim(),
+      password: $("password").value
+    });
 
-  if (error) {
-    showLoginMessage(error.message);
-    return;
+    if (error) {
+      showLoginMessage(error.message);
+      return;
+    }
+
+    await refreshSession();
+  } catch (error) {
+    showLoginMessage(error.message || "Sign-in failed.");
   }
-
-  await refreshSession();
 });
 
 $("logoutBtn").addEventListener("click", async () => {
@@ -638,12 +645,6 @@ $("logoutBtn").addEventListener("click", async () => {
   $("loginScreen").classList.remove("hidden");
   showLoginMessage("Signed out.");
 });
-
-/*
-  Part 3 adds the action handlers and closes the HTML document.
-*/
-</script>
-
 
 async function callRpc(name, args) {
   if (!db || !verifiedRole) {
@@ -839,5 +840,3 @@ if (
 </script>
 </body>
 </html>
-        
-  
