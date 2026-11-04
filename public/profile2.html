@@ -641,7 +641,44 @@ function setSelect(id,value,fallback){const s=E(id),v=value||fallback;if(![...s.
 function minLvl(v){return Math.max(10,Number(v)||10)}
 function wallet(){E('wD').textContent=me?.diamonds??'—';E('wC').textContent=me?.coins??'—';E('walletSummary').style.visibility=isOwner?'visible':'hidden'}
 function soulCount(){const l=Number(profileUser?.active_level)||10;return l>=30?12:l>=20?9:l>=10?6:3}
+async function loadProfileVipBadge(profileId) {
+  const box = document.getElementById('profileBadges');
+  const text = document.getElementById('profileVipText');
 
+  if (!box || !text) return;
+
+  box.hidden = true;
+  text.textContent = '';
+
+  if (!profileId) return;
+
+  try {
+    const { data, error } = await sb
+      .from('vip_accounts')
+      .select('level, period_end')
+      .eq('user_id', profileId)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    const level = Number(data?.level);
+    const expiry = Date.parse(data?.period_end || '');
+
+    if (
+      Number.isInteger(level) &&
+      level >= 1 &&
+      level <= 10 &&
+      Number.isFinite(expiry) &&
+      expiry > Date.now()
+    ) {
+      text.textContent = 'VIP ' + level;
+      box.hidden = false;
+    }
+  } catch (error) {
+    console.error('VIP badge:', error);
+    err('VIP badge load nahi hua: ' + error.message);
+  }
+}
 async function init(){
  fillAllDropdowns();
  try{
