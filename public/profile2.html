@@ -723,6 +723,7 @@ async function init(){
  if(photo){av.style.cssText='width:100%;height:100%;display:block';av.appendChild(photo)}
  else{av.removeAttribute('style');av.textContent=u.dp||'👤'}
  E('pName').textContent=u.name||'User';E('pUid').textContent=u.uid??'—';
+  void loadProfileVipBadge(u.id);
  const g=String(u.gender||'').toLowerCase(),gb=E('genderBadge');
  gb.className='gender-badge'+(['male','female'].includes(g)?' '+g:'');
  gb.textContent=(g==='male'?'♂ ':g==='female'?'♀ ':'⚧ ')+(u.age??'—');
