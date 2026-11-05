@@ -690,56 +690,172 @@ function fillAllDropdowns(){
  fillSelect('foodSel','— Select Food —',FOODS);
  fillSelect('actSel','— Select Activity —',ACTS);
 }
-function setSelect(id,value,fallback){const s=E(id),v=value||fallback;if(![...s.options].some(o=>o.value===v))s.add(new Option(v,v));s.value=v}
-function minLvl(v){return Math.max(10,Number(v)||10)}
-function wallet(){E('wD').textContent=me?.diamonds??'—';E('wC').textContent=me?.coins??'—';E('walletSummary').style.visibility=isOwner?'visible':'hidden'}
-function soulCount(){const l=Number(profileUser?.active_level)||10;return l>=30?12:l>=20?9:l>=10?6:3}
-async function loadProfileVipBadge(profileId) {
-  const box = document.getElementById('profileBadges');
-  const text = document.getElementById('profileVipText');
-
-  if (!box || !text) return;
-
-  box.hidden = true;
-  text.textContent = '';
-
-  if (!profileId) return;
-
-  try {
-    const { data, error } = await sb
-      .from('vip_accounts')
-      .select('level, period_end')
-      .eq('user_id', profileId)
-      .maybeSingle();
-
-    if (error) throw error;
-
-    const level = Number(data?.level);
-    const expiry = Date.parse(data?.period_end || '');
-
-    if (
-      Number.isInteger(level) &&
-      level >= 1 &&
-      level <= 10 &&
-      Number.isFinite(expiry) &&
-      expiry > Date.now()
-    ) {
-      text.textContent = 'VIP ' + level;
-      box.hidden = false;
-    }
-  } catch (error) {
-    console.error('VIP badge:', error);
-    err('VIP badge load nahi hua: ' + error.message);
-  }
+function setSelect(id,value,fallback){
+ const s=E(id),v=value||fallback;
+ if(![...s.options].some(o=>o.value===v)){
+  s.add(new Option(v,v));
+ }
+ s.value=v;
 }
+
+function minLvl(v){
+ return Math.max(10,Number(v)||10);
+}
+
+function wallet(){
+ E('wD').textContent=me?.diamonds??'—';
+ E('wC').textContent=me?.coins??'—';
+ E('walletSummary').style.visibility=isOwner?'visible':'hidden';
+}
+
+function soulCount(){
+ const l=Number(profileUser?.active_level)||10;
+ return l>=30?12:l>=20?9:l>=10?6:3;
+}
+
+/* VIP Center se original badge images padho */
+let vipArtworkPromise=null;
+let profileVipRequest=0;
+
+function loadVipArtwork(){
+ if(!vipArtworkPromise){
+  vipArtworkPromise=(async()=>{
+   const response=await fetch('/vip-center.html',{
+    cache:'no-cache'
+   });
+
+   if(!response.ok){
+    throw new Error('VIP Center file load nahi hui.');
+   }
+
+   const html=await response.text();
+
+   const match=html.match(
+    /\b(?:const|let|var)\s+EMBEDDED_BADGES\s*=\s*\[([\s\S]*?)\]/
+   );
+
+   if(!match){
+    throw new Error('Embedded badge images nahi mili.');
+   }
+
+   const badges=Array.from(
+    match[1].matchAll(
+     /["'`](data:image\/[^"'`\s]+)["'`]/g
+    ),
+    item=>item[1]
+   );
+
+   if(badges.length!==10){
+    throw new Error('VIP 1–10 ki poori badge list nahi mili.');
+   }
+
+   return badges;
+  })().catch(error=>{
+   vipArtworkPromise=null;
+   throw error;
+  });
+ }
+
+ return vipArtworkPromise;
+}
+
+/* Profile ke actual VIP level ka badge dikhao */
+async function loadProfileVipBadge(profileId){
+ const request=++profileVipRequest;
+ const box=document.getElementById('profileBadges');
+ const badge=document.getElementById('profileVipBadge');
+
+ if(!box||!badge)return;
+
+ box.hidden=true;
+
+ if(!profileId)return;
+
+ try{
+  const {data,error}=await sb
+   .from('vip_accounts')
+   .select('level, period_end')
+   .eq('user_id',profileId)
+   .maybeSingle();
+
+  if(request!==profileVipRequest)return;
+  if(error)throw error;
+
+  const level=Number(data?.level);
+  const expiry=Date.parse(data?.period_end||'');
+
+  if(
+   !Number.isInteger(level)||
+   level<1||
+   level>10||
+   !Number.isFinite(expiry)||
+   expiry<=Date.now()
+  ){
+   return;
+  }
+
+  const images=await loadVipArtwork();
+
+  if(request!==profileVipRequest)return;
+
+  const image=document.createElement('img');
+  image.alt='VIP '+level;
+  image.style.cssText=
+   'display:block;width:120px;height:auto;object-fit:contain;';
+
+  image.onload=()=>{
+   if(request===profileVipRequest){
+    box.hidden=false;
+   }
+  };
+
+  image.onerror=()=>{
+   if(request!==profileVipRequest)return;
+   box.hidden=true;
+   err('VIP badge image load nahi hui.');
+  };
+
+  /* Purana text/crown design hata kar original image lagao */
+  badge.className='';
+  badge.style.cssText=
+   'display:inline-block;padding:0;border:0;'+
+   'background:none;box-shadow:none;min-width:0;';
+
+  badge.replaceChildren(image);
+  image.src=images[level-1];
+
+ }catch(error){
+  if(request!==profileVipRequest)return;
+  console.error('VIP badge:',error);
+  err('VIP badge load nahi hua: '+error.message);
+ }
+}
+
 async function init(){
  fillAllDropdowns();
  try{
-  const {data:{user},error}=await sb.auth.getUser();if(error)throw error;
-  if(!user){err('Please login first — go to the login page.');return}
-  const {data:own}=await db(sb.from('profiles').select(PROFILE_COLS).eq('id',user.id).maybeSingle());
-  if(!own){err('Tumhari profile record nahi mili. Signup/profile setup complete karo.');return}
+  const {data:{user},error}=await sb.auth.getUser();
+  if(error)throw error;
+
+  if(!user){
+   err('Please login first — go to the login page.');
+   return;
+  }
+
+  const {data:own}=await db(
+   sb.from('profiles')
+    .select(PROFILE_COLS)
+    .eq('id',user.id)
+    .maybeSingle()
+  );
+
+  if(!own){
+   err('Tumhari profile record nahi mili. Signup/profile setup complete karo.');
+   return;
+  }
+
   me={...own,email:user.email||''};
+
   if(own.deleted_at){
    err('Account deactivated hai. Recovery ke liye Official se contact karo.');
    return;
