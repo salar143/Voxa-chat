@@ -690,6 +690,7 @@ function fillAllDropdowns(){
  fillSelect('foodSel','— Select Food —',FOODS);
  fillSelect('actSel','— Select Activity —',ACTS);
 }
+
 function setSelect(id,value,fallback){
  const s=E(id),v=value||fallback;
  if(![...s.options].some(o=>o.value===v)){
@@ -713,53 +714,29 @@ function soulCount(){
  return l>=30?12:l>=20?9:l>=10?6:3;
 }
 
-/* VIP Center se original badge images padho */
-let vipArtworkPromise=null;
 let profileVipRequest=0;
 
-function loadVipArtwork(){
- if(!vipArtworkPromise){
-  vipArtworkPromise=(async()=>{
-   const response=await fetch('/vip-center.html',{
-    cache:'no-cache'
-   });
+/* VIP badge dikhao */
+function showProfileVipBadge(level){
+ const c=document.getElementById('profileVipBadge');
+ if(!c)return;
 
-   if(!response.ok){
-    throw new Error('VIP Center file load nahi hui.');
-   }
+ const v=Number(level);
 
-   const html=await response.text();
-
-   const match=html.match(
-    /\b(?:const|let|var)\s+EMBEDDED_BADGES\s*=\s*\[([\s\S]*?)\]/
-   );
-
-   if(!match){
-    throw new Error('Embedded badge images nahi mili.');
-   }
-
-   const badges=Array.from(
-    match[1].matchAll(
-     /["'`](data:image\/[^"'`\s]+)["'`]/g
-    ),
-    item=>item[1]
-   );
-
-   if(badges.length!==10){
-    throw new Error('VIP 1–10 ki poori badge list nahi mili.');
-   }
-
-   return badges;
-  })().catch(error=>{
-   vipArtworkPromise=null;
-   throw error;
-  });
+ if(!Number.isInteger(v)||v<1||v>10){
+  c.innerHTML='';
+  return;
  }
 
- return vipArtworkPromise;
+ c.innerHTML=`
+  <div class="vip-badge vip-${v}">
+   <span class="vip-star">★</span>
+   <span>VIP ${v}</span>
+  </div>
+ `;
 }
 
-/* Profile ke actual VIP level ka badge dikhao */
+/* Database se real VIP level lekar badge dikhao */
 async function loadProfileVipBadge(profileId){
  const request=++profileVipRequest;
  const box=document.getElementById('profileBadges');
@@ -794,36 +771,8 @@ async function loadProfileVipBadge(profileId){
    return;
   }
 
-  const images=await loadVipArtwork();
-
-  if(request!==profileVipRequest)return;
-
-  const image=document.createElement('img');
-  image.alt='VIP '+level;
-  image.style.cssText=
-   'display:block;width:120px;height:auto;object-fit:contain;';
-
-  image.onload=()=>{
-   if(request===profileVipRequest){
-    box.hidden=false;
-   }
-  };
-
-  image.onerror=()=>{
-   if(request!==profileVipRequest)return;
-   box.hidden=true;
-   err('VIP badge image load nahi hui.');
-  };
-
-  /* Purana text/crown design hata kar original image lagao */
-  badge.className='';
-  badge.style.cssText=
-   'display:inline-block;padding:0;border:0;'+
-   'background:none;box-shadow:none;min-width:0;';
-
-  badge.replaceChildren(image);
-  image.src=images[level-1];
-
+  showProfileVipBadge(level);
+  box.hidden=false;
  }catch(error){
   if(request!==profileVipRequest)return;
   console.error('VIP badge:',error);
