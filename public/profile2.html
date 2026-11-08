@@ -723,6 +723,24 @@ async function loadMe(){
 }
 loadMe();
 
+async function rechargeSuccess(amount){
+ try{
+  if(!me||!me.id){console.warn('me not loaded');return}
+  const {error:tErr}=await sb
+   .from('wallet_transactions')
+   .insert({user_id:me.id,type:'recharge',amount:Number(amount),currency:'diamonds',status:'completed'});
+  if(tErr)throw tErr;
+  const {data,error:uErr}=await sb
+   .from('profiles')
+   .update({diamonds:(Number(me.diamonds)||0)+Number(amount)})
+   .eq('id',me.id)
+   .select('diamonds,coins')
+   .maybeSingle();
+  if(uErr)throw uErr;
+  if(data){me.diamonds=data.diamonds;me.coins=data.coins;wallet();loadHistory()}
+ }catch(e){console.error('rechargeSuccess failed:',e)}
+}
+
 const NEED=[0,500,1500,3000,5000,8000,12000,17000,23000,30000,38000];
 const UNLOCKS=[
  ['L10','Shiny blue diamond leaf','Profile glow + entrance'],
