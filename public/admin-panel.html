@@ -792,21 +792,23 @@ $("unbanBtn").addEventListener("click", () =>
 );
 
 /* WALLET MANAGEMENT */
-$("addDiamondsBtn").addEventListener("click", () =>
-  runAction(async () => {
-    const target = getUuid("walletTarget");
-    const amount = Number($("diamondAmount").value);
-
-    if (!Number.isFinite(amount) || amount < 1) {
-      throw new Error("Enter a valid diamond amount.");
-    }
-
-    return await callRpc("voxa_add_diamonds", {
-      target_profile: target,
-      diamond_amount: amount
-    });
-  })
-);
+const addBtn = $("addDiamondsBtn") || [...document.querySelectorAll('button')].find(b => b.textContent.trim().toLowerCase() === 'add diamonds');
+if (addBtn) {
+  addBtn.addEventListener("click", () =>
+    runAction(async () => {
+      const target = getUuid("walletTarget") || (() => {
+        const inputs = [...document.querySelectorAll('input')];
+        const u = inputs.find(i => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(i.value.trim()));
+        if (!u) throw new Error('UUID input not found');
+        return u.value.trim();
+      })();
+      const amountInput = $("diamondAmount") || [...document.querySelectorAll('input')].find(i => !isNaN(Number(i.value)) && i.value.trim() !== '');
+      const amount = Number(amountInput.value);
+      if (!Number.isFinite(amount) || amount < 1) throw new Error("Enter a valid diamond amount.");
+      return await callRpc("voxa_add_diamonds", { target_profile: target, diamond_amount: amount });
+    })
+  );
+}
 
 /* MERCHANT / SELLER TOOLS */
 $("sellerActivityBtn").addEventListener("click", () =>
@@ -876,27 +878,7 @@ if (
     "Setup required: add your Supabase URL and public key."
   );
 }
-/* WALLET MANAGEMENT — ADD DIAMONDS */
-console.log('WALLET JS LOADED');
-document.querySelectorAll('button').forEach(btn => {
-  if (btn.textContent.trim().toLowerCase() === 'add diamonds') {
-    btn.addEventListener('click', async () => {
-      try {
-        const inputs = [...document.querySelectorAll('input')];
-        const uuidInput = inputs.find(i => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(i.value.trim()));
-        if (!uuidInput) throw new Error('UUID input not found');
-        const amountInput = inputs.filter(i => i !== uuidInput).find(i => i.value.trim() !== '' && !isNaN(Number(i.value)));
-        if (!amountInput) throw new Error('Amount input not found');
-        const amount = Number(amountInput.value);
-        if (!Number.isFinite(amount) || amount <= 0) throw new Error('Enter a valid diamond amount.');
-        const result = await callRpc('voxa_add_diamonds', { target_profile: uuidInput.value.trim(), diamond_amount: amount });
-        alert('Success: ' + JSON.stringify(result));
-      } catch (e) {
-        alert('Error: ' + (e.message || e));
-      }
-    });
-  }
-});
+
 </script>
 </body>
 </html>
