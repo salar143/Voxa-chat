@@ -704,6 +704,25 @@ body[data-theme="light"] .theme-option.active{background:linear-gradient(135deg,
 const sb=supabase.createClient('https://mblcbygpqbogmtzacbtz.supabase.co','sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV');
 let me=null,profileUser=null,isOwner=true,isPlatformOwner=false,curType='active';
 let followBusy=false,followStatusKnown=false,isFollowing=false;
+
+async function loadMe(){
+ try{
+  const {data:{user},error:uErr}=await sb.auth.getUser();
+  if(uErr)throw uErr;
+  if(!user){console.warn('No logged-in user');return}
+  const {data:profile,error:pErr}=await sb
+   .from('profiles')
+   .select('id,uid,name,dp,photo,bg,gender,age,active_level,charm_level,wealth_level,game_level,frame,role_badge,bio,country,city,uni,food,activity,zodiac,hobbies,deleted_at,diamonds,coins')
+   .eq('id',user.id)
+   .maybeSingle();
+  if(pErr)throw pErr;
+  if(!profile){console.warn('Profile not found for user',user.id);return}
+  me=profile;
+  wallet();
+ }catch(e){console.error('loadMe failed:',e)}
+}
+loadMe();
+
 const NEED=[0,500,1500,3000,5000,8000,12000,17000,23000,30000,38000];
 const UNLOCKS=[
  ['L10','Shiny blue diamond leaf','Profile glow + entrance'],
