@@ -405,6 +405,13 @@ let mode="normal",seatCount=20,muted=false,micOn=false,micStream=null,mySeatNumb
 const roomID=new URLSearchParams(location.search).get("id")||new URLSearchParams(location.search).get("room")||"10001";
 E("roomID").textContent=roomID;
 function getLoggedInUser(){
+  const q=new URLSearchParams(location.search);
+  const qUid=q.get("uid");
+  if(qUid){
+    let full={};
+    try{full=JSON.parse(localStorage.getItem("voxa_user_"+qUid)||"null")||{}}catch(_){}
+    return Object.assign({},full,{id:qUid,uid:qUid,name:q.get("name")||full.name||("User "+qUid),pic:full.pic||""});
+  }
   try{
     const u=JSON.parse(localStorage.getItem("voxa_user")||"null");
     if(u&&u.id)return u;
@@ -426,8 +433,6 @@ function getLoggedInUser(){
     }
     if(found)return found.u;
   }catch(_){}
-  const q=new URLSearchParams(location.search);
-  if(q.get("uid"))return{id:q.get("uid"),name:q.get("name")||("User "+q.get("uid"))};
   return{id:null,name:"Guest"};
 }
 const ME=getLoggedInUser();
@@ -459,7 +464,7 @@ function audit(action,target,by){
   roomData.audit.push({action,target,by,time:Date.now()});
   if(roomData.audit.length>200)roomData.audit.shift();
   saveRoom();
-}
+  }
 function toast(t){const el=E("toast");el.textContent=t;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(()=>el.hidden=true,3000)}
 function message(title,text){E("dialogTitle").textContent=title;E("dialogText").textContent=text;if(!E("messageDialog").open)E("messageDialog").showModal()}
 function closePanel(){E("panel").hidden=true;E("overlay").hidden=true;stopLights()}
