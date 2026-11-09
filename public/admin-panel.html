@@ -791,24 +791,61 @@ $("unbanBtn").addEventListener("click", () =>
   })
 );
 
+
 /* WALLET MANAGEMENT */
-const addBtn = $("addDiamondsBtn") || [...document.querySelectorAll('button')].find(b => b.textContent.trim().toLowerCase() === 'add diamonds');
+const addBtn = $("addDiamondsBtn") ||
+  [...document.querySelectorAll("button")].find(
+    b => b.textContent.trim().toLowerCase() === "add diamonds"
+  );
+
 if (addBtn) {
   addBtn.addEventListener("click", () =>
     runAction(async () => {
       const target = getUuid("walletTarget") || (() => {
-        const inputs = [...document.querySelectorAll('input')];
-        const u = inputs.find(i => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(i.value.trim()));
-        if (!u) throw new Error('UUID input not found');
+        const inputs = [...document.querySelectorAll("input")];
+        const u = inputs.find(i =>
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+            i.value.trim()
+          )
+        );
+
+        if (!u) throw new Error("UUID input not found");
         return u.value.trim();
       })();
-      const amountInput = $("diamondAmount") || [...document.querySelectorAll('input')].find(i => !isNaN(Number(i.value)) && i.value.trim() !== '');
+
+      const amountInput = $("diamondAmount") ||
+        [...document.querySelectorAll("input")].find(
+          i => !isNaN(Number(i.value)) && i.value.trim() !== ""
+        );
+
+      if (!amountInput) {
+        throw new Error("Enter a diamond amount.");
+      }
+
       const amount = Number(amountInput.value);
-      if (!Number.isFinite(amount) || amount < 1) throw new Error("Enter a valid diamond amount.");
-      return await callRpc("voxa_add_diamonds", { target_profile: target, diamond_amount: amount });
+
+      if (!Number.isSafeInteger(amount) || amount < 1 || amount > 1000000) {
+        throw new Error("Enter a valid amount between 1 and 1000000.");
+      }
+
+      const { data, error } = await db.functions.invoke(
+        "dynamic-function",
+        {
+          body: {
+            target_profile: target,
+            diamond_amount: amount
+          }
+        }
+      );
+
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+
+      return data;
     })
   );
 }
+  
 
 /* MERCHANT / SELLER TOOLS */
 $("sellerActivityBtn").addEventListener("click", () =>
