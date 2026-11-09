@@ -1470,7 +1470,8 @@ function canModerate(actorRole,targetRole){
   return false;
 }
 function openFullProfile(user){
-  const uid=String(user.id||"guest");
+  const MY_ID=String(ME.id||"");
+if(!MY_ID){window.location.href="login.html";}
   window.location.href="profile2.html?uid="+encodeURIComponent(uid)+"&name="+encodeURIComponent(user.name||"");
 }
 function closeProfileSlide(){
