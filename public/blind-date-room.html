@@ -407,12 +407,27 @@ E("roomID").textContent=roomID;
 function getLoggedInUser(){
   try{
     const u=JSON.parse(localStorage.getItem("voxa_user")||"null");
-    if(u&&u.id)return u;
-  }catch(_){}
-  const q=new URLSearchParams(location.search);
-  if(q.get("uid"))return{id:q.get("uid"),name:q.get("name")||("User "+q.get("uid"))};
-  return{id:null,name:"Guest"};
+    if(u&&u.id){
+      return {
+        id:String(u.id),
+        uid:String(u.uid||""),
+        name:u.name||"User",
+        pic:u.pic||u.photo||"",
+        pp:u.pp||u.dp||""
+      };
+    }
+  }catch(e){console.error(e)}
+  return {id:null,uid:"",name:"Guest",pic:"",pp:""};
 }
+const ME=getLoggedInUser();
+const MY_ID=String(ME.id||"guest");
+const seatKey="voxa_room_seats_"+roomID;
+const roomKey="voxa_room_data_"+roomID;
+const chatKey="voxa_chat_"+roomID+"_"+MY_ID;
+const eventsKey="voxa_events_"+roomID;
+const inviteKey="voxa_invite_"+roomID+"_"+MY_ID;
+const calcKey="voxa_calc_"+roomID;
+const calcHistKey="
 const ME=getLoggedInUser();
 const MY_ID=String(ME.id||"guest");
 const seatKey="voxa_room_seats_"+roomID;
