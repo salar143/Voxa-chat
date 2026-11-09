@@ -1469,7 +1469,7 @@ function canModerate(actorRole,targetRole){
   return false;
 }
 function openFullProfile(user){
-  const uid=String(user.id||"guest");
+  const uid=String(user.uid||user.id||"guest");
   window.location.href="profile2.html?uid="+encodeURIComponent(uid)+"&name="+encodeURIComponent(user.name||"");
 }
 function closeProfileSlide(){
