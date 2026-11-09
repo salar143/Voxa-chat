@@ -409,6 +409,23 @@ function getLoggedInUser(){
     const u=JSON.parse(localStorage.getItem("voxa_user")||"null");
     if(u&&u.id)return u;
   }catch(_){}
+  try{
+    let found=null;
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(!k)continue;
+      const lk=k.toLowerCase();
+      if(!(lk.includes("user")||lk.includes("login")||lk.includes("current")||lk.includes("account")||lk.includes("profile")))continue;
+      try{
+        const u=JSON.parse(localStorage.getItem(k)||"null");
+        if(u&&u.id&&(u.name||u.pic)){
+          const score=(u.loggedIn||u.current||u.isCurrent?2:0)+(lk.includes("current")||lk.includes("login")?1:0);
+          if(!found||score>found.score)found={u:u,score:score};
+        }
+      }catch(_){}
+    }
+    if(found)return found.u;
+  }catch(_){}
   const q=new URLSearchParams(location.search);
   if(q.get("uid"))return{id:q.get("uid"),name:q.get("name")||("User "+q.get("uid"))};
   return{id:null,name:"Guest"};
@@ -429,7 +446,7 @@ const rpkHistKey="voxa_rpk_history_"+roomID;
 function loadChat(){return loadJSON(chatKey,[])}
 function saveChat(arr){saveJSON(chatKey,arr)}
 function clearChat(){saveJSON(chatKey,[])}
-function addChatToStore(html){const arr=loadChat();arr.push(html);if(arr.length>200)arr.shift();saveChat(arr)}
+function addChatToStore(html){const arr=loadChat();arr.push(html);if(arr.length>200)arr.shift();saveJSON(chatKey,arr)}
 function loadJSON(key,fallback){try{const v=JSON.parse(localStorage.getItem(key)||"null");return v??fallback}catch(_){return fallback}}
 function saveJSON(key,v){try{localStorage.setItem(key,JSON.stringify(v))}catch(_){}}
 let seatStates=loadJSON(seatKey,{});
