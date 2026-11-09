@@ -414,7 +414,8 @@ function getLoggedInUser(){
   return{id:null,name:"Guest"};
 }
 const ME=getLoggedInUser();
-const MY_ID=String(ME.id||"guest");
+const MY_ID=String(ME.id||"");
+if(!MY_ID){window.location.href="login.html";}
 const seatKey="voxa_room_seats_"+roomID;
 const roomKey="voxa_room_data_"+roomID;
 const chatKey="voxa_chat_"+roomID+"_"+MY_ID;
