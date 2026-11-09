@@ -1011,6 +1011,7 @@ async function init(){
   }
 
   me={...own,email:user.email||''};
+  try{localStorage.setItem('voxa_user',JSON.stringify({id:me.id,name:me.name||me.nickname||('User '+me.id)}))}catch(_){}
   const {data:walletData,error:walletError}=await sb.from('profiles').select('diamonds,coins').eq('id',user.id).maybeSingle();
   if(!walletError&&walletData)Object.assign(me,walletData);
 
