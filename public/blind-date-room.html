@@ -1645,7 +1645,7 @@ function joinSeat(n){
   if(mySeatNumber){toast("Pehle apni seat leave karo.");return}
   seatStates=loadJSON(seatKey,{});
   if(seatStates[n]){toast("Seat occupied.");return}
-  seatStates[n]={id:MY_ID,name:ME.name,pic:ME.pic||"",pp:ME.pp||"",muted:false,lastSeen:Date.now()};
+  seatStates[n]={id:MY_ID,uid:ME.uid||"",name:ME.name,pic:ME.pic||"",pp:ME.pp||"",muted:false,lastSeen:Date.now()};
   mySeatNumber=n;
   saveJSON(seatKey,seatStates);
   renderSeats();closePanel();
