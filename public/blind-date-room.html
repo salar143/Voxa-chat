@@ -417,7 +417,7 @@ return Object.assign({},full,{
   name:q.get("name")||full.name||("User "+qUid),
   pic:full.pic||full.photo||full.avatar||full.photoURL||full.avatarUrl||full.image||""
 });
-    
+  }
   try{
     const u=JSON.parse(localStorage.getItem("voxa_user")||"null");
     if(u&&u.id)return u;
