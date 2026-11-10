@@ -1424,17 +1424,25 @@ function roleTag(user){
   if(role==="official")return'<span class="role-tag official">Official</span>';
   return"";
 }
+  
 function tagsLine(user){
   let tags="";
-  if(user.vip)tags+='<span class="tag">VIP</span>';
-  if(user.uid||user.id)tags+='<span class="tag">ID: '+(user.uid||user.id)+'</span>';
+  if(user.vip) tags+='<span class="tag">VIP</span>';
+
   const lv=user.levels||{};
-  const p=lv.profile||user.level||0, gs=lv.giftSend||0, gr=lv.giftRecv||0, g=lv.gaming||0;
+  const p=lv.profile||user.level||0;
+  const gs=lv.giftSend||0;
+  const gr=lv.giftRecv||0;
+  const g=lv.gaming||0;
+
   tags+='<span class="tag lvl">L'+p+'</span>';
   tags+='<span class="tag lvl">L'+gs+'</span>';
   tags+='<span class="tag lvl">L'+gr+'</span>';
   tags+='<span class="tag lvl">L'+g+'</span>';
+
   return '<div class="c-tags">'+tags+'</div>';
+}
+  
 }
 function picHtml(user){
   if(user.pic)return'<span class="c-pic"><img src="'+user.pic+'" alt=""></span>';
