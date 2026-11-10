@@ -1444,14 +1444,27 @@ function tagsLine(user){
 }
   
 function picHtml(user){
-  if(user.pic)return'<span class="c-pic"><img src="'+user.pic+'" alt=""></span>';
-  const nm=(user.name||"U");
-  return'<span class="c-pic">'+nm.charAt(0).toUpperCase()+'</span>';
+  const photo = user.pic || user.photo || user.avatar ||
+                user.photoURL || user.avatarUrl || user.image;
+  const nm = user.name || user.nickname || "U";
+
+  if (photo && typeof photo === "string" && photo.trim()) {
+    return '<span class="c-pic"><img src="' +
+      photo.trim().replace(/&/g, "&amp;").replace(/"/g, "&quot;") +
+      '" alt="" onerror="this.style.display=\'none\';this.parentElement.textContent=\'U\'"></span>';
+  }
+
+  return '<span class="c-pic">' +
+    nm.charAt(0).toUpperCase() + '</span>';
 }
+
 function shortName(nm){
-  const words=(nm||"User").split(/\s+/);
-  return words.length>10?words.slice(0,10).join(" ")+"…":nm;
+  const words = (nm || "User").split(/\s+/);
+  return words.length > 10
+    ? words.slice(0, 10).join(" ") + "…"
+    : nm;
 }
+  
 function renderTaggedText(text){
   return text.replace(/@([\w\u0900-\u097F]+)/g,(m,name)=>{
     const tagged=(name.toLowerCase()===(ME.name||"").toLowerCase());
