@@ -985,8 +985,10 @@ async function loadProfileVipBadge(profileId){
  }
 }
 
+
 async function init(){
  fillAllDropdowns();
+
  try{
   const {data:{user},error}=await sb.auth.getUser();
   if(error)throw error;
@@ -995,7 +997,8 @@ async function init(){
    err('Please login first — go to the login page.');
    return;
   }
-  // This claim must be set by a trusted Supabase admin process, never by client input.
+
+  // Owner role trusted Supabase app metadata se hi aayega
   isPlatformOwner = user.app_metadata?.role === 'owner';
 
   const {data:own}=await db(
@@ -1011,39 +1014,116 @@ async function init(){
   }
 
   me={...own,email:user.email||''};
-  try{localStorage.setItem('voxa_user',JSON.stringify({id:me.id,name:me.name||me.nickname||('User '+me.id)}))}catch(_){}
-  const {data:walletData,error:walletError}=await sb.from('profiles').select('diamonds,coins').eq('id',user.id).maybeSingle();
-  if(!walletError&&walletData)Object.assign(me,walletData);
+
+  try{
+   localStorage.setItem('voxa_user',JSON.stringify({
+    id:me.id,
+    name:me.name||me.nickname||('User '+me.id)
+   }));
+  }catch(_){}
+
+  const {data:walletData,error:walletError}=await sb
+   .from('profiles')
+   .select('diamonds,coins')
+   .eq('id',user.id)
+   .maybeSingle();
+
+  if(!walletError&&walletData){
+   Object.assign(me,walletData);
+  }
 
   if(own.deleted_at){
    err('Account deactivated hai. Recovery ke liye Official se contact karo.');
    return;
   }
-  const params=new URLSearchParams(location.search),requestedUid=params.get('uid');
+
+  const params=new URLSearchParams(location.search);
+  const requestedUid=params.get('uid');
+
   if(requestedUid!==null){
    const uid=requestedUid.trim();
-   if(!uid||['undefined','null'].includes(uid))throw new Error('Profile link mein valid UID nahi hai.');
-   if(uid===String(me.uid)){profileUser=me}
-   else{
-    const {data:other}=await db(sb.from('profiles').select(PROFILE_COLS).eq('uid',uid).maybeSingle());
-    if(!other)throw new Error('Is UID ki profile nahi mili.');
+
+   if(!uid||['undefined','null'].includes(uid)){
+    throw new Error('Profile link mein valid UID nahi hai.');
+   }
+
+   // Apni profile: public UID ya internal profile ID
+   if(uid===String(me.uid)||uid===String(me.id)){
+    profileUser=me;
+   }else{
+    // Pehle public UID se search karo
+    const {data:byUid}=await db(
+     sb.from('profiles')
+      .select(PROFILE_COLS)
+      .eq('uid',uid)
+      .maybeSingle()
+    );
+
+    let other=byUid;
+
+    // UID se na mile aur value UUID ho to internal ID se search karo
+    const isUUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(uid);
+
+    if(!other&&isUUID){
+     const {data:byId}=await db(
+      sb.from('profiles')
+       .select(PROFILE_COLS)
+       .eq('id',uid)
+       .maybeSingle()
+     );
+
+     other=byId;
+    }
+
+    if(!other){
+     throw new Error(
+      'Is UID ki profile nahi mili. UID ya profile record check karo.'
+     );
+    }
+
     profileUser=other;
    }
-  }else{profileUser=me}
-  isOwner=String(profileUser.id)===String(me.id);
-  const ref=params.get('ref');if(ref&&ref!==String(me.uid)){try{localStorage.setItem('voxa_ref',ref)}catch{}}
-  render();E('connectionNote').textContent='VoxaChat · Profile loaded';
-  if(!isOwner){
-   checkFollowStatus().catch(e=>{followStatusKnown=false;E('followBtn').disabled=false;E('followBtn').textContent='Retry Follow';err('Follow status: '+messageOf(e))});
-   recordVisit(profileUser.id).catch(e=>console.warn('Visit save nahi hui:',messageOf(e)));
+  }else{
+   profileUser=me;
   }
-  refreshStats().catch(e=>console.warn('Stats load nahi hue:',messageOf(e)));
+
+  isOwner=String(profileUser.id)===String(me.id);
+
+  const ref=params.get('ref');
+
+  if(ref&&ref!==String(me.uid)){
+   try{
+    localStorage.setItem('voxa_ref',ref);
+   }catch(_){}
+  }
+
+  render();
+  E('connectionNote').textContent='VoxaChat · Profile loaded';
+
+  if(!isOwner){
+   checkFollowStatus().catch(e=>{
+    followStatusKnown=false;
+    E('followBtn').disabled=false;
+    E('followBtn').textContent='Retry Follow';
+    err('Follow status: '+messageOf(e));
+   });
+
+   recordVisit(profileUser.id).catch(e=>
+    console.warn('Visit save nahi hui:',messageOf(e))
+   );
+  }
+
+  refreshStats().catch(e=>
+   console.warn('Stats load nahi hue:',messageOf(e))
+  );
+
  }catch(e){
   E('profileBtns').classList.remove('open');
   E('connectionNote').textContent='VoxaChat · Profile load failed';
   err(messageOf(e));
  }
 }
+ 
  const ROLE_BADGES={
  owner:{label:'OWNER',icon:'♛',cls:'owner'},
  official:{label:'OFFICIAL',icon:'✦',cls:'official'},
