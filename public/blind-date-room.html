@@ -1535,7 +1535,7 @@ E("psOverlay").onclick=closeProfileSlide;
 function userProfilePanel(user,seatNum){
   const sheet=E("psSheet");
   const nm=user.name||"User";
-  const uid=String(user.id||"guest");
+const uid=String(user.uid||user.id||"guest");
   const targetRole=getRole(uid);
   const myRole=isOwner?"owner":(getRole(MY_ID));
   const seated=!!seatNum;
