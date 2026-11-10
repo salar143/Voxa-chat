@@ -1480,25 +1480,57 @@ function userJoinMessage(user){
   addChatToStore(r.outerHTML);
   box.scrollTop=box.scrollHeight;
 }
+
 function getRole(uid){
   if(String(uid)==="owner")return"owner";
   if((roomData.admins||[]).includes(String(uid)))return"admin";
   return"member";
 }
+
 function canModerate(actorRole,targetRole){
   if(actorRole==="owner")return targetRole!=="owner";
   if(actorRole==="admin")return targetRole==="member";
   return false;
 }
+
 function openFullProfile(user){
-  const uid=String(user.uid||user.id||"guest");
-  window.location.href="profile2.html?uid="+encodeURIComponent(uid)+"&name="+encodeURIComponent(user.name||"");
+  if(!user){
+    toast("User profile nahi mili.");
+    return;
+  }
+
+  // Public UID ko priority do
+  const publicUid=String(user.uid??"").trim();
+
+  // Fallback sirf tab jab uid available na ho
+  const internalId=String(user.id??"").trim();
+
+  const uid=publicUid || internalId;
+
+  if(!uid || ["undefined","null","guest"].includes(uid.toLowerCase())){
+    toast("User ki valid profile ID nahi mili.");
+    return;
+  }
+
+  const params=new URLSearchParams();
+  params.set("uid",uid);
+
+  if(user.name){
+    params.set("name",String(user.name));
+  }
+
+  window.location.href="profile2.html?"+params.toString();
 }
+
 function closeProfileSlide(){
   const sheet=E("psSheet"),ov=E("psOverlay");
   sheet.classList.remove("open");
-  setTimeout(()=>{sheet.hidden=true;ov.hidden=true},300);
+  setTimeout(()=>{
+    sheet.hidden=true;
+    ov.hidden=true;
+  },300);
 }
+  
 E("psOverlay").onclick=closeProfileSlide;
 function userProfilePanel(user,seatNum){
   const sheet=E("psSheet");
