@@ -3,521 +3,398 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>VoxaChat — 5 Sticker Demo</title>
+<title>VoxaChat Emoji Preview</title>
 
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
-  background:#120e1f;
+  background:#120e1e;
   color:white;
   font-family:Arial,sans-serif;
 }
+
 .app{
   max-width:460px;
   min-height:100vh;
   margin:auto;
   padding:22px 16px;
   background:
-    radial-gradient(at top left,#71475b,transparent 65%),
-    #191429;
+    radial-gradient(at top left,#75465f,transparent 65%),
+    #191428;
 }
-h1{font-size:20px;margin:0 0 8px}
-.sub,.note{
-  color:#d0bfd7;
+
+h1{font-size:20px;margin:0 0 10px}
+
+.description,.note{
   font-size:13px;
   line-height:1.6;
+  color:#ccbdd5;
 }
+
 .stage{
-  height:290px;
+  height:280px;
   position:relative;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+  display:grid;
+  place-items:center;
 }
+
 .seat{
   width:82px;
   height:82px;
-  border:2px solid #c0a3c1;
+  border:2px solid #bea3c0;
   border-radius:50%;
   display:grid;
   place-items:center;
   background:#ffffff12;
+  color:#e0d0e4;
 }
-#actor{
-  position:absolute;
-  top:25px;
-  width:220px;
-  height:220px;
-  pointer-events:none;
-}
-#actor svg{
-  width:100%;
-  height:100%;
-  overflow:visible;
-}
+
 .name{
   position:absolute;
-  bottom:36px;
+  bottom:45px;
   font-size:13px;
 }
+
+#reaction{
+  position:absolute;
+  width:180px;
+  height:180px;
+  display:grid;
+  place-items:center;
+  pointer-events:none;
+}
+
+#reaction[hidden]{display:none}
+
+.face{
+  font-family:
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Noto Color Emoji",
+    sans-serif;
+  font-size:90px;
+  line-height:1.2;
+  filter:drop-shadow(0 6px 8px #0004);
+}
+
+.particle{
+  position:absolute;
+  top:50%;
+  left:50%;
+  font-size:24px;
+  line-height:1;
+}
+
 .panel{
   background:#211b35;
   border:1px solid #ffffff20;
   border-radius:20px;
   padding:16px;
 }
-.heading{margin-bottom:14px;color:#edc5f3}
+
+.heading{font-size:15px;margin-bottom:16px}
+
 .grid{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
+  grid-template-columns:repeat(5,1fr);
   gap:9px;
 }
-button{
-  background:#382b4d;
+
+.emoji-button{
+  padding:10px 2px;
   border:1px solid #ffffff25;
-  color:white;
   border-radius:13px;
+  background:#372b4b;
+  color:white;
   cursor:pointer;
   touch-action:manipulation;
 }
-.sticker{
-  padding:8px 3px 12px;
-  font-size:12px;
-}
-.sticker svg{
-  width:100%;
-  max-width:95px;
+
+.emoji-button .icon{
   display:block;
-  margin:auto;
+  font-size:33px;
+  margin-bottom:7px;
 }
-button.active{
-  border-color:#e6a6f4;
-  background:#634371;
+
+.emoji-button .label{
+  display:block;
+  font-size:10px;
 }
-.controls{display:flex;gap:10px}
-.controls button{flex:1;padding:12px}
+
+.emoji-button.active{
+  border-color:#edb4f5;
+  background:#67416c;
+}
+
 #status{
-  min-height:38px;
+  min-height:36px;
+  margin:16px 0 8px;
+  color:#ecc3e5;
   font-size:13px;
-  color:#eac0e4;
-  margin-top:16px;
 }
-.note{margin-top:18px}
+
+.controls{display:flex;gap:10px}
+
+.controls button{
+  flex:1;
+  padding:12px;
+  background:#48315e;
+  color:white;
+  border:1px solid #ffffff25;
+  border-radius:11px;
+  cursor:pointer;
+}
 </style>
 </head>
 
 <body>
 <main class="app">
-  <h1>VoxaChat · Custom Stickers V2</h1>
-  <div class="sub">
-    5 reactions · Original cartoon cat preview
+  <h1>VoxaChat · Emoji Demo</h1>
+
+  <div class="description">
+    Tumhare select kiye hue 10 emojis
   </div>
 
   <div class="stage">
     <div class="seat">Your DP</div>
-    <div id="actor" hidden aria-hidden="true"></div>
-    <div class="name">Your sample seat</div>
+    <div id="reaction" hidden aria-hidden="true"></div>
+    <div class="name">Sample seat</div>
   </div>
 
   <section class="panel">
-    <div class="heading">Normal · 5 sample stickers</div>
+    <div class="heading">Emoji select karo</div>
+
     <div id="grid" class="grid"></div>
-    <div id="status" role="status">Sticker tap karo</div>
+
+    <div id="status" role="status">
+      Kisi emoji par tap karo.
+    </div>
 
     <div class="controls">
-      <button id="replay" type="button">Replay</button>
-      <button id="stop" type="button">Stop</button>
+      <button type="button" id="replay">Replay</button>
+      <button type="button" id="stop">Stop</button>
     </div>
   </section>
 
-  <div class="note">
-    Kiss mein face front se side profile mein badalta hai.
-    Laugh, Cry aur Angry ke expressions alag hain.
-    Ye independent demo hai—room ka code change nahi karta.
-  </div>
+  <p class="note">
+    Ye independent preview hai. Existing room mein koi change nahi.
+    Emoji ka look phone/browser ke hisaab se thoda alag ho sakta hai.
+  </p>
 </main>
 
 <script>
 "use strict";
 
-const actor=document.getElementById("actor");
-const statusBox=document.getElementById("status");
-const grid=document.getElementById("grid");
-
-const stickers=[
-  {name:"Left Kiss",kind:"kiss",direction:-1},
-  {name:"Right Kiss",kind:"kiss",direction:1},
-  {name:"Laugh",kind:"laugh",direction:1},
-  {name:"Cry",kind:"cry",direction:1},
-  {name:"Angry",kind:"angry",direction:1}
+const items=[
+  {emoji:"😒",name:"Unamused",effect:"side"},
+  {emoji:"🤗",name:"Hug",effect:"hug"},
+  {emoji:"🤔",name:"Thinking",effect:"think"},
+  {emoji:"😘",name:"Kiss",effect:"kiss"},
+  {emoji:"🥰",name:"Love",effect:"love"},
+  {emoji:"🤣",name:"Rolling",effect:"roll"},
+  {emoji:"🤭",name:"Giggle",effect:"giggle"},
+  {emoji:"😂",name:"Laugh",effect:"laugh"},
+  {emoji:"🥹",name:"Touched",effect:"touched"},
+  {emoji:"😭",name:"Cry",effect:"cry"}
 ];
 
-let frameId=0;
-let lastIndex=0;
-let startTime=0;
+const box=document.getElementById("reaction");
+const grid=document.getElementById("grid");
+const statusBox=document.getElementById("status");
 
-const reducedMotion=window.matchMedia(
-  "(prefers-reduced-motion: reduce)"
-);
+let animations=[];
+let timer=null;
+let last=0;
 
-const clamp=x=>Math.max(0,Math.min(1,x));
-const smooth=x=>{
-  x=clamp(x);
-  return x*x*(3-2*x);
-};
+function stop(){
+  clearTimeout(timer);
 
-function path(d,fill,extra=""){
-  return `<path d="${d}" fill="${fill}" ${extra}/>`;
+  animations.forEach(animation=>animation.cancel());
+  animations=[];
+
+  box.replaceChildren();
+  box.hidden=true;
+
+  [...grid.children].forEach(button=>{
+    button.classList.remove("active");
+  });
+
+  statusBox.textContent="Stopped — emoji select karo.";
 }
 
-function line(d,width=3,color="#583342"){
-  return path(
-    d,"none",
-    `stroke="${color}" stroke-width="${width}"
-     stroke-linecap="round" stroke-linejoin="round"`
-  );
+function animate(element,frames,options){
+  animations.push(element.animate(frames,options));
 }
 
-function ellipse(x,y,rx,ry,fill,extra=""){
-  return `<ellipse cx="${x}" cy="${y}"
-    rx="${rx}" ry="${ry}" fill="${fill}" ${extra}/>`;
+function particle(symbol,x,y,endX,endY,delay){
+  const p=document.createElement("span");
+  p.className="particle";
+  p.textContent=symbol;
+  box.appendChild(p);
+
+  animate(p,[
+    {
+      transform:`translate(${x}px,${y}px) scale(.4)`,
+      opacity:0
+    },
+    {
+      transform:`translate(${x}px,${y}px) scale(1)`,
+      opacity:1,
+      offset:.2
+    },
+    {
+      transform:`translate(${endX}px,${endY}px) scale(.7)`,
+      opacity:0
+    }
+  ],{
+    duration:1400,
+    delay,
+    iterations:2,
+    easing:"ease-out",
+    fill:"both"
+  });
 }
 
-function heart(x,y,size,opacity){
-  return `<g transform="translate(${x} ${y}) scale(${size})"
-    opacity="${opacity}">
-    <path d="M0 5C-19-7-10-23 0-12
-      C10-23 19-7 0 5Z" fill="#fa649b"/>
-  </g>`;
-}
+function play(index){
+  stop();
+  last=index;
 
-function paw(x,y,angle=0){
-  return `<g transform="translate(${x} ${y}) rotate(${angle})">
-    ${ellipse(0,0,12,17,"#fff5e7",
-      'stroke="#ad713c" stroke-width="2.5"')}
-    ${line("M-5-8L-4-3M1-9L1-4",1.8,"#d3a584")}
-  </g>`;
-}
+  const item=items[index];
+  box.hidden=false;
+  grid.children[index].classList.add("active");
 
-function drawSticker(item,t){
-  const kind=item.kind;
-  const kiss=kind==="kiss";
-  const laugh=kind==="laugh";
-  const cry=kind==="cry";
-  const angry=kind==="angry";
+  const face=document.createElement("span");
+  face.className="face";
+  face.textContent=item.emoji;
+  box.appendChild(face);
 
-  // Kiss: front -> side -> kiss -> front.
-  const cycle=t%3.2;
-  const turn=kiss
-    ?smooth(cycle/.75)*(1-smooth((cycle-2.25)/.75))
-    :0;
+  statusBox.textContent=item.emoji+" "+item.name+" · Playing";
 
-  const blowing=kiss
-    ?smooth((cycle-.85)/.35)*
-      (1-smooth((cycle-2.2)/.35))
-    :0;
+  const reduce=window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
 
-  const bounce=laugh?Math.sin(t*18)*2.5:
-    cry?Math.sin(t*12)*1.1:
-    angry?Math.sin(t*28)*1.4:0;
+  if(!reduce){
+    const frames={
+      side:[
+        {transform:"translateX(0)"},
+        {transform:"translateX(-9px) rotate(-7deg)"},
+        {transform:"translateX(0)"}
+      ],
+      hug:[
+        {transform:"scale(.95)"},
+        {transform:"scale(1.15) translateY(-5px)"},
+        {transform:"scale(.95)"}
+      ],
+      think:[
+        {transform:"rotate(0deg)"},
+        {transform:"rotate(-12deg) translateY(-4px)"},
+        {transform:"rotate(0deg)"}
+      ],
+      kiss:[
+        {transform:"scale(1) rotate(0deg)"},
+        {transform:"scale(1.1) rotate(-8deg)"},
+        {transform:"scale(1) rotate(0deg)"}
+      ],
+      love:[
+        {transform:"scale(.97)"},
+        {transform:"scale(1.12)"},
+        {transform:"scale(.97)"}
+      ],
+      roll:[
+        {transform:"translateX(-15px) rotate(-22deg)"},
+        {transform:"translateX(15px) rotate(22deg)"},
+        {transform:"translateX(-15px) rotate(-22deg)"}
+      ],
+      giggle:[
+        {transform:"translateY(0) rotate(-4deg)"},
+        {transform:"translateY(-5px) rotate(4deg)"},
+        {transform:"translateY(0) rotate(-4deg)"}
+      ],
+      laugh:[
+        {transform:"translateY(0) scaleY(1)"},
+        {transform:"translateY(-7px) scaleY(.94)"},
+        {transform:"translateY(0) scaleY(1)"}
+      ],
+      touched:[
+        {transform:"scale(1) rotate(-3deg)"},
+        {transform:"scale(1.07) rotate(3deg)"},
+        {transform:"scale(1) rotate(-3deg)"}
+      ],
+      cry:[
+        {transform:"translateX(-3px)"},
+        {transform:"translateX(3px) translateY(2px)"},
+        {transform:"translateX(-3px)"}
+      ]
+    };
 
-  const tilt=laugh?Math.sin(t*9)*6:
-    cry?Math.sin(t*4)*4:0;
+    const duration=
+      ["laugh","giggle","cry"].includes(item.effect)
+        ?450:1200;
 
-  const center=110+turn*5;
-  const left=center-57+turn*17;
-  const right=center+57-turn*3;
-  const noseX=center+turn*49;
-  const farEyeOpacity=1-smooth(turn);
-  const blink=Math.sin(t*3)>0.985;
-  const mouthX=110+turn*40;
+    animate(face,frames[item.effect],{
+      duration,
+      iterations:Infinity,
+      easing:"ease-in-out"
+    });
 
-  let eyes="";
-  let eyebrows="";
-  let mouth="";
-  let tears="";
-  let extras="";
-
-  if(kiss){
-    eyes=
-      `<g opacity="${farEyeOpacity}">
-        ${turn>.2
-          ?line("M77 93Q85 86 93 93")
-          :ellipse(85,91,5,7,"#493443")}
-      </g>`+
-      (turn>.2
-        ?line(`M${117+turn*13} 94q8-8 16 0`)
-        :ellipse(133,91,5,7,"#493443"));
-
-    mouth=blowing>.15
-      ?line(
-        `M${mouthX-1} 112
-         l${6+blowing*4} 3
-         l-${6+blowing*4} 3
-         l${6+blowing*4} 3`,
-        3.5,"#b84e75"
-      )
-      :line(`M${mouthX-8} 113q8 9 16 0`);
-
-    if(blowing>.1){
-      for(let i=0;i<3;i++){
-        const age=(t*1.1+i*.33)%1;
-        extras+=heart(
-          154+age*34,
-          108-age*45,
-          .35+age*.35,
-          Math.sin(age*Math.PI)*blowing
+    if(["kiss","love","hug","touched"].includes(item.effect)){
+      for(let i=0;i<4;i++){
+        particle(
+          i%2?"💕":"❤️",
+          -8,
+          0,
+          item.effect==="kiss"
+            ?-65-i*5
+            :(i-1.5)*35,
+          -70-i*5,
+          i*260
         );
       }
     }
-  }
 
-  if(laugh){
-    eyes=line("M73 94Q84 81 95 94")+
-      line("M122 94Q133 81 144 94");
+    if(["cry","laugh"].includes(item.effect)){
+      for(let i=0;i<4;i++){
+        const x=i%2?26:-43;
+        particle("💧",x,-5,x+(i%2?8:-8),65,i*240);
+      }
+    }
 
-    const opening=13+(Math.sin(t*15)+1)*3;
-    mouth=ellipse(110,116,17,opening,"#663249")+
-      ellipse(110,124,10,5,"#f38f9c")+
-      path("M97 105Q110 108 123 105L121 111H99Z","#fffaf0");
-
-    extras=line("M39 82l-7-6M38 96l-9 1",3,"#ffd467")+
-      line("M181 82l7-6M182 96l9 1",3,"#ffd467");
-  }
-
-  if(cry){
-    eyes=line("M74 96Q84 103 94 95")+
-      line("M123 95Q133 103 143 96");
-
-    eyebrows=line("M74 81L94 75")+
-      line("M124 75L144 81");
-
-    mouth=path(
-      `M98 123Q110 ${103+Math.sin(t*15)*2} 122 123
-       Q110 117 98 123`,
-      "#9e5269"
-    );
-
-    for(let i=0;i<4;i++){
-      const age=(t*1.5+i*.25)%1;
-      const x=i%2?136:82;
-      const y=104+age*43;
-
-      tears+=path(
-        `M${x} ${y-7}
-         Q${x-8} ${y+4} ${x} ${y+7}
-         Q${x+8} ${y+4} ${x} ${y-7}`,
-        "#78d6fa",
-        `opacity="${1-age}"`
-      );
+    if(item.effect==="think"){
+      particle("?",30,-38,43,-78,0);
+      particle("?",46,-25,61,-65,500);
     }
   }
 
-  if(angry){
-    eyebrows=line("M72 77L96 87",4)+
-      line("M124 87L148 77",4);
-
-    eyes=ellipse(85,96,8,6,"#fff")+
-      ellipse(135,96,8,6,"#fff")+
-      ellipse(88,97,3,5,"#613b39")+
-      ellipse(132,97,3,5,"#613b39");
-
-    mouth=path(
-      "M94 115Q110 108 126 115L123 126H97Z",
-      "#fff9ed",
-      'stroke="#6c3c3d" stroke-width="2.5"'
-    )+line("M109 114V124",1.5);
-
-    const steam=(t*.9)%1;
-    extras=`<g opacity="${1-steam}"
-      transform="translate(0 ${-steam*20})">
-      ${line("M51 61q-9-8 0-15q8-7 0-14",4,"#e9d6eb")}
-      ${line("M170 61q9-8 0-15q-8-7 0-14",4,"#e9d6eb")}
-    </g>`;
-  }
-
-  if(!eyes){
-    eyes=blink
-      ?line("M77 94H93M125 94H141")
-      :ellipse(85,93,5,7,"#493443")+
-       ellipse(133,93,5,7,"#493443");
-  }
-
-  const face=path(
-    `M${left} 89
-     Q${left-2} 57 ${center-25} 49
-     Q${center} 40 ${center+27} 50
-     Q${right} 58 ${right} 89
-     Q${right+turn*12} 100 ${noseX+4} 105
-     Q${right-3} 137 ${center+6} 145
-     Q${left+3} 142 ${left} 111Z`,
-    angry?"#ffe7d9":"#fff5e7",
-    'stroke="#a86d3b" stroke-width="2.5"'
-  );
-
-  let arms="";
-
-  if(kiss){
-    const handX=139+blowing*25;
-    const handY=133-blowing*10;
-
-    arms=paw(80,157,-12)+
-      line(`M137 162Q151 153 ${handX} ${handY}`,
-        13,"#f5dcb8")+
-      paw(handX,handY,turn*25);
-  }else if(laugh){
-    arms=paw(88,159,25+Math.sin(t*10)*10)+
-      paw(132,159,-25-Math.sin(t*10)*10);
-  }else if(cry){
-    arms=paw(72,123,-25)+paw(148,123,25);
-  }else{
-    arms=paw(68,154,-30)+paw(152,154,30);
-  }
-
-  return `<svg viewBox="0 0 220 220"
-    xmlns="http://www.w3.org/2000/svg">
-    ${ellipse(110,195,42,5,"#000",'opacity=".15"')}
-
-    <g transform="${item.direction<0
-      ?"translate(220 0) scale(-1 1)":"translate(0 0)"}">
-
-      <g transform="translate(0 ${bounce})">
-        ${ellipse(110,163,34,30,"#ffefdb",
-          'stroke="#a86d3b" stroke-width="2.5"')}
-
-        ${ellipse(94,190,13,7,"#fff5e7")}
-        ${ellipse(126,190,13,7,"#fff5e7")}
-
-        <g transform="rotate(${tilt} 110 105)">
-          <g opacity="${1-turn*.7}">
-            ${path("M58 76L53 30Q57 24 89 51Z","#eaaa4a",
-              'stroke="#a86d3b" stroke-width="2.5"')}
-            ${path("M61 60L59 39L77 54Z","#e9a3ad")}
-          </g>
-
-          ${path(
-            `M${145+turn*3} 61
-             L${158+turn*2} 30
-             Q164 27 ${168-turn*4} 79Z`,
-            "#eaaa4a",
-            'stroke="#a86d3b" stroke-width="2.5"'
-          )}
-
-          ${face}
-
-          ${path(
-            `M${left} 85
-             Q${left+2} 57 ${center-24} 50
-             L${center-18} 67
-             L${center-33} 64
-             L${center-28} 78Z`,
-            "#efb24d"
-          )}
-
-          ${path(
-            `M${center+21} 50
-             Q${right-1} 56 ${right} 83
-             L${center+32} 75
-             L${center+37} 65
-             L${center+23} 68Z`,
-            "#efb24d"
-          )}
-
-          ${eyebrows}
-          ${eyes}
-
-          ${ellipse(
-            69+turn*28,110,11,6,"#ef9eaa",
-            `opacity="${.7-turn*.4}"`
-          )}
-
-          ${ellipse(
-            150+turn*6,110,10-turn*3,6,"#ef9eaa"
-          )}
-
-          ${path(
-            `M${noseX-4} 103
-             Q${noseX} 109 ${noseX+5} 103Z`,
-            "#c17c86"
-          )}
-
-          ${mouth}
-          ${tears}
-        </g>
-
-        ${arms}
-        ${extras}
-      </g>
-    </g>
-  </svg>`;
+  timer=setTimeout(()=>{
+    stop();
+    statusBox.textContent="Finished — Replay ya doosra emoji tap karo.";
+  },4000);
 }
 
-function stopSticker(){
-  cancelAnimationFrame(frameId);
-  frameId=0;
-  actor.hidden=true;
-  actor.innerHTML="";
-
-  document.querySelectorAll(".sticker").forEach(b=>{
-    b.classList.remove("active");
-  });
-
-  statusBox.textContent="Stopped — sticker tap karo";
-}
-
-function playSticker(index){
-  stopSticker();
-
-  lastIndex=index;
-  const item=stickers[index];
-  startTime=performance.now();
-
-  actor.hidden=false;
-  grid.children[index].classList.add("active");
-  statusBox.textContent=item.name+" · Preview playing";
-
-  function tick(now){
-    const elapsed=(now-startTime)/1000;
-
-    if(elapsed>=6.4){
-      stopSticker();
-      statusBox.textContent="Finished — Replay kar sakte ho";
-      return;
-    }
-
-    // Reduced-motion preference gets a still expression.
-    const time=reducedMotion.matches?1.5:elapsed;
-    actor.innerHTML=drawSticker(item,time);
-    frameId=requestAnimationFrame(tick);
-  }
-
-  frameId=requestAnimationFrame(tick);
-}
-
-stickers.forEach((item,index)=>{
+items.forEach((item,index)=>{
   const button=document.createElement("button");
   button.type="button";
-  button.className="sticker";
+  button.className="emoji-button";
   button.setAttribute("aria-label",item.name);
 
-  const preview=document.createElement("div");
-  preview.innerHTML=drawSticker(item,1.5);
+  const icon=document.createElement("span");
+  icon.className="icon";
+  icon.textContent=item.emoji;
 
   const label=document.createElement("span");
+  label.className="label";
   label.textContent=item.name;
 
-  button.append(preview,label);
-  button.onclick=()=>playSticker(index);
-
+  button.append(icon,label);
+  button.onclick=()=>play(index);
   grid.appendChild(button);
 });
 
-document.getElementById("replay").onclick=()=>{
-  playSticker(lastIndex);
-};
-
-document.getElementById("stop").onclick=stopSticker;
+document.getElementById("replay").onclick=()=>play(last);
+document.getElementById("stop").onclick=stop;
 </script>
 </body>
 </html>
