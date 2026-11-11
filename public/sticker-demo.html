@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>3D Emoji - Live Working</title>
+    <title>25 Live Animated Emojis</title>
     <style>
         * {
             margin: 0;
@@ -13,8 +13,7 @@
         }
 
         body {
-            background: #0a0a0f;
-            background-image: radial-gradient(circle at top, #1a1a2e, #0a0a0f);
+            background: linear-gradient(to bottom, #0f172a, #000000);
             height: 100vh;
             display: flex;
             flex-direction: column;
@@ -23,25 +22,13 @@
         }
 
         .header {
-            padding: 10px;
+            padding: 12px 20px;
             text-align: center;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
-            color: #ffd700;
-            background: #111;
-            border-bottom: 1px solid #333;
-        }
-
-        /* Image Uploader Section */
-        .uploader {
-            padding: 10px;
-            text-align: center;
-            background: #222;
-            border-bottom: 1px solid #444;
-        }
-        .uploader input {
-            color: white;
-            font-size: 12px;
+            color: #4ade80;
+            background: rgba(0,0,0,0.5);
+            border-bottom: 1px solid #222;
         }
 
         /* Seats Area */
@@ -49,8 +36,8 @@
             flex: 1;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            padding: 20px;
+            gap: 15px;
+            padding: 15px;
             justify-items: center;
             align-content: start;
             margin-top: 10px;
@@ -63,12 +50,11 @@
             position: relative;
         }
 
-        /* Avatar Circle */
         .avatar-circle {
-            width: 90px;
-            height: 90px;
+            width: 85px;
+            height: 85px;
             border-radius: 50%;
-            background: #222;
+            background: #1e1e2a;
             border: 2px solid rgba(255, 255, 255, 0.2);
             display: flex;
             justify-content: center;
@@ -78,8 +64,8 @@
         }
 
         .avatar-circle.has-effect {
-            border-color: #ffd700;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+            border-color: #ffcc00;
+            box-shadow: 0 0 25px rgba(255, 204, 0, 0.6);
         }
 
         .user-icon {
@@ -88,19 +74,15 @@
             transition: opacity 0.3s;
         }
 
-        /* The Cropped Emoji Image Layer */
-        .seat-emoji-container {
+        /* Live GIF Emoji Layer */
+        .seat-emoji {
             position: absolute;
-            top: -15px;
-            left: -15px;
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            /* Default background color */
-            background-color: transparent; 
-            background-size: 300% 200%;
-            background-repeat: no-repeat;
-            filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.9));
+            top: -20px;
+            left: -20px;
+            width: 125px;
+            height: 125px;
+            object-fit: contain;
+            filter: drop-shadow(0px 15px 20px rgba(0,0,0,0.9));
             opacity: 0;
             transform: scale(0.3);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -108,14 +90,14 @@
             z-index: 10;
         }
 
-        .seat-emoji-container.show {
+        .seat-emoji.show {
             opacity: 1;
             transform: scale(1);
         }
 
         .seat-name {
-            margin-top: 12px;
-            font-size: 14px;
+            margin-top: 10px;
+            font-size: 13px;
             color: #ddd;
             background: rgba(0,0,0,0.6);
             padding: 3px 12px;
@@ -124,96 +106,74 @@
 
         /* Control Panel */
         .control-panel {
-            background: rgba(0,0,0,0.8);
-            padding: 15px;
+            background: #111;
+            padding: 10px;
             border-top: 1px solid #333;
-            padding-bottom: 25px;
+            padding-bottom: 15px;
+            max-height: 250px;
+            overflow-y: auto;
         }
 
         .panel-title {
             text-align: center;
-            font-size: 12px;
+            font-size: 13px;
             color: #aaa;
             margin-bottom: 10px;
         }
 
+        /* Emoji Buttons List (Grid format for 25 emojis) */
         .emoji-list {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
             gap: 10px;
+            justify-items: center;
+            padding: 0 10px;
         }
 
-        /* Niche ke Emoji Buttons */
         .select-btn {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             cursor: pointer;
             transition: transform 0.2s;
             border-radius: 50%;
-            border: 2px solid #555;
-            background-color: #333;
-            background-size: 300% 200%;
-            background-repeat: no-repeat;
+            background: rgba(255,255,255,0.05);
+            padding: 5px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .select-btn:active {
             transform: scale(0.8);
+            background: rgba(255,255,255,0.2);
         }
-
-        /* Positions for 6 emojis in the image (3 columns, 2 rows) */
-        .pos-1 { background-position: 0% 0%; }      /* Kiss */
-        .pos-2 { background-position: 50% 0%; }     /* Shy */
-        .pos-3 { background-position: 100% 0%; }    /* Cool */
-        .pos-4 { background-position: 0% 100%; }    /* Sleep */
-        .pos-5 { background-position: 50% 100%; }   /* Laugh */
-        .pos-6 { background-position: 100% 100%; }  /* Mega */
 
         .clear-btn {
             background: #ff4444;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 20px;
             border-radius: 20px;
-            margin: 15px auto 0;
+            margin: 15px auto 5px;
             display: block;
             font-weight: bold;
             cursor: pointer;
+            font-size: 14px;
         }
-
-        /* Flying Heart Animation */
-        @keyframes flyHeart {
-            0% { transform: translate(0, 0) scale(0.5); opacity: 1; }
-            100% { transform: translate(-40px, -80px) scale(1.5); opacity: 0; }
-        }
-
-        .flying-heart {
-            position: absolute;
-            font-size: 28px;
-            pointer-events: none;
-            z-index: 20;
-            animation: flyHeart 1s ease-out forwards;
-        }
-
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="header">Yari App Style Emoji Effects</div>
-
-    <!-- Step 1: Upload Image Here -->
-    <div class="uploader">
-        <label>1. Apni Image Select Karein: </label>
-        <input type="file" id="imageLoader" accept="image/*">
-    </div>
+    <div class="header">Tap Emoji for Live Animation</div>
 
     <div class="room-grid">
         <div class="seat">
             <div class="avatar-circle" id="seat1">
                 <span class="user-icon" id="icon1">👤</span>
-                <!-- Yahan image crop hokar aayegi -->
-                <div class="seat-emoji-container" id="emoji1"></div>
+                <img src="" class="seat-emoji" id="emoji1" alt="Emoji">
             </div>
             <div class="seat-name">Owner</div>
         </div>
@@ -230,96 +190,91 @@
     </div>
 
     <div class="control-panel">
-        <div class="panel-title">2. Emoji Par Tap Karein</div>
-        <div class="emoji-list" id="emojiButtons">
-            <!-- Buttons jinki background image upload hone ke baad set hogi -->
-            <div class="select-btn pos-1" onclick="applyEmoji('pos-1', true)"></div>
-            <div class="select-btn pos-2" onclick="applyEmoji('pos-2', false)"></div>
-            <div class="select-btn pos-3" onclick="applyEmoji('pos-3', false)"></div>
-            <div class="select-btn pos-4" onclick="applyEmoji('pos-4', false)"></div>
-            <div class="select-btn pos-5" onclick="applyEmoji('pos-5', false)"></div>
-            <div class="select-btn pos-6" onclick="applyEmoji('pos-6', false)"></div>
+        <div class="panel-title">Select Emoji (25 Live Animations)</div>
+        <div class="emoji-list">
+            
+            <!-- 1. Kiss -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f618/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 2. Love/Heart Eyes -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60d/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 3. Thinking -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f914/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 4. Laughing -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f602/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 5. Crying -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f62d/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            
+            <!-- 6. Angry -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f621/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 7. Cool Sunglasses -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60e/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 8. Shy/Blush -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60a/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 9. Thumbs Up -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f44d/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 10. Party Face -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f973/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            
+            <!-- 11. Sleeping -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f634/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 12. Mind Blown -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f92f/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 13. Clapping -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f44f/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 14. Confused -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f615/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 15. Star Eyes -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f929/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            
+            <!-- 16. Yawning -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f971/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 17. Screaming -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f631/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 18. Smiling Devil -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f608/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 19. Wink -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f609/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 20. Peace / Victory -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/270c_1f3fb/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            
+            <!-- 21. Sad/Disappointed -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f61e/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 22. Smiling with Halo -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f607/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 23. Drooling (Bhookha) -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f924/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 24. Rolling Eyes -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f644/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- 25. Folded Hands (Namaste) -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f64f/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            
         </div>
         <button class="clear-btn" onclick="clearEmoji()">Remove Effect</button>
     </div>
 
     <script>
         const seat1Avatar = document.getElementById('seat1');
-        const seat1EmojiDiv = document.getElementById('emoji1');
+        const seat1EmojiImg = document.getElementById('emoji1');
         const seat1NormalIcon = document.getElementById('icon1');
-        const imageLoader = document.getElementById('imageLoader');
-        const emojiButtons = document.querySelectorAll('.select-btn');
 
-        // Jab user apni image upload kare
-        imageLoader.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const imageUrl = event.target.result;
-                    
-                    // Jo image user ne upload ki, usko buttons aur seat par set kar do
-                    emojiButtons.forEach(btn => {
-                        btn.style.backgroundImage = `url(${imageUrl})`;
-                    });
-                    seat1EmojiDiv.style.backgroundImage = `url(${imageUrl})`;
-                    
-                    alert("Image Load Ho Gayi! Ab niche emoji par tap karein.");
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Positions mapping
-        const positions = {
-            'pos-1': '0% 0%',       // Kiss
-            'pos-2': '50% 0%',      // Shy
-            'pos-3': '100% 0%',     // Cool
-            'pos-4': '0% 100%',     // Sleep
-            'pos-5': '50% 100%',    // Laugh
-            'pos-6': '100% 100%'    // Mega
-        };
-
-        function applyEmoji(posClass, isKiss) {
-            // Check karein image load hui hai ya nahi
-            if (!seat1EmojiDiv.style.backgroundImage) {
-                alert("Pehle upar se image select karein!");
-                return;
-            }
-
-            seat1EmojiDiv.style.backgroundPosition = positions[posClass];
+        function applyEmoji(imageSource) {
+            seat1EmojiImg.src = imageSource;
             
             setTimeout(() => {
-                seat1EmojiDiv.classList.add('show');
+                seat1EmojiImg.classList.add('show');
                 seat1Avatar.classList.add('has-effect');
                 seat1NormalIcon.style.opacity = '0'; 
-
-                // Agar Kiss (pos-1) tap kiya hai to dil udao
-                if (isKiss) {
-                    createFlyingHeart(seat1Avatar);
-                }
             }, 50);
         }
 
-        function createFlyingHeart(parentElement) {
-            const heart = document.createElement('div');
-            heart.classList.add('flying-heart');
-            heart.innerHTML = '❤️'; 
-            
-            heart.style.left = '70px';
-            heart.style.top = '25px';
-            
-            parentElement.appendChild(heart);
-
-            setTimeout(() => {
-                heart.remove();
-            }, 1000);
-        }
-
         function clearEmoji() {
-            seat1EmojiDiv.classList.remove('show');
+            seat1EmojiImg.classList.remove('show');
             seat1Avatar.classList.remove('has-effect');
             seat1NormalIcon.style.opacity = '1';
+
+            setTimeout(() => {
+                seat1EmojiImg.src = "";
+            }, 400);
         }
     </script>
 </body>
