@@ -2,662 +2,522 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VoxaChat Sticker Demo</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VoxaChat — 5 Sticker Demo</title>
 
 <style>
-* {
-  box-sizing: border-box;
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#120e1f;
+  color:white;
+  font-family:Arial,sans-serif;
 }
-
-body {
-  margin: 0;
-  background: #141020;
-  color: white;
-  font-family: Arial, sans-serif;
-}
-
-.app {
-  max-width: 460px;
-  min-height: 100vh;
-  margin: auto;
-  padding: 22px 16px;
+.app{
+  max-width:460px;
+  min-height:100vh;
+  margin:auto;
+  padding:22px 16px;
   background:
-    radial-gradient(circle at top left, #78445b, transparent 65%),
-    #191329;
+    radial-gradient(at top left,#71475b,transparent 65%),
+    #191429;
 }
-
-h1 {
-  font-size: 21px;
-  margin: 0 0 8px;
+h1{font-size:20px;margin:0 0 8px}
+.sub,.note{
+  color:#d0bfd7;
+  font-size:13px;
+  line-height:1.6;
 }
-
-.description {
-  color: #d0bfd8;
-  font-size: 13px;
-  line-height: 1.6;
+.stage{
+  height:290px;
+  position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
 }
-
-.stage {
-  height: 280px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.seat{
+  width:82px;
+  height:82px;
+  border:2px solid #c0a3c1;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:#ffffff12;
 }
-
-.seat {
-  width: 82px;
-  height: 82px;
-  border: 2px solid #c0a0bb;
-  border-radius: 50%;
-  background: #ffffff12;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ded1e1;
+#actor{
+  position:absolute;
+  top:25px;
+  width:220px;
+  height:220px;
+  pointer-events:none;
 }
-
-.seat-name {
-  position: absolute;
-  top: 195px;
-  font-size: 14px;
+#actor svg{
+  width:100%;
+  height:100%;
+  overflow:visible;
 }
-
-.reaction {
-  position: absolute;
-  top: 40px;
-  width: 180px;
-  height: 180px;
-  pointer-events: none;
+.name{
+  position:absolute;
+  bottom:36px;
+  font-size:13px;
 }
-
-.reaction svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
+.panel{
+  background:#211b35;
+  border:1px solid #ffffff20;
+  border-radius:20px;
+  padding:16px;
 }
-
-.panel {
-  padding: 18px;
-  background: #211b36;
-  border: 1px solid #ffffff20;
-  border-radius: 20px;
+.heading{margin-bottom:14px;color:#edc5f3}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:9px;
 }
-
-.panel-title {
-  margin-bottom: 16px;
-  color: #f0c8f5;
-  font-size: 16px;
+button{
+  background:#382b4d;
+  border:1px solid #ffffff25;
+  color:white;
+  border-radius:13px;
+  cursor:pointer;
+  touch-action:manipulation;
 }
-
-.sticker-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+.sticker{
+  padding:8px 3px 12px;
+  font-size:12px;
 }
-
-.sticker-button {
-  padding: 8px 3px 12px;
-  background: #352b4c;
-  color: white;
-  border: 1px solid #ffffff25;
-  border-radius: 14px;
-  cursor: pointer;
-  touch-action: manipulation;
+.sticker svg{
+  width:100%;
+  max-width:95px;
+  display:block;
+  margin:auto;
 }
-
-.sticker-button svg {
-  display: block;
-  width: 100%;
-  max-width: 100px;
-  margin: auto;
+button.active{
+  border-color:#e6a6f4;
+  background:#634371;
 }
-
-.sticker-button span {
-  display: block;
-  font-size: 12px;
+.controls{display:flex;gap:10px}
+.controls button{flex:1;padding:12px}
+#status{
+  min-height:38px;
+  font-size:13px;
+  color:#eac0e4;
+  margin-top:16px;
 }
-
-.sticker-button:active {
-  background: #58416c;
-}
-
-.controls {
-  display: flex;
-  gap: 10px;
-}
-
-.controls button {
-  flex: 1;
-  padding: 12px;
-  background: #49345f;
-  border: 1px solid #ffffff25;
-  border-radius: 10px;
-  color: white;
-  cursor: pointer;
-}
-
-#status {
-  min-height: 36px;
-  margin: 16px 0 8px;
-  color: #ecc0e0;
-  font-size: 13px;
-}
-
-.note {
-  color: #c9bad3;
-  font-size: 13px;
-  line-height: 1.7;
-}
-
-.left-facing {
-  transform: scaleX(-1);
-}
-
-/* Default character expressions */
-.closed-eyes,
-.kiss-mouth {
-  display: none;
-}
-
-.heart,
-.clap-lines {
-  opacity: 0;
-}
-
-/* Kiss expression */
-.playing.kiss .open-eyes,
-.playing.kiss .smile-mouth {
-  display: none;
-}
-
-.playing.kiss .closed-eyes,
-.playing.kiss .kiss-mouth {
-  display: block;
-}
-
-.head {
-  transform-origin: 100px 95px;
-}
-
-.playing.kiss .head {
-  animation: kiss-head 900ms ease-in-out infinite alternate;
-}
-
-.playing.kiss .cheeks {
-  animation: blush 900ms ease-in-out infinite alternate;
-}
-
-.playing.kiss .heart {
-  animation: flying-heart 1600ms ease-out infinite;
-}
-
-.playing.kiss .heart-two {
-  animation-delay: 500ms;
-}
-
-.playing.kiss .heart-three {
-  animation-delay: 1000ms;
-}
-
-/* Hands move individually */
-.arm {
-  transform-box: fill-box;
-  transform-origin: center bottom;
-}
-
-.playing.clap .arm-left {
-  animation: clap-left 450ms ease-in-out infinite alternate;
-}
-
-.playing.clap .arm-right {
-  animation: clap-right 450ms ease-in-out infinite alternate;
-}
-
-.playing.clap .clap-lines {
-  animation: clap-flash 900ms ease-in-out infinite;
-}
-
-.playing.clap .open-eyes {
-  animation: blink 1800ms infinite;
-}
-
-@keyframes kiss-head {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(10deg);
-  }
-}
-
-@keyframes blush {
-  from {
-    opacity: .5;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes flying-heart {
-  0% {
-    opacity: 0;
-    transform: translate(0, 0) scale(.4);
-  }
-  25% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translate(38px, -40px) scale(1.15);
-  }
-}
-
-@keyframes clap-left {
-  from {
-    transform: translateX(-10px) rotate(-18deg);
-  }
-  to {
-    transform: translateX(12px) rotate(12deg);
-  }
-}
-
-@keyframes clap-right {
-  from {
-    transform: translateX(10px) rotate(18deg);
-  }
-  to {
-    transform: translateX(-12px) rotate(-12deg);
-  }
-}
-
-@keyframes clap-flash {
-  0%, 35%, 100% {
-    opacity: 0;
-  }
-  45%, 60% {
-    opacity: 1;
-  }
-}
-
-@keyframes blink {
-  0%, 42%, 50%, 100% {
-    opacity: 1;
-  }
-  46% {
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .playing * {
-    animation: none !important;
-  }
-
-  .playing.kiss .heart {
-    opacity: 1;
-  }
-}
+.note{margin-top:18px}
 </style>
 </head>
 
 <body>
-<div class="app">
-  <h1>VoxaChat · Sticker Demo</h1>
-
-  <div class="description">
-    Custom cartoon cat · Left Kiss, Right Kiss aur Clap
+<main class="app">
+  <h1>VoxaChat · Custom Stickers V2</h1>
+  <div class="sub">
+    5 reactions · Original cartoon cat preview
   </div>
 
   <div class="stage">
     <div class="seat">Your DP</div>
-
-    <div
-      id="reaction"
-      class="reaction"
-      aria-hidden="true"
-      hidden
-    ></div>
-
-    <div class="seat-name">Your sample seat</div>
+    <div id="actor" hidden aria-hidden="true"></div>
+    <div class="name">Your sample seat</div>
   </div>
 
   <section class="panel">
-    <div class="panel-title">Normal · 3 sample stickers</div>
-
-    <div id="stickerGrid" class="sticker-grid"></div>
-
-    <div id="status" role="status">
-      Kisi sticker ko tap karo.
-    </div>
+    <div class="heading">Normal · 5 sample stickers</div>
+    <div id="grid" class="grid"></div>
+    <div id="status" role="status">Sticker tap karo</div>
 
     <div class="controls">
-      <button type="button" id="replayBtn">Replay</button>
-      <button type="button" id="stopBtn">Stop</button>
+      <button id="replay" type="button">Replay</button>
+      <button id="stop" type="button">Stop</button>
     </div>
   </section>
 
-  <p class="note">
-    Ye alag demo hai. Isse aapke existing room ya emoji code
-    mein koi change nahi hota. Abhi poore 26 stickers nahi,
-    sirf 3 sample animations hain.
-  </p>
-</div>
+  <div class="note">
+    Kiss mein face front se side profile mein badalta hai.
+    Laugh, Cry aur Angry ke expressions alag hain.
+    Ye independent demo hai—room ka code change nahi karta.
+  </div>
+</main>
 
 <script>
 "use strict";
 
-const reactionBox = document.getElementById("reaction");
-const stickerGrid = document.getElementById("stickerGrid");
-const statusBox = document.getElementById("status");
+const actor=document.getElementById("actor");
+const statusBox=document.getElementById("status");
+const grid=document.getElementById("grid");
 
-let reactionTimer = null;
-let lastSticker = 0;
-
-const stickers = [
-  {
-    name: "Left Kiss",
-    effect: "kiss",
-    left: true
-  },
-  {
-    name: "Right Kiss",
-    effect: "kiss",
-    left: false
-  },
-  {
-    name: "Clap",
-    effect: "clap",
-    left: false
-  }
+const stickers=[
+  {name:"Left Kiss",kind:"kiss",direction:-1},
+  {name:"Right Kiss",kind:"kiss",direction:1},
+  {name:"Laugh",kind:"laugh",direction:1},
+  {name:"Cry",kind:"cry",direction:1},
+  {name:"Angry",kind:"angry",direction:1}
 ];
 
-function createCatSVG() {
-  return `
-  <svg
-    viewBox="0 0 200 200"
-    xmlns="http://www.w3.org/2000/svg"
-    aria-hidden="true"
-  >
-    <!-- Shadow -->
-    <ellipse
-      cx="100" cy="184"
-      rx="42" ry="6"
-      fill="#000000"
-      opacity=".15"
-    />
+let frameId=0;
+let lastIndex=0;
+let startTime=0;
 
-    <!-- Body -->
-    <ellipse
-      cx="100" cy="151"
-      rx="37" ry="33"
-      fill="#fff4df"
-      stroke="#995c34"
-      stroke-width="3"
-    />
+const reducedMotion=window.matchMedia(
+  "(prefers-reduced-motion: reduce)"
+);
 
-    <!-- Feet -->
-    <ellipse
-      cx="80" cy="178"
-      rx="14" ry="8"
-      fill="#fff4df"
-      stroke="#995c34"
-      stroke-width="3"
-    />
-
-    <ellipse
-      cx="120" cy="178"
-      rx="14" ry="8"
-      fill="#fff4df"
-      stroke="#995c34"
-      stroke-width="3"
-    />
-
-    <g class="head">
-      <!-- Ears -->
-      <path
-        d="M43 77 L37 21 L80 42
-           Q100 30 121 42
-           L163 21 L157 77"
-        fill="#eea643"
-        stroke="#995c34"
-        stroke-width="3"
-        stroke-linejoin="round"
-      />
-
-      <path
-        d="M47 36 L52 61 L69 46
-           M153 36 L148 61 L131 46"
-        fill="#f2abb7"
-      />
-
-      <!-- Face -->
-      <ellipse
-        cx="100" cy="95"
-        rx="66" ry="55"
-        fill="#fff5e6"
-        stroke="#995c34"
-        stroke-width="3"
-      />
-
-      <!-- Orange patches -->
-      <path
-        d="M36 80 Q39 44 76 41
-           L86 60 L66 56 L73 73 Z"
-        fill="#eea643"
-      />
-
-      <path
-        d="M164 80 Q161 44 124 41
-           L114 60 L134 56 L127 73 Z"
-        fill="#eea643"
-      />
-
-      <!-- Forehead stripes -->
-      <path
-        d="M90 42 L96 60 L102 43
-           L109 60 L115 43"
-        fill="#d88b31"
-      />
-
-      <!-- Open eyes -->
-      <g class="open-eyes" fill="#473143">
-        <ellipse cx="75" cy="91" rx="6" ry="9"/>
-        <ellipse cx="125" cy="91" rx="6" ry="9"/>
-
-        <circle cx="77" cy="88" r="2" fill="white"/>
-        <circle cx="127" cy="88" r="2" fill="white"/>
-      </g>
-
-      <!-- Closed kiss eyes -->
-      <g
-        class="closed-eyes"
-        stroke="#473143"
-        stroke-width="4"
-        fill="none"
-        stroke-linecap="round"
-      >
-        <path d="M65 93 Q75 82 85 93"/>
-        <path d="M115 93 Q125 82 135 93"/>
-      </g>
-
-      <!-- Cheeks -->
-      <g class="cheeks" fill="#ed9ca9">
-        <ellipse cx="57" cy="111" rx="13" ry="7"/>
-        <ellipse cx="143" cy="111" rx="13" ry="7"/>
-      </g>
-
-      <!-- Nose -->
-      <path
-        d="M96 102 Q100 107 104 102"
-        fill="none"
-        stroke="#b87682"
-        stroke-width="4"
-        stroke-linecap="round"
-      />
-
-      <!-- Smile -->
-      <path
-        class="smile-mouth"
-        d="M87 114 Q100 130 113 114"
-        fill="#e995a8"
-        stroke="#69414a"
-        stroke-width="3"
-      />
-
-      <!-- Kiss lips -->
-      <path
-        class="kiss-mouth"
-        d="M110 111 L120 115 L110 119 L120 123"
-        fill="none"
-        stroke="#bd567b"
-        stroke-width="4"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-    </g>
-
-    <!-- Left hand -->
-    <g class="arm arm-left">
-      <ellipse
-        cx="76" cy="151"
-        rx="14" ry="21"
-        fill="#fff4df"
-        stroke="#995c34"
-        stroke-width="3"
-      />
-
-      <path
-        d="M70 138 L71 144 M77 137 L78 143"
-        stroke="#d7a178"
-        stroke-width="2"
-        stroke-linecap="round"
-      />
-    </g>
-
-    <!-- Right hand -->
-    <g class="arm arm-right">
-      <ellipse
-        cx="124" cy="151"
-        rx="14" ry="21"
-        fill="#fff4df"
-        stroke="#995c34"
-        stroke-width="3"
-      />
-
-      <path
-        d="M123 137 L122 143 M130 138 L129 144"
-        stroke="#d7a178"
-        stroke-width="2"
-        stroke-linecap="round"
-      />
-    </g>
-
-    <!-- Clap marks -->
-    <g
-      class="clap-lines"
-      fill="none"
-      stroke="#ffdc69"
-      stroke-width="4"
-      stroke-linecap="round"
-    >
-      <path d="M100 130 L100 120"/>
-      <path d="M90 132 L84 125"/>
-      <path d="M110 132 L116 125"/>
-    </g>
-
-    <!-- Flying hearts -->
-    <g fill="#f570a6">
-      <path
-        class="heart"
-        d="M147 91
-           C128 80 139 65 147 76
-           C157 64 169 80 147 91 Z"
-      />
-
-      <path
-        class="heart heart-two"
-        d="M147 91
-           C128 80 139 65 147 76
-           C157 64 169 80 147 91 Z"
-      />
-
-      <path
-        class="heart heart-three"
-        d="M147 91
-           C128 80 139 65 147 76
-           C157 64 169 80 147 91 Z"
-      />
-    </g>
-  </svg>
-  `;
-}
-
-function stopSticker() {
-  clearTimeout(reactionTimer);
-  reactionTimer = null;
-
-  reactionBox.hidden = true;
-  reactionBox.innerHTML = "";
-
-  statusBox.textContent = "Stopped — koi sticker tap karo.";
-}
-
-function playSticker(index) {
-  const sticker = stickers[index];
-  if (!sticker) return;
-
-  clearTimeout(reactionTimer);
-  lastSticker = index;
-
-  reactionBox.className =
-    "reaction playing " +
-    sticker.effect +
-    (sticker.left ? " left-facing" : "");
-
-  // New SVG restarts the animation on every tap.
-  reactionBox.innerHTML = createCatSVG();
-  reactionBox.hidden = false;
-
-  statusBox.textContent =
-    sticker.name + " — 4 seconds chal raha hai.";
-
-  reactionTimer = setTimeout(() => {
-    stopSticker();
-    statusBox.textContent =
-      "Finished — Replay ya doosra sticker tap karo.";
-  }, 4000);
-}
-
-stickers.forEach((sticker, index) => {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "sticker-button";
-  button.setAttribute("aria-label", sticker.name);
-
-  const preview = document.createElement("div");
-  if (sticker.left) {
-    preview.className = "left-facing";
-  }
-
-  preview.innerHTML = createCatSVG();
-
-  const label = document.createElement("span");
-  label.textContent = sticker.name;
-
-  button.append(preview, label);
-  button.onclick = () => playSticker(index);
-
-  stickerGrid.appendChild(button);
-});
-
-document.getElementById("replayBtn").onclick = () => {
-  playSticker(lastSticker);
+const clamp=x=>Math.max(0,Math.min(1,x));
+const smooth=x=>{
+  x=clamp(x);
+  return x*x*(3-2*x);
 };
 
-document.getElementById("stopBtn").onclick = stopSticker;
+function path(d,fill,extra=""){
+  return `<path d="${d}" fill="${fill}" ${extra}/>`;
+}
+
+function line(d,width=3,color="#583342"){
+  return path(
+    d,"none",
+    `stroke="${color}" stroke-width="${width}"
+     stroke-linecap="round" stroke-linejoin="round"`
+  );
+}
+
+function ellipse(x,y,rx,ry,fill,extra=""){
+  return `<ellipse cx="${x}" cy="${y}"
+    rx="${rx}" ry="${ry}" fill="${fill}" ${extra}/>`;
+}
+
+function heart(x,y,size,opacity){
+  return `<g transform="translate(${x} ${y}) scale(${size})"
+    opacity="${opacity}">
+    <path d="M0 5C-19-7-10-23 0-12
+      C10-23 19-7 0 5Z" fill="#fa649b"/>
+  </g>`;
+}
+
+function paw(x,y,angle=0){
+  return `<g transform="translate(${x} ${y}) rotate(${angle})">
+    ${ellipse(0,0,12,17,"#fff5e7",
+      'stroke="#ad713c" stroke-width="2.5"')}
+    ${line("M-5-8L-4-3M1-9L1-4",1.8,"#d3a584")}
+  </g>`;
+}
+
+function drawSticker(item,t){
+  const kind=item.kind;
+  const kiss=kind==="kiss";
+  const laugh=kind==="laugh";
+  const cry=kind==="cry";
+  const angry=kind==="angry";
+
+  // Kiss: front -> side -> kiss -> front.
+  const cycle=t%3.2;
+  const turn=kiss
+    ?smooth(cycle/.75)*(1-smooth((cycle-2.25)/.75))
+    :0;
+
+  const blowing=kiss
+    ?smooth((cycle-.85)/.35)*
+      (1-smooth((cycle-2.2)/.35))
+    :0;
+
+  const bounce=laugh?Math.sin(t*18)*2.5:
+    cry?Math.sin(t*12)*1.1:
+    angry?Math.sin(t*28)*1.4:0;
+
+  const tilt=laugh?Math.sin(t*9)*6:
+    cry?Math.sin(t*4)*4:0;
+
+  const center=110+turn*5;
+  const left=center-57+turn*17;
+  const right=center+57-turn*3;
+  const noseX=center+turn*49;
+  const farEyeOpacity=1-smooth(turn);
+  const blink=Math.sin(t*3)>0.985;
+  const mouthX=110+turn*40;
+
+  let eyes="";
+  let eyebrows="";
+  let mouth="";
+  let tears="";
+  let extras="";
+
+  if(kiss){
+    eyes=
+      `<g opacity="${farEyeOpacity}">
+        ${turn>.2
+          ?line("M77 93Q85 86 93 93")
+          :ellipse(85,91,5,7,"#493443")}
+      </g>`+
+      (turn>.2
+        ?line(`M${117+turn*13} 94q8-8 16 0`)
+        :ellipse(133,91,5,7,"#493443"));
+
+    mouth=blowing>.15
+      ?line(
+        `M${mouthX-1} 112
+         l${6+blowing*4} 3
+         l-${6+blowing*4} 3
+         l${6+blowing*4} 3`,
+        3.5,"#b84e75"
+      )
+      :line(`M${mouthX-8} 113q8 9 16 0`);
+
+    if(blowing>.1){
+      for(let i=0;i<3;i++){
+        const age=(t*1.1+i*.33)%1;
+        extras+=heart(
+          154+age*34,
+          108-age*45,
+          .35+age*.35,
+          Math.sin(age*Math.PI)*blowing
+        );
+      }
+    }
+  }
+
+  if(laugh){
+    eyes=line("M73 94Q84 81 95 94")+
+      line("M122 94Q133 81 144 94");
+
+    const opening=13+(Math.sin(t*15)+1)*3;
+    mouth=ellipse(110,116,17,opening,"#663249")+
+      ellipse(110,124,10,5,"#f38f9c")+
+      path("M97 105Q110 108 123 105L121 111H99Z","#fffaf0");
+
+    extras=line("M39 82l-7-6M38 96l-9 1",3,"#ffd467")+
+      line("M181 82l7-6M182 96l9 1",3,"#ffd467");
+  }
+
+  if(cry){
+    eyes=line("M74 96Q84 103 94 95")+
+      line("M123 95Q133 103 143 96");
+
+    eyebrows=line("M74 81L94 75")+
+      line("M124 75L144 81");
+
+    mouth=path(
+      `M98 123Q110 ${103+Math.sin(t*15)*2} 122 123
+       Q110 117 98 123`,
+      "#9e5269"
+    );
+
+    for(let i=0;i<4;i++){
+      const age=(t*1.5+i*.25)%1;
+      const x=i%2?136:82;
+      const y=104+age*43;
+
+      tears+=path(
+        `M${x} ${y-7}
+         Q${x-8} ${y+4} ${x} ${y+7}
+         Q${x+8} ${y+4} ${x} ${y-7}`,
+        "#78d6fa",
+        `opacity="${1-age}"`
+      );
+    }
+  }
+
+  if(angry){
+    eyebrows=line("M72 77L96 87",4)+
+      line("M124 87L148 77",4);
+
+    eyes=ellipse(85,96,8,6,"#fff")+
+      ellipse(135,96,8,6,"#fff")+
+      ellipse(88,97,3,5,"#613b39")+
+      ellipse(132,97,3,5,"#613b39");
+
+    mouth=path(
+      "M94 115Q110 108 126 115L123 126H97Z",
+      "#fff9ed",
+      'stroke="#6c3c3d" stroke-width="2.5"'
+    )+line("M109 114V124",1.5);
+
+    const steam=(t*.9)%1;
+    extras=`<g opacity="${1-steam}"
+      transform="translate(0 ${-steam*20})">
+      ${line("M51 61q-9-8 0-15q8-7 0-14",4,"#e9d6eb")}
+      ${line("M170 61q9-8 0-15q-8-7 0-14",4,"#e9d6eb")}
+    </g>`;
+  }
+
+  if(!eyes){
+    eyes=blink
+      ?line("M77 94H93M125 94H141")
+      :ellipse(85,93,5,7,"#493443")+
+       ellipse(133,93,5,7,"#493443");
+  }
+
+  const face=path(
+    `M${left} 89
+     Q${left-2} 57 ${center-25} 49
+     Q${center} 40 ${center+27} 50
+     Q${right} 58 ${right} 89
+     Q${right+turn*12} 100 ${noseX+4} 105
+     Q${right-3} 137 ${center+6} 145
+     Q${left+3} 142 ${left} 111Z`,
+    angry?"#ffe7d9":"#fff5e7",
+    'stroke="#a86d3b" stroke-width="2.5"'
+  );
+
+  let arms="";
+
+  if(kiss){
+    const handX=139+blowing*25;
+    const handY=133-blowing*10;
+
+    arms=paw(80,157,-12)+
+      line(`M137 162Q151 153 ${handX} ${handY}`,
+        13,"#f5dcb8")+
+      paw(handX,handY,turn*25);
+  }else if(laugh){
+    arms=paw(88,159,25+Math.sin(t*10)*10)+
+      paw(132,159,-25-Math.sin(t*10)*10);
+  }else if(cry){
+    arms=paw(72,123,-25)+paw(148,123,25);
+  }else{
+    arms=paw(68,154,-30)+paw(152,154,30);
+  }
+
+  return `<svg viewBox="0 0 220 220"
+    xmlns="http://www.w3.org/2000/svg">
+    ${ellipse(110,195,42,5,"#000",'opacity=".15"')}
+
+    <g transform="${item.direction<0
+      ?"translate(220 0) scale(-1 1)":"translate(0 0)"}">
+
+      <g transform="translate(0 ${bounce})">
+        ${ellipse(110,163,34,30,"#ffefdb",
+          'stroke="#a86d3b" stroke-width="2.5"')}
+
+        ${ellipse(94,190,13,7,"#fff5e7")}
+        ${ellipse(126,190,13,7,"#fff5e7")}
+
+        <g transform="rotate(${tilt} 110 105)">
+          <g opacity="${1-turn*.7}">
+            ${path("M58 76L53 30Q57 24 89 51Z","#eaaa4a",
+              'stroke="#a86d3b" stroke-width="2.5"')}
+            ${path("M61 60L59 39L77 54Z","#e9a3ad")}
+          </g>
+
+          ${path(
+            `M${145+turn*3} 61
+             L${158+turn*2} 30
+             Q164 27 ${168-turn*4} 79Z`,
+            "#eaaa4a",
+            'stroke="#a86d3b" stroke-width="2.5"'
+          )}
+
+          ${face}
+
+          ${path(
+            `M${left} 85
+             Q${left+2} 57 ${center-24} 50
+             L${center-18} 67
+             L${center-33} 64
+             L${center-28} 78Z`,
+            "#efb24d"
+          )}
+
+          ${path(
+            `M${center+21} 50
+             Q${right-1} 56 ${right} 83
+             L${center+32} 75
+             L${center+37} 65
+             L${center+23} 68Z`,
+            "#efb24d"
+          )}
+
+          ${eyebrows}
+          ${eyes}
+
+          ${ellipse(
+            69+turn*28,110,11,6,"#ef9eaa",
+            `opacity="${.7-turn*.4}"`
+          )}
+
+          ${ellipse(
+            150+turn*6,110,10-turn*3,6,"#ef9eaa"
+          )}
+
+          ${path(
+            `M${noseX-4} 103
+             Q${noseX} 109 ${noseX+5} 103Z`,
+            "#c17c86"
+          )}
+
+          ${mouth}
+          ${tears}
+        </g>
+
+        ${arms}
+        ${extras}
+      </g>
+    </g>
+  </svg>`;
+}
+
+function stopSticker(){
+  cancelAnimationFrame(frameId);
+  frameId=0;
+  actor.hidden=true;
+  actor.innerHTML="";
+
+  document.querySelectorAll(".sticker").forEach(b=>{
+    b.classList.remove("active");
+  });
+
+  statusBox.textContent="Stopped — sticker tap karo";
+}
+
+function playSticker(index){
+  stopSticker();
+
+  lastIndex=index;
+  const item=stickers[index];
+  startTime=performance.now();
+
+  actor.hidden=false;
+  grid.children[index].classList.add("active");
+  statusBox.textContent=item.name+" · Preview playing";
+
+  function tick(now){
+    const elapsed=(now-startTime)/1000;
+
+    if(elapsed>=6.4){
+      stopSticker();
+      statusBox.textContent="Finished — Replay kar sakte ho";
+      return;
+    }
+
+    // Reduced-motion preference gets a still expression.
+    const time=reducedMotion.matches?1.5:elapsed;
+    actor.innerHTML=drawSticker(item,time);
+    frameId=requestAnimationFrame(tick);
+  }
+
+  frameId=requestAnimationFrame(tick);
+}
+
+stickers.forEach((item,index)=>{
+  const button=document.createElement("button");
+  button.type="button";
+  button.className="sticker";
+  button.setAttribute("aria-label",item.name);
+
+  const preview=document.createElement("div");
+  preview.innerHTML=drawSticker(item,1.5);
+
+  const label=document.createElement("span");
+  label.textContent=item.name;
+
+  button.append(preview,label);
+  button.onclick=()=>playSticker(index);
+
+  grid.appendChild(button);
+});
+
+document.getElementById("replay").onclick=()=>{
+  playSticker(lastIndex);
+};
+
+document.getElementById("stop").onclick=stopSticker;
 </script>
 </body>
-  </html>
+</html>
