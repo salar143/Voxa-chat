@@ -3,304 +3,210 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Premium Animated Emoji Picker</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VoxaChat Emoji Panel</title>
 <style>
-* {
-  box-sizing: border-box;
+*{box-sizing:border-box}
+body{
+  margin:0;background:#080b20;color:white;
+  font-family:Arial,sans-serif;padding:15px;
 }
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  padding: 24px 12px;
-  font-family: Arial, sans-serif;
-  color: white;
-  background:
-    radial-gradient(ellipse at top, #25105a, transparent 65%),
-    linear-gradient(160deg, #030817, #100527 55%, #020817);
+.app{
+  max-width:480px;margin:auto;padding:18px 10px;
+  background:linear-gradient(145deg,#24103e,#07162d);
+  border:2px solid #a56bff;border-radius:22px;
+  box-shadow:0 0 20px #974cff66;
 }
-
-.emoji-app {
-  max-width: 1050px;
-  margin: auto;
+h2{text-align:center;color:#e6c5ff}
+#toggle{
+  display:block;margin:15px auto;padding:13px 25px;
+  background:#21123f;color:white;border:1px solid #d9a0ff;
+  border-radius:50px;font-size:25px;cursor:pointer;
 }
-
-.tier {
-  --glow: #00eaff;
-  position: relative;
-  margin: 26px 30px 40px;
-  padding: 48px 14px 16px;
-  border: 2px solid var(--glow);
-  border-radius: 26px;
-  box-shadow: 0 0 15px var(--glow),
-              inset 0 0 16px #ffffff10;
+#panel{display:none}
+#panel.open{display:block}
+.tier{
+  --glow:#42ffac;position:relative;
+  border:1px solid var(--glow);border-radius:16px;
+  padding:23px 7px 10px;margin:25px 8px;
+  box-shadow:0 0 12px #a56bff22;
 }
-
-.free { --glow: #32ff9c; }
-.vip2 { --glow: #ffbe24; }
-.vip6 { --glow: #d64dff; }
-
-.tier-title {
-  position: absolute;
-  top: -22px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: max-content;
-  max-width: 90%;
-  padding: 10px 22px;
-  text-align: center;
-  border: 2px solid var(--glow);
-  border-radius: 40px;
-  background: #08071c;
-  box-shadow: 0 0 14px var(--glow);
-  font-size: clamp(14px, 2.7vw, 23px);
-  font-weight: 800;
+.vip2{--glow:#ffd052}
+.vip6{--glow:#df70ff}
+.tier h3{
+  position:absolute;top:-13px;left:50%;
+  transform:translateX(-50%);white-space:nowrap;
+  margin:0;padding:5px 10px;font-size:12px;
+  border:1px solid var(--glow);border-radius:20px;
+  background:#0b0c20;color:var(--glow);
 }
-
-.free .tier-title { color: #66ffb2; }
-.vip2 .tier-title { color: #ffd65c; }
-.vip6 .tier-title { color: #e8a0ff; }
-
-.emoji-grid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
+.grid{
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:6px;
 }
-
-.emoji-card {
-  aspect-ratio: 1 / 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-  position: relative;
-  overflow: hidden;
-  border: 1px solid #7778ff;
-  border-radius: 20px;
-  background: linear-gradient(145deg, #171936, #090d22);
-  box-shadow: inset 0 0 12px #7b61ff25;
-  cursor: pointer;
-  transition: transform .2s, box-shadow .2s;
+.emoji{
+  aspect-ratio:1;border:1px solid #71649f;
+  border-radius:12px;background:#17172f;
+  display:grid;place-items:center;
+  font-size:clamp(25px,7vw,38px);cursor:pointer;
 }
-
-.emoji-card:hover {
-  transform: translateY(-5px) scale(1.04);
-  box-shadow: 0 0 18px var(--glow);
+.emoji:active{transform:scale(.9)}
+.arrows{display:flex;justify-content:space-between;margin-top:9px}
+.arrows button{
+  color:white;background:#21143f;border:1px solid #b88aff;
+  border-radius:20px;padding:5px 15px;font-size:18px;
 }
-
-.emoji {
-  font-size: clamp(27px, 6.3vw, 66px);
-  line-height: 1;
-  filter: drop-shadow(0 5px 5px #0008);
-  user-select: none;
+.custom{
+  padding:12px;border:1px solid #7963a0;border-radius:12px;
+  font-size:13px;
 }
-
-.vip2 .emoji-card { border-color: #ffbf45; }
-.vip6 .emoji-card { border-color: #d64dff; }
-
-.nav {
-  position: absolute;
-  top: 50%;
-  z-index: 2;
-  transform: translateY(-50%);
-  width: 44px;
-  height: 54px;
-  border: 2px solid #9b7bff;
-  border-radius: 50%;
-  color: white;
-  background: #160d3b;
-  box-shadow: 0 0 15px #8d59ff;
-  font-size: 30px;
-  cursor: pointer;
+label{display:flex;justify-content:space-between;margin:10px 0}
+select{background:#17132c;color:white;padding:5px;border:1px solid #a56bff;border-radius:7px}
+#avatar{
+  position:relative;margin:35px auto 15px;
+  width:90px;height:90px;border:1px solid #b9a0d8;
+  border-radius:50%;display:grid;place-items:center;
+  background:#111a30;font-size:35px;
 }
-
-.nav:hover {
-  background: #4622a2;
-  box-shadow: 0 0 22px #bd91ff;
+.reaction{
+  position:absolute;top:-35px;left:50%;
+  font-size:45px;white-space:nowrap;
+  pointer-events:none;transform:translateX(-50%);
 }
-
-.nav.left { left: -27px; }
-.nav.right { right: -27px; }
-
-.footer {
-  text-align: center;
-  color: #bdb5df;
-  font-size: 13px;
-  padding: 8px;
+.bounce{animation:bounce 1.8s ease-out forwards}
+.float{animation:float 2s ease-out forwards}
+.pulse{animation:pulse 1.8s ease-out forwards}
+@keyframes bounce{
+  0%{opacity:0;transform:translate(-50%,20px) scale(.2)}
+  25%{opacity:1;transform:translate(-50%,-5px) scale(1.3)}
+  55%{transform:translate(-50%,-20px) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-80px) scale(.8)}
 }
-
-@media (max-width: 520px) {
-  body { padding: 20px 5px; }
-  .tier {
-    margin: 28px 21px 34px;
-    padding: 35px 6px 8px;
-    border-radius: 17px;
-  }
-  .emoji-grid { gap: 5px; }
-  .emoji-card { border-radius: 12px; }
-  .nav {
-    width: 32px;
-    height: 40px;
-    font-size: 23px;
-  }
-  .nav.left { left: -21px; }
-  .nav.right { right: -21px; }
-  .tier-title {
-    padding: 9px 10px;
-    top: -18px;
-  }
+@keyframes float{
+  0%{opacity:0;transform:translate(-50%,20px)}
+  20%{opacity:1}
+  100%{opacity:0;transform:translate(-50%,-100px)}
+}
+@keyframes pulse{
+  0%{opacity:0;transform:translate(-50%,0) scale(.2)}
+  30%{opacity:1;transform:translate(-50%,-10px) scale(1.4)}
+  100%{opacity:0;transform:translate(-50%,-65px) scale(1)}
 }
 </style>
 </head>
-
 <body>
-<main class="emoji-app">
+<div class="app">
+<h2>✨ EMOJI COLLECTION ✨</h2>
 
-  <!-- FREE: 15 EMOJIS -->
-  <section class="tier free" data-tier="free">
-    <div class="tier-title">
-      ✅ Free Emojis (15) — Everyone Can Use
-    </div>
+<button id="toggle" aria-expanded="false">😊</button>
 
-    <button class="nav left" aria-label="Previous free emojis"
-      onclick="moveEmojis('free', -1)">‹</button>
+<div id="panel">
+<section class="tier" data-tier="free">
+<h3>💚 FREE EMOJIS (15)</h3>
+<div class="grid" id="free"></div>
+<div class="arrows">
+<button data-move="-1">◀</button>
+<button data-move="1">▶</button>
+</div>
+</section>
 
-    <div class="emoji-grid" id="free-grid"></div>
+<section class="tier vip2" data-tier="vip2">
+<h3>👑 VIP 2+ (5)</h3>
+<div class="grid" id="vip2"></div>
+<div class="arrows">
+<button data-move="-1">◀</button>
+<button data-move="1">▶</button>
+</div>
+</section>
 
-    <button class="nav right" aria-label="Next free emojis"
-      onclick="moveEmojis('free', 1)">›</button>
-  </section>
+<section class="tier vip6" data-tier="vip6">
+<h3>💎 VIP 6+ (5)</h3>
+<div class="grid" id="vip6"></div>
+<div class="arrows">
+<button data-move="-1">◀</button>
+<button data-move="1">▶</button>
+</div>
+</section>
 
-  <!-- VIP LEVEL 2+: 5 EMOJIS -->
-  <section class="tier vip2" data-tier="vip2">
-    <div class="tier-title">
-      👑 VIP 2+ (5) — Premium Access
-    </div>
+<div class="custom">
+<b>🎨 Customize Animation</b>
+<label>Animation
+<select id="animation">
+<option value="bounce">Bouncy</option>
+<option value="float">Floating</option>
+<option value="pulse">Pulse</option>
+</select>
+</label>
+<label>Effect
+<select id="effect">
+<option value="✨">✨ Sparkles</option>
+<option value="💗">💗 Hearts</option>
+<option value="">No effect</option>
+</select>
+</label>
+</div>
+</div>
 
-    <button class="nav left" aria-label="Previous VIP 2 emojis"
-      onclick="moveEmojis('vip2', -1)">‹</button>
-
-    <div class="emoji-grid" id="vip2-grid"></div>
-
-    <button class="nav right" aria-label="Next VIP 2 emojis"
-      onclick="moveEmojis('vip2', 1)">›</button>
-  </section>
-
-  <!-- VIP LEVEL 6+: 5 EMOJIS -->
-  <section class="tier vip6" data-tier="vip6">
-    <div class="tier-title">
-      👑 VIP 6+ (5) — Exclusive Emojis
-    </div>
-
-    <button class="nav left" aria-label="Previous VIP 6 emojis"
-      onclick="moveEmojis('vip6', -1)">‹</button>
-
-    <div class="emoji-grid" id="vip6-grid"></div>
-
-    <button class="nav right" aria-label="Next VIP 6 emojis"
-      onclick="moveEmojis('vip6', 1)">›</button>
-  </section>
-
-  <div class="footer">
-    ✨ 25 Custom Emojis · Free & VIP Collection ✨
-  </div>
-</main>
+<div id="avatar">🙂</div>
+<p style="text-align:center;font-size:12px;color:#c8b9e4">
+Tap an emoji to preview its animation
+</p>
+</div>
 
 <script>
-const emojiData = {
-  free: [
-    "😘", "😉", "🥰", "😂", "😎",
-    "😍", "💞", "😴", "😜", "😡",
-    "🥹", "😤", "🎧", "😊", "😭"
-  ],
-
-  vip2: [
-    "🤴", "🫶", "😎", "🤔", "🥳"
-  ],
-
-  vip6: [
-    "😇", "😈", "👑", "🎧", "🥷"
-  ]
+const emojis={
+ free:["😘","😉","🥰","😂","😎","😍","💞","😴","😜","😡","🥹","😤","🎧","😊","😭"],
+ vip2:["💋","😍","🫶","🥳","😏"],
+ vip6:["💖","💘","👑","✨","😘"]
 };
 
-// Current position for each collection
-const positions = {
-  free: 0,
-  vip2: 0,
-  vip6: 0
+const toggle=document.getElementById("toggle");
+const panel=document.getElementById("panel");
+
+toggle.onclick=()=>{
+ panel.classList.toggle("open");
+ toggle.setAttribute("aria-expanded",panel.classList.contains("open"));
 };
 
-function renderEmojis(tierName) {
-  const grid = document.getElementById(tierName + "-grid");
-  const emojis = emojiData[tierName];
+function render(key){
+ const grid=document.getElementById(key);
+ grid.replaceChildren();
 
-  grid.innerHTML = "";
-
-  // Always show the correct number of emojis
-  emojis.forEach((emoji, index) => {
-    const card = document.createElement("button");
-    card.className = "emoji-card";
-    card.type = "button";
-    card.title = "Use " + emoji;
-    card.setAttribute("aria-label", "Select emoji " + emoji);
-
-    const face = document.createElement("span");
-    face.className = "emoji";
-    face.textContent = emoji;
-
-    card.appendChild(face);
-
-    card.addEventListener("click", () => {
-      // Copies selected emoji for use in a project
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(emoji)
-          .then(() => showMessage(card, "Copied!"))
-          .catch(() => showMessage(card, emoji));
-      } else {
-        showMessage(card, emoji);
-      }
-    });
-
-    grid.appendChild(card);
-  });
+ emojis[key].forEach(emoji=>{
+  const btn=document.createElement("button");
+  btn.className="emoji";
+  btn.textContent=emoji;
+  btn.setAttribute("aria-label","Preview "+emoji);
+  btn.onclick=()=>showReaction(emoji);
+  grid.appendChild(btn);
+ });
 }
 
-function moveEmojis(tierName, direction) {
-  const emojis = emojiData[tierName];
-  const length = emojis.length;
+function showReaction(emoji){
+ const avatar=document.getElementById("avatar");
+ avatar.querySelector(".reaction")?.remove();
 
-  // Rotate collection when arrows are clicked
-  positions[tierName] =
-    (positions[tierName] + direction + length) % length;
+ const reaction=document.createElement("span");
+ reaction.className="reaction "+document.getElementById("animation").value;
+ reaction.textContent=emoji+document.getElementById("effect").value;
+ avatar.appendChild(reaction);
 
-  emojiData[tierName] = emojis.slice(
-    direction > 0 ? 1 : length - 1
-  );
-
-  if (direction > 0) {
-    emojiData[tierName].push(emojis[0]);
-  } else {
-    emojiData[tierName].unshift(emojis[length - 1]);
-  }
-
-  renderEmojis(tierName);
+ setTimeout(()=>reaction.remove(),2200);
 }
 
-function showMessage(card, message) {
-  const original = card.querySelector(".emoji").textContent;
-  card.querySelector(".emoji").textContent = message;
+document.querySelectorAll(".tier").forEach(section=>{
+ const key=section.dataset.tier;
+ section.querySelectorAll("[data-move]").forEach(btn=>{
+  btn.onclick=()=>{
+   const list=emojis[key];
+   if(Number(btn.dataset.move)>0)list.push(list.shift());
+   else list.unshift(list.pop());
+   render(key);
+  };
+ });
+});
 
-  setTimeout(() => {
-    card.querySelector(".emoji").textContent = original;
-  }, 700);
-}
-
-// Load all 25 emojis
-renderEmojis("free");
-renderEmojis("vip2");
-renderEmojis("vip6");
+Object.keys(emojis).forEach(render);
 </script>
 </body>
 </html>
