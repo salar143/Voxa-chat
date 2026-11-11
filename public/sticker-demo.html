@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>25 Live Animated Emojis</title>
+    <title>VIP 2+ & 6+ Separate Unlock</title>
     <style>
         * {
             margin: 0;
@@ -21,14 +21,47 @@
             overflow: hidden;
         }
 
+        /* Header */
         .header {
-            padding: 12px 20px;
-            text-align: center;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.7);
+            border-bottom: 1px solid #222;
+        }
+
+        .title {
             font-size: 16px;
             font-weight: bold;
             color: #4ade80;
-            background: rgba(0,0,0,0.5);
-            border-bottom: 1px solid #222;
+        }
+
+        /* VIP Buttons Container */
+        .vip-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .vip-btn {
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #000;
+        }
+
+        .btn-vip2 { background: linear-gradient(45deg, #ffd700, #ffaa00); }
+        .btn-vip6 { background: linear-gradient(45deg, #b02aed, #e066ff); color: white; }
+
+        .vip-btn.active {
+            background: #222;
+            color: #888;
+            cursor: default;
+            border: 1px solid #444;
         }
 
         /* Seats Area */
@@ -110,24 +143,26 @@
             padding: 10px;
             border-top: 1px solid #333;
             padding-bottom: 15px;
-            max-height: 250px;
+            max-height: 320px;
             overflow-y: auto;
         }
 
-        .panel-title {
-            text-align: center;
-            font-size: 13px;
-            color: #aaa;
-            margin-bottom: 10px;
+        .category-title {
+            font-size: 12px;
+            font-weight: bold;
+            margin: 10px 0 5px 10px;
         }
+        .cat-free { color: #28a745; }
+        .cat-vip2 { color: #ffd700; }
+        .cat-vip6 { color: #d19aff; }
 
-        /* Emoji Buttons List (Grid format for 25 emojis) */
         .emoji-list {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 10px;
             justify-items: center;
             padding: 0 10px;
+            margin-bottom: 15px;
         }
 
         .select-btn {
@@ -139,11 +174,28 @@
             background: rgba(255,255,255,0.05);
             padding: 5px;
             border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
         }
 
         .select-btn:active {
             transform: scale(0.8);
-            background: rgba(255,255,255,0.2);
+        }
+
+        /* Locked Style */
+        .vip-locked {
+            opacity: 0.5;
+            filter: grayscale(100%);
+        }
+        
+        .lock-icon {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 14px;
+            background: #000;
+            border-radius: 50%;
+            padding: 2px;
+            box-shadow: 0 0 5px #000;
         }
 
         .clear-btn {
@@ -152,14 +204,13 @@
             border: none;
             padding: 8px 20px;
             border-radius: 20px;
-            margin: 15px auto 5px;
+            margin: 5px auto 10px;
             display: block;
             font-weight: bold;
             cursor: pointer;
             font-size: 14px;
         }
         
-        /* Scrollbar styling */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #111; }
         ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
@@ -167,7 +218,14 @@
 </head>
 <body>
 
-    <div class="header">Tap Emoji for Live Animation</div>
+    <div class="header">
+        <div class="title">Emoji Store</div>
+        <!-- Do alag-alag VIP buttons -->
+        <div class="vip-buttons">
+            <button class="vip-btn btn-vip2" id="btnVip2" onclick="buyVip(2)">👑 Buy VIP 2+</button>
+            <button class="vip-btn btn-vip6" id="btnVip6" onclick="buyVip(6)">💎 Buy VIP 6+</button>
+        </div>
+    </div>
 
     <div class="room-grid">
         <div class="seat">
@@ -177,12 +235,10 @@
             </div>
             <div class="seat-name">Owner</div>
         </div>
-
         <div class="seat">
             <div class="avatar-circle"><span class="user-icon">👤</span></div>
             <div class="seat-name">No.2</div>
         </div>
-
         <div class="seat">
             <div class="avatar-circle" style="background: rgba(0,0,0,0.6);"><span class="user-icon">🔒</span></div>
             <div class="seat-name">No.3</div>
@@ -190,65 +246,77 @@
     </div>
 
     <div class="control-panel">
-        <div class="panel-title">Select Emoji (25 Live Animations)</div>
+        
+        <!-- FREE TIER -->
+        <div class="category-title cat-free">✅ 15 Free Emojis (All Users)</div>
         <div class="emoji-list">
-            
-            <!-- 1. Kiss -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f618/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 2. Love/Heart Eyes -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60d/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 3. Thinking -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f914/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 4. Laughing -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f602/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 5. Crying -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f62d/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            
-            <!-- 6. Angry -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f621/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 7. Cool Sunglasses -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60e/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 8. Shy/Blush -->
             <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60a/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 9. Thumbs Up -->
             <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f44d/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 10. Party Face -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f973/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            
-            <!-- 11. Sleeping -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f634/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 12. Mind Blown -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f92f/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 13. Clapping -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f44f/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 14. Confused -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f615/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 15. Star Eyes -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f929/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            
-            <!-- 16. Yawning -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f971/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 17. Screaming -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f631/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 18. Smiling Devil -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f608/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 19. Wink -->
             <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f609/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 20. Peace / Victory -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/270c_1f3fb/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            
-            <!-- 21. Sad/Disappointed -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f602/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60d/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f615/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
             <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f61e/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 22. Smiling with Halo -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f607/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 23. Drooling (Bhookha) -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f924/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 24. Rolling Eyes -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f644/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <!-- 25. Folded Hands (Namaste) -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f64f/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f621/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f634/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f44f/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f618/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f914/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f62d/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60e/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f971/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
         </div>
+
+        <!-- VIP 2+ TIER -->
+        <div class="category-title cat-vip2">👑 5 VIP 2+ Emojis (Premium)</div>
+        <div class="emoji-list" id="vip2-list">
+            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f92f/512.gif" style="width:100%; height:100%;">
+                <span class="lock-icon">🔒</span>
+            </div>
+            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f929/512.gif" style="width:100%; height:100%;">
+                <span class="lock-icon">🔒</span>
+            </div>
+            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f973/512.gif" style="width:100%; height:100%;">
+                <span class="lock-icon">🔒</span>
+            </div>
+            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/270c_1f3fb/512.gif" style="width:100%; height:100%;">
+                <span class="lock-icon">🔒</span>
+            </div>
+            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f644/512.gif" style="width:100%; height:100%;">
+                <span class="lock-icon">🔒</span>
+            </div>
+        </div>
+
+        <!-- VIP 6+ TIER -->
+        <div class="category-title cat-vip6">💎 5 VIP 6+ Emojis (Super Premium)</div>
+        <div class="emoji-list" id="vip6-list">
+            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f608/512.gif" style="width:100%; height:100%;">
+                <span class="lock-icon">🔒</span>
+            </div>
+            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f631/512.gif" style="width:100%; height:100%;">
+                <span class="lock-icon">🔒</span>
+            </div>
+            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f924/512.gif" style="width:100%; height:100%;">
+                <span class="lock-icon">🔒</span>
+            </div>
+            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f64f/512.gif" style="width:100%; height:100%;">
+                <span class="lock-icon">🔒</span>
+            </div>
+            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f607/512.gif" style="width:100%; height:100%;">
+                <span class="lock-icon">🔒</span>
+            </div>
+        </div>
+        
         <button class="clear-btn" onclick="clearEmoji()">Remove Effect</button>
     </div>
 
@@ -256,7 +324,72 @@
         const seat1Avatar = document.getElementById('seat1');
         const seat1EmojiImg = document.getElementById('emoji1');
         const seat1NormalIcon = document.getElementById('icon1');
+        
+        const btnVip2 = document.getElementById('btnVip2');
+        const btnVip6 = document.getElementById('btnVip6');
 
+        // VIP Status
+        let hasVip2 = false;
+        let hasVip6 = false;
+
+        // VIP Kharidne ka function
+        function buyVip(level) {
+            if (level === 2) {
+                if (hasVip2) return;
+                btnVip2.innerText = "Processing...";
+                
+                setTimeout(() => {
+                    hasVip2 = true;
+                    btnVip2.innerText = "VIP 2+ Active";
+                    btnVip2.classList.add('active');
+                    unlockEmojis('vip2-list');
+                    alert("🎉 VIP 2+ Activated! Aap VIP 2+ wale emojis use kar sakte hain.");
+                }, 1000);
+            } 
+            else if (level === 6) {
+                if (hasVip6) return;
+                btnVip6.innerText = "Processing...";
+                
+                setTimeout(() => {
+                    hasVip6 = true;
+                    btnVip6.innerText = "VIP 6+ Active";
+                    btnVip6.classList.add('active');
+                    unlockEmojis('vip6-list');
+                    alert("💎 VIP 6+ Activated! Aap saare Premium emojis use kar sakte hain.");
+                }, 1000);
+            }
+        }
+
+        // Specific list ko unlock karne ka function
+        function unlockEmojis(listId) {
+            const list = document.getElementById(listId);
+            const lockedEmojis = list.querySelectorAll('.vip-locked');
+            
+            lockedEmojis.forEach(emoji => {
+                emoji.classList.remove('vip-locked');
+                const lockIcon = emoji.querySelector('.lock-icon');
+                if (lockIcon) lockIcon.remove();
+            });
+        }
+
+        // Emoji par click karne ka logic
+        function handleVipClick(requiredVip, element) {
+            // Check karo user ke paas required VIP hai ya nahi
+            if (requiredVip === 2 && !hasVip2) {
+                alert("🔒 Yeh emoji sirf VIP 2+ users ke liye hai.\nKripya upar diye gaye 'Buy VIP 2+' button par click karein.");
+                return;
+            }
+            if (requiredVip === 6 && !hasVip6) {
+                alert("🔒 Yeh emoji sirf VIP 6+ users ke liye hai.\nKripya upar diye gaye 'Buy VIP 6+' button par click karein.");
+                return;
+            }
+
+            // Agar VIP hai, toh emoji apply karo
+            const imgSrc = element.querySelector('img').src;
+            applyEmoji(imgSrc);
+        }
+
+        // Normal Apply Function
         function applyEmoji(imageSource) {
             seat1EmojiImg.src = imageSource;
             
@@ -267,6 +400,7 @@
             }, 50);
         }
 
+        // Clear Function
         function clearEmoji() {
             seat1EmojiImg.classList.remove('show');
             seat1Avatar.classList.remove('has-effect');
@@ -278,4 +412,4 @@
         }
     </script>
 </body>
-</html>
+                </html>
