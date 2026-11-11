@@ -1,542 +1,306 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VoxaChat · Cat Reactions</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premium Animated Emoji Picker</title>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+* {
+  box-sizing: border-box;
+}
 
-body{
-  height:100vh;
-  overflow:hidden;
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 24px 12px;
+  font-family: Arial, sans-serif;
+  color: white;
   background:
-    radial-gradient(circle at 30% 20%,#3d1f5c 0%,transparent 50%),
-    radial-gradient(circle at 70% 80%,#1a3a5c 0%,transparent 50%),
-    #120d1d;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+    radial-gradient(ellipse at top, #25105a, transparent 65%),
+    linear-gradient(160deg, #030817, #100527 55%, #020817);
 }
 
-.app{
-  width:100%;
-  max-width:420px;
-  height:100%;
-  display:flex;
-  flex-direction:column;
+.emoji-app {
+  max-width: 1050px;
+  margin: auto;
 }
 
-.topbar{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:12px 16px;
-  background:rgba(0,0,0,.35);
-  backdrop-filter:blur(10px);
+.tier {
+  --glow: #00eaff;
+  position: relative;
+  margin: 26px 30px 40px;
+  padding: 48px 14px 16px;
+  border: 2px solid var(--glow);
+  border-radius: 26px;
+  box-shadow: 0 0 15px var(--glow),
+              inset 0 0 16px #ffffff10;
 }
 
-.back{font-size:20px;cursor:pointer}
-.title{flex:1;text-align:center;font-size:16px;font-weight:600}
+.free { --glow: #32ff9c; }
+.vip2 { --glow: #ffbe24; }
+.vip6 { --glow: #d64dff; }
 
-.stage{
-  flex:1;
-  position:relative;
-  overflow:hidden;
+.tier-title {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 90%;
+  padding: 10px 22px;
+  text-align: center;
+  border: 2px solid var(--glow);
+  border-radius: 40px;
+  background: #08071c;
+  box-shadow: 0 0 14px var(--glow);
+  font-size: clamp(14px, 2.7vw, 23px);
+  font-weight: 800;
 }
 
-.seats{
-  position:absolute;
-  bottom:120px;
-  left:0;right:0;
-  display:flex;
-  justify-content:center;
-  gap:16px;
+.free .tier-title { color: #66ffb2; }
+.vip2 .tier-title { color: #ffd65c; }
+.vip6 .tier-title { color: #e8a0ff; }
+
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
 }
 
-.seat{
-  width:60px;height:60px;
-  border-radius:50%;
-  background:rgba(255,255,255,.08);
-  border:2px solid rgba(255,255,255,.15);
-  display:grid;place-items:center;
-  font-size:24px;
+.emoji-card {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #7778ff;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #171936, #090d22);
+  box-shadow: inset 0 0 12px #7b61ff25;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
 }
 
-.seat.active{
-  border-color:#a855f7;
-  box-shadow:0 0 16px rgba(168,85,247,.5);
+.emoji-card:hover {
+  transform: translateY(-5px) scale(1.04);
+  box-shadow: 0 0 18px var(--glow);
 }
 
-/* Floating cat popup */
-.popup{
-  position:absolute;
-  width:120px;height:120px;
-  pointer-events:none;
-  animation:floatUp 2.8s ease-out forwards;
-  filter:drop-shadow(0 6px 14px rgba(0,0,0,.5));
+.emoji {
+  font-size: clamp(27px, 6.3vw, 66px);
+  line-height: 1;
+  filter: drop-shadow(0 5px 5px #0008);
+  user-select: none;
 }
 
-@keyframes floatUp{
-  0%{transform:translateY(0) scale(.4);opacity:0}
-  15%{transform:translateY(-40px) scale(1.15);opacity:1}
-  70%{transform:translateY(-320px) scale(1);opacity:1}
-  100%{transform:translateY(-460px) scale(.8);opacity:0}
+.vip2 .emoji-card { border-color: #ffbf45; }
+.vip6 .emoji-card { border-color: #d64dff; }
+
+.nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 54px;
+  border: 2px solid #9b7bff;
+  border-radius: 50%;
+  color: white;
+  background: #160d3b;
+  box-shadow: 0 0 15px #8d59ff;
+  font-size: 30px;
+  cursor: pointer;
 }
 
-/* Sparkle trail */
-.spark{
-  position:absolute;
-  font-size:16px;
-  pointer-events:none;
-  animation:sparkUp 1.5s ease-out forwards;
+.nav:hover {
+  background: #4622a2;
+  box-shadow: 0 0 22px #bd91ff;
 }
 
-@keyframes sparkUp{
-  0%{transform:translateY(0) scale(.5);opacity:0}
-  25%{opacity:1}
-  100%{transform:translateY(-110px) scale(1.2);opacity:0}
+.nav.left { left: -27px; }
+.nav.right { right: -27px; }
+
+.footer {
+  text-align: center;
+  color: #bdb5df;
+  font-size: 13px;
+  padding: 8px;
 }
 
-/* Reaction bar */
-.bar{
-  padding:12px 10px 20px;
-  background:rgba(0,0,0,.45);
-  backdrop-filter:blur(12px);
-  border-top:1px solid rgba(255,255,255,.08);
-}
-
-.row{
-  display:flex;
-  gap:8px;
-  overflow-x:auto;
-  padding:4px 2px;
-  scrollbar-width:none;
-}
-
-.row::-webkit-scrollbar{display:none}
-
-.opt{
-  flex:0 0 auto;
-  width:52px;height:52px;
-  border-radius:50%;
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.1);
-  display:grid;place-items:center;
-  font-size:26px;
-  cursor:pointer;
-  transition:.15s;
-}
-
-.opt:hover{
-  background:rgba(255,255,255,.16);
-  transform:scale(1.1);
-}
-
-.opt:active{transform:scale(.92)}
-
-/* Seat reaction trigger */
-.seat-react{
-  position:absolute;
-  bottom:-6px;
-  right:-6px;
-  width:26px;height:26px;
-  border-radius:50%;
-  background:#a855f7;
-  display:grid;place-items:center;
-  font-size:13px;
-  cursor:pointer;
-  box-shadow:0 2px 8px rgba(0,0,0,.4);
-}
-
-@media (prefers-reduced-motion:reduce){
-  .popup,.spark{animation:none!important;opacity:1!important}
+@media (max-width: 520px) {
+  body { padding: 20px 5px; }
+  .tier {
+    margin: 28px 21px 34px;
+    padding: 35px 6px 8px;
+    border-radius: 17px;
+  }
+  .emoji-grid { gap: 5px; }
+  .emoji-card { border-radius: 12px; }
+  .nav {
+    width: 32px;
+    height: 40px;
+    font-size: 23px;
+  }
+  .nav.left { left: -21px; }
+  .nav.right { right: -21px; }
+  .tier-title {
+    padding: 9px 10px;
+    top: -18px;
+  }
 }
 </style>
 </head>
 
 <body>
-<div class="app">
+<main class="emoji-app">
 
-  <div class="topbar">
-    <span class="back">←</span>
-    <div class="title">VoxaChat Party Room</div>
-    <span>⋯</span>
-  </div>
-
-  <div class="stage" id="stage">
-
-    <div class="seats">
-      <div class="seat" data-seat="1">
-        🧑
-        <div class="seat-react" data-seat="1">😊</div>
-      </div>
-      <div class="seat active" data-seat="2">
-        🧑‍🎤
-        <div class="seat-react" data-seat="2">😊</div>
-      </div>
-      <div class="seat" data-seat="3">
-        🧑
-        <div class="seat-react" data-seat="3">😊</div>
-      </div>
+  <!-- FREE: 15 EMOJIS -->
+  <section class="tier free" data-tier="free">
+    <div class="tier-title">
+      ✅ Free Emojis (15) — Everyone Can Use
     </div>
 
-  </div>
+    <button class="nav left" aria-label="Previous free emojis"
+      onclick="moveEmojis('free', -1)">‹</button>
 
-  <div class="bar">
-    <div class="row" id="row"></div>
-  </div>
+    <div class="emoji-grid" id="free-grid"></div>
 
-</div>
+    <button class="nav right" aria-label="Next free emojis"
+      onclick="moveEmojis('free', 1)">›</button>
+  </section>
+
+  <!-- VIP LEVEL 2+: 5 EMOJIS -->
+  <section class="tier vip2" data-tier="vip2">
+    <div class="tier-title">
+      👑 VIP 2+ (5) — Premium Access
+    </div>
+
+    <button class="nav left" aria-label="Previous VIP 2 emojis"
+      onclick="moveEmojis('vip2', -1)">‹</button>
+
+    <div class="emoji-grid" id="vip2-grid"></div>
+
+    <button class="nav right" aria-label="Next VIP 2 emojis"
+      onclick="moveEmojis('vip2', 1)">›</button>
+  </section>
+
+  <!-- VIP LEVEL 6+: 5 EMOJIS -->
+  <section class="tier vip6" data-tier="vip6">
+    <div class="tier-title">
+      👑 VIP 6+ (5) — Exclusive Emojis
+    </div>
+
+    <button class="nav left" aria-label="Previous VIP 6 emojis"
+      onclick="moveEmojis('vip6', -1)">‹</button>
+
+    <div class="emoji-grid" id="vip6-grid"></div>
+
+    <button class="nav right" aria-label="Next VIP 6 emojis"
+      onclick="moveEmojis('vip6', 1)">›</button>
+  </section>
+
+  <div class="footer">
+    ✨ 25 Custom Emojis · Free & VIP Collection ✨
+  </div>
+</main>
 
 <script>
-"use strict";
+const emojiData = {
+  free: [
+    "😘", "😉", "🥰", "😂", "😎",
+    "😍", "💞", "😴", "😜", "😡",
+    "🥹", "😤", "🎧", "😊", "😭"
+  ],
 
-const reactions=[
-  {emoji:"😒",kind:"unamused"},
-  {emoji:"🤗",kind:"hug"},
-  {emoji:"🤔",kind:"thinking"},
-  {emoji:"😘",kind:"kiss"},
-  {emoji:"🥰",kind:"love"},
-  {emoji:"🤣",kind:"biglaugh"},
-  {emoji:"🤭",kind:"giggle"},
-  {emoji:"😂",kind:"laughcry"},
-  {emoji:"🥹",kind:"touched"},
-  {emoji:"😭",kind:"cry"}
-];
+  vip2: [
+    "🤴", "🫶", "😎", "🤔", "🥳"
+  ],
 
-const stage=document.getElementById("stage");
-const row=document.getElementById("row");
+  vip6: [
+    "😇", "😈", "👑", "🎧", "🥷"
+  ]
+};
 
-// Build reaction options
-reactions.forEach(r=>{
-  const b=document.createElement("div");
-  b.className="opt";
-  b.textContent=r.emoji;
-  b.onclick=()=>floatCat(r);
-  row.appendChild(b);
-});
+// Current position for each collection
+const positions = {
+  free: 0,
+  vip2: 0,
+  vip6: 0
+};
 
-// Seat reaction trigger → open bar
-document.querySelectorAll(".seat-react").forEach(btn=>{
-  btn.onclick=e=>{
-    e.stopPropagation();
-    // For demo, just trigger a random reaction
-    const r=reactions[Math.floor(Math.random()*reactions.length)];
-    floatCat(r);
-  };
-});
+function renderEmojis(tierName) {
+  const grid = document.getElementById(tierName + "-grid");
+  const emojis = emojiData[tierName];
 
-function floatCat(r){
-  const popup=document.createElement("div");
-  popup.className="popup";
-  popup.innerHTML=drawCat(r.kind,0);
-  popup.style.left=(30+Math.random()*40)+"%";
-  popup.style.bottom="140px";
-  stage.appendChild(popup);
+  grid.innerHTML = "";
 
-  // Sparkles
-  const sparks=["✨","💫","⭐","🐾"];
-  for(let i=0;i<6;i++){
-    setTimeout(()=>{
-      const s=document.createElement("div");
-      s.className="spark";
-      s.textContent=sparks[i%sparks.length];
-      s.style.left=(parseFloat(popup.style.left)+Math.random()*10-5)+"%";
-      s.style.bottom=(150+Math.random()*100)+"px";
-      stage.appendChild(s);
-      setTimeout(()=>s.remove(),1600);
-    },i*150);
-  }
+  // Always show the correct number of emojis
+  emojis.forEach((emoji, index) => {
+    const card = document.createElement("button");
+    card.className = "emoji-card";
+    card.type = "button";
+    card.title = "Use " + emoji;
+    card.setAttribute("aria-label", "Select emoji " + emoji);
 
-  // Animate cat face
-  const start=performance.now();
-  function tick(now){
-    const t=(now-start)/1000;
-    if(t>2.8){popup.remove();return}
-    popup.innerHTML=drawCat(r.kind,t);
-    requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
+    const face = document.createElement("span");
+    face.className = "emoji";
+    face.textContent = emoji;
 
-  setTimeout(()=>popup.remove(),2900);
-}
+    card.appendChild(face);
 
-// ---------- Cat face drawing ----------
-
-const clamp=x=>Math.max(0,Math.min(1,x));
-const ease=x=>{x=clamp(x);return x*x*(3-2*x)};
-const mix=(a,b,t)=>a+(b-a)*t;
-
-function path(d,fill="none",extra=""){
-  return `<path d="${d}" fill="${fill}" ${extra}/>`;
-}
-
-function stroke(d,w=3,color="#8a5a2b"){
-  return path(d,"none",`stroke="${color}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"`);
-}
-
-function ellipse(x,y,rx,ry,fill,extra=""){
-  return `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${fill}" ${extra}/>`;
-}
-
-function heart(x,y,s,o=1){
-  return `<g transform="translate(${x} ${y}) scale(${s})" opacity="${clamp(o)}">
-    ${path("M0 6C-24-9-14-30 0-16C14-30 24-9 0 6Z","#ee3155")}
-  </g>`;
-}
-
-function tear(x,y,s=1,o=1){
-  return `<g transform="translate(${x} ${y}) scale(${s})" opacity="${clamp(o)}">
-    ${path("M0-8Q-11 6 0 11Q11 6 0-8Z","#68c9f4")}
-  </g>`;
-}
-
-function blinkAmount(t){
-  const c=t%3.5;
-  if(c<0.1)return ease(c/0.1);
-  if(c<0.22)return 1-ease((c-0.1)/0.12);
-  return 0;
-}
-
-function catEye(x,y,openScale=1,look=0){
-  const open=Math.max(0.03,openScale);
-  return `<g transform="translate(${x} ${y}) scale(1 ${open})">
-    ${ellipse(0,0,10,12,"#fff8e6")}
-    ${ellipse(look,1,5,8,"#3d2b1a")}
-    ${ellipse(look-2,-3,1.6,2,"#fff",'opacity=".8"')}
-  </g>`;
-}
-
-function catClosedEye(x,y,up=true){
-  return stroke(`M${x-10} ${y}Q${x} ${y+(up?-11:9)} ${x+10} ${y}`,3.5,"#7a4a22");
-}
-
-function catMouth(type,t){
-  if(type==="smile")return stroke("M70 100Q80 108 90 100",3,"#7a4a22");
-  if(type==="meow"){
-    const h=4+(Math.sin(t*4)+1)/2*7;
-    return path(`M72 98Q80 ${98+h} 88 98`,"none",
-      'stroke="#7a4a22" stroke-width="3" stroke-linecap="round"');
-  }
-  if(type==="open"){
-    const h=6+(Math.sin(t*9)+1)/2*10;
-    return ellipse(80,104,10,h,"#74313b")+ellipse(80,108+h*0.4,5,2,"#ef8b9c");
-  }
-  if(type==="sad"){
-    return stroke("M70 106Q80 100 90 106",3,"#7a4a22");
-  }
-  return stroke("M70 100Q80 108 90 100",3,"#7a4a22");
-}
-
-function drawCat(kind,t){
-  const blink=blinkAmount(t);
-
-  let eyes=catEye(62,74,1-blink)+catEye(98,74,1-blink);
-  let mouth=catMouth("smile",t);
-  let effects="";
-  let cheeks=0.25;
-
-  // Ear wiggle + tail wag (common)
-  const earTilt=Math.sin(t*3)*3;
-  const tailWag=Math.sin(t*5)*8;
-
-  let ears=`
-    <g transform="rotate(${-earTilt} 45 40)">
-      ${path("M35 45L28 18Q27 12 33 14L52 30Z","#f5a742",'stroke="#c97a1f" stroke-width="1.5"')}
-      ${path("M40 40L36 26L48 34Z","#ffb3c1")}
-    </g>
-    <g transform="rotate(${earTilt} 115 40)">
-      ${path("M125 45L132 18Q133 12 127 14L108 30Z","#f5a742",'stroke="#c97a1f" stroke-width="1.5"')}
-      ${path("M120 40L124 26L112 34Z","#ffb3c1")}
-    </g>`;
-
-  let tail=`<g transform="translate(120 118) rotate(${tailWag})">
-    ${path("M0 0Q18-6 22-22Q24-32 16-34Q8-35 8-26Q8-16 0-10Z","#f5a742",'stroke="#c97a1f" stroke-width="1.5"')}
-  </g>`;
-
-  // 😒 Unamused cat
-  if(kind==="unamused"){
-    eyes=ellipse(62,76,4,4.5*(1-blink*0.9),"#3d2b1a")
-        +ellipse(98,76,4,4.5*(1-blink*0.9),"#3d2b1a")
-        +stroke("M50 70L72 71",3.5,"#7a4a22")
-        +stroke("M88 71L110 70",3.5,"#7a4a22");
-    mouth=stroke("M70 104Q80 100 90 103",3,"#7a4a22");
-    cheeks=0.15;
-  }
-
-  // 🤗 Hug cat — paws up
-  if(kind==="hug"){
-    const c=t%3.6;
-    const open=c<1?ease(c):c<2.4?1:1-ease((c-2.4)/1.2);
-    eyes=catClosedEye(62,76)+catClosedEye(98,76);
-    mouth=catMouth("smile",t);
-    cheeks=0.35+open*0.1;
-    // Paws (simple circles)
-    effects=`
-      <g transform="translate(${mix(40,28,open)} ${mix(120,105,open)})">
-        ${ellipse(0,0,10,8,"#f5a742",'stroke="#c97a1f" stroke-width="1.5"')}
-      </g>
-      <g transform="translate(${mix(120,132,open)} ${mix(120,105,open)})">
-        ${ellipse(0,0,10,8,"#f5a742",'stroke="#c97a1f" stroke-width="1.5"')}
-      </g>
-      ${heart(80,140,0.22+open*0.05,0.45+open*0.3)}
-    `;
-  }
-
-  // 🤔 Thinking cat
-  if(kind==="thinking"){
-    const c=t%4;
-    const look=ease((c-0.2)/0.8)*(1-ease((c-3)/0.8));
-    eyes=catEye(62,72,1-blink,3*look)+catEye(98,72,1-blink,3*look);
-    mouth=catMouth("smile",t);
-    effects=`<text x="125" y="38" fill="#fff2cb" font-size="22" font-family="Arial" opacity="${ease((c-1)/0.5)*(1-ease((c-3.2)/0.7))}">?</text>`;
-  }
-
-  // 😘 Kiss cat
-  if(kind==="kiss"){
-    const c=t%2.8;
-    const e=ease(c/0.45)*(1-ease((c-1.9)/0.55));
-    eyes=catEye(62,74,1-blink)
-        +`<g opacity="${1-e}">${ellipse(98,74,5,8*(1-e),"#3d2b1a")}</g>`
-        +`<g opacity="${e}">${catClosedEye(98,76)}</g>`;
-    mouth=catMouth("meow",t);
-    cheeks=0.2+e*0.3;
-    if(c<0.5)effects=heart(108,105,0.42,ease(c/0.4));
-    else if(c<2.2){
-      const f=ease((c-0.5)/1.7);
-      effects=heart(108+f*34,105-f*30,0.42+f*0.25,f<0.55?1:1-ease((f-0.55)/0.45));
-    }
-  }
-
-  // 🥰 Love cat
-  if(kind==="love"){
-    const w=(Math.sin(t*2.2)+1)/2;
-    eyes=catClosedEye(62,76-w)+catClosedEye(98,76-w);
-    mouth=catMouth("smile",t);
-    cheeks=0.45+w*0.15;
-    [[35,62],[125,58],[120,124]].forEach((p,i)=>{
-      const c=(t*0.35+i/3)%1;
-      effects+=heart(p[0],p[1]-ease(c)*10,0.27+Math.sin(c*Math.PI)*0.07,Math.sin(c*Math.PI));
+    card.addEventListener("click", () => {
+      // Copies selected emoji for use in a project
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(emoji)
+          .then(() => showMessage(card, "Copied!"))
+          .catch(() => showMessage(card, emoji));
+      } else {
+        showMessage(card, emoji);
+      }
     });
-  }
 
-  // 🤣 Big laugh cat
-  if(kind==="biglaugh"){
-    const sq=Math.sin(t*10)*1.2;
-    eyes=stroke(`M50 68L68 ${76+sq}L50 84`,4,"#7a4a22")
-        +stroke(`M110 68L92 ${76+sq}L110 84`,4,"#7a4a22");
-    mouth=catMouth("open",t);
-    cheeks=0.45;
-  }
-
-  // 🤭 Giggle cat — paw over mouth
-  if(kind==="giggle"){
-    eyes=catClosedEye(62,75)+catClosedEye(98,75);
-    mouth=catMouth("meow",t);
-    cheeks=0.48;
-    const cover=ease((t%3.5)/0.55);
-    effects=`<g transform="translate(${mix(105,88,cover)} ${mix(125,108,cover)})">
-      ${ellipse(0,0,10,8,"#f5a742",'stroke="#c97a1f" stroke-width="1.5"')}
-    </g>`;
-  }
-
-  // 😂 Laugh cry cat
-  if(kind==="laughcry"){
-    eyes=catClosedEye(62,77)+catClosedEye(98,77);
-    mouth=catMouth("open",t);
-    cheeks=0.35;
-    for(let s=0;s<2;s++)for(let i=0;i<2;i++){
-      const p=(t*0.9+s*0.22+i*0.5)%1;
-      const fall=p*p;
-      const x=s?108+fall*11:52-fall*11;
-      const y=84+fall*36;
-      effects+=tear(x,y,0.42+p*0.12,ease(p/0.1)*(1-ease((p-0.7)/0.3)));
-    }
-  }
-
-  // 🥹 Touched cat
-  if(kind==="touched"){
-    const g=(Math.sin(t*2.4)+1)/2;
-    eyes=`<g transform="translate(62 76) scale(1 ${Math.max(0.03,1-blink)})">
-      ${ellipse(0,0,10,12,"#5b4230")}
-      ${ellipse(-3,-5,3,4,"#fff")}
-      ${ellipse(2,6,6,2.5+g,"#8bd9f7")}
-    </g>`+
-    `<g transform="translate(98 76) scale(1 ${Math.max(0.03,1-blink)})">
-      ${ellipse(0,0,10,12,"#5b4230")}
-      ${ellipse(-3,-5,3,4,"#fff")}
-      ${ellipse(2,6,6,2.5+g,"#8bd9f7")}
-    </g>`;
-    mouth=catMouth("smile",t);
-    cheeks=0.43;
-    const c=t%4.2;
-    if(c>2.2&&c<3.6){
-      const p=(c-2.2)/1.4;
-      effects=tear(108+p*2,89+p*p*28,0.35+p*0.1,ease(p/0.12)*(1-ease((p-0.7)/0.3)));
-    }
-  }
-
-  // 😭 Crying cat
-  if(kind==="cry"){
-    const sob=(Math.sin(t*4.5)+1)/2;
-    const tremble=Math.sin(t*19)*0.6*sob;
-    eyes=catClosedEye(62,76+sob,false)+catClosedEye(98,76+sob,false);
-    mouth=catMouth("sad",t);
-    cheeks=0.3+sob*0.1;
-    effects=ellipse(60,83,7,2.1,"#8ddcf8",'opacity=".85"')
-           +ellipse(100,83,7,2.1,"#8ddcf8",'opacity=".85"');
-    for(let s=0;s<2;s++)for(let i=0;i<2;i++){
-      const p=(t*0.8+i*0.5+s*0.22)%1;
-      const fall=p*p;
-      const x=(s?101:59)+(s?1:-1)*fall*3;
-      const y=86+fall*46;
-      effects+=tear(x,y,0.35+p*0.2,ease(p/0.12)*(1-ease((p-0.75)/0.25)));
-    }
-  }
-
-  return `
-  <svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <radialGradient id="fur" cx="35%" cy="25%" r="80%">
-        <stop offset="0" stop-color="#ffcf8a"/>
-        <stop offset=".65" stop-color="#f5a742"/>
-        <stop offset="1" stop-color="#d9822b"/>
-      </radialGradient>
-    </defs>
-
-    ${tail}
-    ${ears}
-
-    <circle cx="80" cy="80" r="48" fill="url(#fur)" stroke="#c97a1f" stroke-width="1.5"/>
-
-    ${stroke("M60 40Q65 34 72 38",3,"#c97a1f")}
-    ${stroke("M100 40Q95 34 88 38",3,"#c97a1f")}
-    ${stroke("M78 34Q80 30 82 34",3,"#c97a1f")}
-
-    ${eyes}
-
-    ${path("M76 92Q80 88 84 92Q80 97 76 92Z","#e8738a")}
-
-    ${mouth}
-
-    ${stroke("M52 92L34 88",2,"#c97a1f")}
-    ${stroke("M52 98L34 100",2,"#c97a1f")}
-    ${stroke("M108 92L126 88",2,"#c97a1f")}
-    ${stroke("M108 98L126 100",2,"#c97a1f")}
-
-    <g opacity="${cheeks}">
-      ${ellipse(50,90,8,4,"#f38568")}
-      ${ellipse(110,90,8,4,"#f38568")}
-    </g>
-
-    ${effects}
-  </svg>`;
+    grid.appendChild(card);
+  });
 }
-</script>
 
+function moveEmojis(tierName, direction) {
+  const emojis = emojiData[tierName];
+  const length = emojis.length;
+
+  // Rotate collection when arrows are clicked
+  positions[tierName] =
+    (positions[tierName] + direction + length) % length;
+
+  emojiData[tierName] = emojis.slice(
+    direction > 0 ? 1 : length - 1
+  );
+
+  if (direction > 0) {
+    emojiData[tierName].push(emojis[0]);
+  } else {
+    emojiData[tierName].unshift(emojis[length - 1]);
+  }
+
+  renderEmojis(tierName);
+}
+
+function showMessage(card, message) {
+  const original = card.querySelector(".emoji").textContent;
+  card.querySelector(".emoji").textContent = message;
+
+  setTimeout(() => {
+    card.querySelector(".emoji").textContent = original;
+  }, 700);
+}
+
+// Load all 25 emojis
+renderEmojis("free");
+renderEmojis("vip2");
+renderEmojis("vip6");
+</script>
 </body>
 </html>
