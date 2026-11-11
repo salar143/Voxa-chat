@@ -1891,12 +1891,276 @@ E("inboxBtn").onclick=()=>location.href="inbox.html";
 E("inviteBtn").onclick=()=>toast("Invite seat coming soon");
 E("chatBtn").onclick=()=>{E("composer").hidden=false;E("emojiPicker").hidden=true;E("msgInput").focus()};
 E("closeComposer").onclick=()=>{E("composer").hidden=true};
-E("emojiBtn").onclick=()=>{E("emojiPicker").hidden=!E("emojiPicker").hidden};
-["❤️","😂","👏","😍","🔥","😊","🎉","👍","🌹","👋"].forEach(em=>{const b=document.createElement("button");b.textContent=em;b.onclick=()=>{E("composer").hidden=false;E("msgInput").value+=em;E("emojiPicker").hidden=true};E("emojiPicker").append(b)});
+  E("chatBtn").onclick=()=>{
+  E("composer").hidden=false;
+  E("emojiPicker").hidden=true;
+  E("msgInput").focus();
+};
+
+E("closeComposer").onclick=()=>{
+  E("composer").hidden=true;
+};
+
+// ===== SEAT REACTIONS =====
+let voxaReactionCleanup=null;
+
+function playVoxaSeatEmoji(em){
+  if(!mySeatNumber){
+    toast("Pehle seat join karo.");
+    return;
+  }
+
+  const seat=E("seatsArea")
+    .querySelectorAll(".seat")[Number(mySeatNumber)-1];
+
+  if(!seat){
+    toast("Seat nahi mili.");
+    return;
+  }
+
+  if(voxaReactionCleanup)voxaReactionCleanup();
+
+  const avatar=seat.querySelector(".avatar")||seat;
+  const oldPosition=avatar.style.position;
+  const oldOverflow=avatar.style.overflow;
+
+  avatar.style.position="relative";
+  avatar.style.overflow="visible";
+
+  const layer=document.createElement("span");
+
+  Object.assign(layer.style,{
+    position:"absolute",
+    inset:"0",
+    overflow:"visible",
+    pointerEvents:"none",
+    zIndex:"30"
+  });
+
+  layer.setAttribute("aria-hidden","true");
+  avatar.appendChild(layer);
+
+  const left=em==="😘 ⬅️";
+  const right=em==="😘 ➡️";
+  const kiss=left||right||em==="😘";
+  const love=kiss||["❤️","😍","🥰","💋","🫂"].includes(em);
+  const direction=left?-1:right?1:0;
+
+  const emoji=document.createElement("span");
+  emoji.textContent=(left||right)?"😘":em;
+
+  Object.assign(emoji.style,{
+    position:"absolute",
+    inset:"-8px",
+    display:"flex",
+    alignItems:"center",
+    justifyContent:"center",
+    fontSize:"46px",
+    lineHeight:"1",
+    pointerEvents:"none",
+    filter:"drop-shadow(0 4px 7px rgba(0,0,0,.4))"
+  });
+
+  layer.appendChild(emoji);
+
+  const animations=[];
+  const reduceMotion=window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+
+  let frames;
+
+  if(left||right){
+    frames=[
+      {transform:"scale(0)",opacity:0},
+      {
+        transform:"scale(1.2)",
+        opacity:1,
+        offset:.2
+      },
+      {
+        transform:`translateX(${direction*15}px) rotate(${direction*15}deg)`,
+        opacity:1,
+        offset:.5
+      },
+      {
+        transform:`translateX(${direction*30}px) scale(1.15)`,
+        opacity:1,
+        offset:.8
+      },
+      {
+        transform:`translateX(${direction*45}px) scale(.5)`,
+        opacity:0
+      }
+    ];
+  }else if(love||em==="🔥"){
+    frames=[
+      {transform:"scale(0)",opacity:0},
+      {transform:"scale(1.3)",opacity:1,offset:.15},
+      {transform:"scale(.95)",opacity:1,offset:.3},
+      {transform:"scale(1.25)",opacity:1,offset:.45},
+      {transform:"scale(.95)",opacity:1,offset:.6},
+      {transform:"scale(1.25)",opacity:1,offset:.8},
+      {transform:"scale(.5) translateY(-25px)",opacity:0}
+    ];
+  }else{
+    frames=[
+      {transform:"scale(0)",opacity:0},
+      {
+        transform:"scale(1.25) rotate(-15deg)",
+        opacity:1,
+        offset:.15
+      },
+      {
+        transform:"scale(1) rotate(15deg)",
+        opacity:1,
+        offset:.3
+      },
+      {
+        transform:"scale(1.15) rotate(-15deg) translateY(-6px)",
+        opacity:1,
+        offset:.5
+      },
+      {
+        transform:"scale(1) rotate(15deg)",
+        opacity:1,
+        offset:.7
+      },
+      {
+        transform:"scale(1.1) rotate(0deg)",
+        opacity:1,
+        offset:.85
+      },
+      {
+        transform:"scale(.5) translateY(-25px)",
+        opacity:0
+      }
+    ];
+  }
+
+  if(!reduceMotion){
+    animations.push(emoji.animate(frames,{
+      duration:3500,
+      easing:"ease-in-out",
+      fill:"forwards"
+    }));
+
+    // Love/kiss ke saath chhote flying hearts
+    if(love){
+      for(let i=0;i<4;i++){
+        const heart=document.createElement("span");
+        heart.textContent="💕";
+
+        Object.assign(heart.style,{
+          position:"absolute",
+          left:"50%",
+          top:"40%",
+          fontSize:"20px",
+          lineHeight:"1",
+          opacity:"0",
+          pointerEvents:"none"
+        });
+
+        layer.appendChild(heart);
+
+        const x=direction
+          ?direction*(20+i*9)
+          :(i-1.5)*20;
+
+        animations.push(heart.animate([
+          {
+            transform:"translate(-50%,-50%) scale(.3)",
+            opacity:0
+          },
+          {
+            transform:`translate(calc(-50% + ${x*.4}px),-25px) scale(1)`,
+            opacity:1,
+            offset:.35
+          },
+          {
+            transform:`translate(calc(-50% + ${x}px),-60px) scale(.5)`,
+            opacity:0
+          }
+        ],{
+          duration:1700,
+          delay:300+i*300,
+          easing:"ease-out",
+          fill:"both"
+        }));
+      }
+    }
+  }
+
+  const timer=setTimeout(cleanup,3500);
+
+  function cleanup(){
+    clearTimeout(timer);
+    animations.forEach(animation=>animation.cancel());
+    layer.remove();
+
+    avatar.style.position=oldPosition;
+    avatar.style.overflow=oldOverflow;
+
+    if(voxaReactionCleanup===cleanup){
+      voxaReactionCleanup=null;
+    }
+  }
+
+  voxaReactionCleanup=cleanup;
+}
+
+E("emojiBtn").onclick=()=>{
+  if(!mySeatNumber){
+    toast("Pehle seat join karo.");
+    return;
+  }
+
+  E("emojiPicker").hidden=!E("emojiPicker").hidden;
+};
+
+E("emojiPicker").replaceChildren();
+
+[
+  "❤️","😂","🤣","👏","😍","🥰",
+  "😘","😘 ⬅️","😘 ➡️","💋","🫂",
+  "🔥","😊","🎉","👍","🌹","👋",
+  "😎","🤭","🙈","😭","😡","💔",
+  "😴","💃","🕺","👑","🤩"
+].forEach(em=>{
+  const b=document.createElement("button");
+  b.type="button";
+  b.textContent=em;
+
+  b.setAttribute(
+    "aria-label",
+    em==="😘 ⬅️"?"Kiss left":
+    em==="😘 ➡️"?"Kiss right":
+    "Seat reaction "+em
+  );
+
+  Object.assign(b.style,{
+    minWidth:"48px",
+    minHeight:"48px",
+    fontSize:"28px",
+    cursor:"pointer",
+    touchAction:"manipulation"
+  });
+
+  b.onclick=()=>{
+    E("emojiPicker").hidden=true;
+    playVoxaSeatEmoji(em);
+  };
+
+  E("emojiPicker").append(b);
+});
+
+// ===== CHAT SEND =====
 E("composer").onsubmit=e=>{
   e.preventDefault();
+
   const v=E("msgInput").value.trim();
   if(!v)return;
+
   addChatMessage(ME,v);
   E("msgInput").value="";
 };
