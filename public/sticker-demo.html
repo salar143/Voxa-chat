@@ -3,210 +3,322 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VoxaChat Emoji Panel</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VoxaChat Animated Emojis</title>
 <style>
 *{box-sizing:border-box}
 body{
-  margin:0;background:#080b20;color:white;
-  font-family:Arial,sans-serif;padding:15px;
+ margin:0;background:#09051b;color:white;
+ font-family:Arial,sans-serif;min-height:100vh
 }
-.app{
-  max-width:480px;margin:auto;padding:18px 10px;
-  background:linear-gradient(145deg,#24103e,#07162d);
-  border:2px solid #a56bff;border-radius:22px;
-  box-shadow:0 0 20px #974cff66;
+.room{
+ max-width:500px;margin:auto;min-height:100vh;
+ padding:20px 12px 100px;
+ background:linear-gradient(160deg,#061d3b,#301044,#09051b)
 }
-h2{text-align:center;color:#e6c5ff}
-#toggle{
-  display:block;margin:15px auto;padding:13px 25px;
-  background:#21123f;color:white;border:1px solid #d9a0ff;
-  border-radius:50px;font-size:25px;cursor:pointer;
+.header{
+ padding:14px;background:#ffffff10;border-radius:18px;
+ font-size:19px;font-weight:bold
 }
-#panel{display:none}
-#panel.open{display:block}
-.tier{
-  --glow:#42ffac;position:relative;
-  border:1px solid var(--glow);border-radius:16px;
-  padding:23px 7px 10px;margin:25px 8px;
-  box-shadow:0 0 12px #a56bff22;
+.sub{font-size:12px;color:#d5c4e8;margin-top:6px}
+.seats{
+ display:grid;grid-template-columns:repeat(4,1fr);
+ gap:32px 5px;margin-top:45px
 }
-.vip2{--glow:#ffd052}
-.vip6{--glow:#df70ff}
-.tier h3{
-  position:absolute;top:-13px;left:50%;
-  transform:translateX(-50%);white-space:nowrap;
-  margin:0;padding:5px 10px;font-size:12px;
-  border:1px solid var(--glow);border-radius:20px;
-  background:#0b0c20;color:var(--glow);
+.seat{text-align:center;font-size:12px;color:#ddd}
+.circle{
+ position:relative;width:58px;height:58px;
+ border:1px solid #c7a6d7;border-radius:50%;
+ background:#100d28;display:grid;place-items:center;
+ margin:0 auto 8px;font-size:24px
 }
-.grid{
-  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
-  gap:6px;
-}
-.emoji{
-  aspect-ratio:1;border:1px solid #71649f;
-  border-radius:12px;background:#17172f;
-  display:grid;place-items:center;
-  font-size:clamp(25px,7vw,38px);cursor:pointer;
-}
-.emoji:active{transform:scale(.9)}
-.arrows{display:flex;justify-content:space-between;margin-top:9px}
-.arrows button{
-  color:white;background:#21143f;border:1px solid #b88aff;
-  border-radius:20px;padding:5px 15px;font-size:18px;
-}
-.custom{
-  padding:12px;border:1px solid #7963a0;border-radius:12px;
-  font-size:13px;
-}
-label{display:flex;justify-content:space-between;margin:10px 0}
-select{background:#17132c;color:white;padding:5px;border:1px solid #a56bff;border-radius:7px}
-#avatar{
-  position:relative;margin:35px auto 15px;
-  width:90px;height:90px;border:1px solid #b9a0d8;
-  border-radius:50%;display:grid;place-items:center;
-  background:#111a30;font-size:35px;
-}
+.seat:first-child{grid-column:2}
+.seat:nth-child(2){grid-column:4}
 .reaction{
-  position:absolute;top:-35px;left:50%;
-  font-size:45px;white-space:nowrap;
-  pointer-events:none;transform:translateX(-50%);
+ position:absolute;left:50%;top:-35px;
+ z-index:5;font-size:43px;white-space:nowrap;
+ transform:translateX(-50%);
+ filter:drop-shadow(0 0 9px #ff70e9);
+ pointer-events:none
 }
-.bounce{animation:bounce 1.8s ease-out forwards}
-.float{animation:float 2s ease-out forwards}
-.pulse{animation:pulse 1.8s ease-out forwards}
+.bounce{animation:bounce 1.8s ease forwards}
+.float{animation:float 2s ease forwards}
+.pulse{animation:pulse 1.8s ease forwards}
 @keyframes bounce{
-  0%{opacity:0;transform:translate(-50%,20px) scale(.2)}
-  25%{opacity:1;transform:translate(-50%,-5px) scale(1.3)}
-  55%{transform:translate(-50%,-20px) scale(1)}
-  100%{opacity:0;transform:translate(-50%,-80px) scale(.8)}
+ 0%{opacity:0;transform:translate(-50%,20px) scale(.2)}
+ 25%{opacity:1;transform:translate(-50%,-10px) scale(1.3)}
+ 55%{transform:translate(-50%,-20px) scale(1)}
+ 100%{opacity:0;transform:translate(-50%,-85px) scale(.8)}
 }
 @keyframes float{
-  0%{opacity:0;transform:translate(-50%,20px)}
-  20%{opacity:1}
-  100%{opacity:0;transform:translate(-50%,-100px)}
+ 0%{opacity:0;transform:translate(-50%,15px)}
+ 20%{opacity:1}
+ 100%{opacity:0;transform:translate(-50%,-100px) rotate(12deg)}
 }
 @keyframes pulse{
-  0%{opacity:0;transform:translate(-50%,0) scale(.2)}
-  30%{opacity:1;transform:translate(-50%,-10px) scale(1.4)}
-  100%{opacity:0;transform:translate(-50%,-65px) scale(1)}
+ 0%{opacity:0;transform:translate(-50%,0) scale(.2)}
+ 30%{opacity:1;transform:translate(-50%,-10px) scale(1.4)}
+ 100%{opacity:0;transform:translate(-50%,-70px) scale(1)}
 }
+.bottom{
+ position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+ width:min(500px,100%);height:70px;
+ background:#090617f5;display:flex;
+ align-items:center;justify-content:space-around
+}
+.bottom button{
+ width:47px;height:47px;border-radius:50%;
+ border:1px solid #ffffff22;background:#211434;
+ color:white;font-size:24px
+}
+.panel{
+ display:none;position:fixed;z-index:10;
+ left:50%;transform:translateX(-50%);
+ bottom:80px;width:min(480px,calc(100% - 14px));
+ max-height:78vh;overflow:auto;padding:13px 10px;
+ border:2px solid #c34bff;border-radius:23px;
+ background:radial-gradient(at top,#45115e,#110820 70%);
+ box-shadow:0 0 25px #ae35ff99
+}
+.panel.open{display:block}
+.panel h2{
+ text-align:center;font-size:19px;
+ color:#ffd7ff;text-shadow:0 0 12px #ed4cff
+}
+.close{
+ display:block;margin-left:auto;border:1px solid #ef9aff;
+ border-radius:50%;background:#310c48;color:white;
+ font-size:20px;width:34px;height:34px
+}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.tab{
+ padding:9px 2px;border:1px solid var(--c);
+ border-radius:20px;background:#180b2c;color:white;
+ font-size:11px;font-weight:bold
+}
+.tab[data-tier="free"]{--c:#48ff9a}
+.tab[data-tier="vip2"]{--c:#ffd05a}
+.tab[data-tier="vip6"]{--c:#e76aff}
+.tab.active{background:#49205e;box-shadow:0 0 10px var(--c)}
+.page{display:none}
+.page.active{display:block}
+.grid{
+ display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+ gap:6px;margin-top:14px
+}
+.emoji{
+ aspect-ratio:1;min-width:0;
+ border:1px solid #a54cc5;border-radius:12px;
+ background:linear-gradient(145deg,#4b2461,#170d2c);
+ font-size:clamp(26px,8vw,39px);
+ display:grid;place-items:center
+}
+.emoji:active{transform:scale(.88)}
+.pager{
+ display:flex;justify-content:space-between;
+ align-items:center;margin-top:12px
+}
+.arrow{
+ background:#270d40;color:white;
+ border:1px solid #db82ff;border-radius:20px;
+ font-size:21px;padding:4px 17px
+}
+.dots{font-size:12px;color:#e5aaff}
+.custom{
+ margin-top:14px;padding:11px;
+ border:1px solid #8e5ba8;border-radius:12px;
+ background:#ffffff08;font-size:13px
+}
+label{
+ display:flex;justify-content:space-between;
+ align-items:center;gap:8px;margin-top:10px
+}
+select{
+ max-width:58%;background:#170b29;
+ color:white;border:1px solid #a56ec2;
+ border-radius:7px;padding:7px
+}
+.note{text-align:center;font-size:10px;color:#cfb8df}
 </style>
 </head>
 <body>
-<div class="app">
-<h2>✨ EMOJI COLLECTION ✨</h2>
 
-<button id="toggle" aria-expanded="false">😊</button>
+<main class="room">
+ <div class="header">
+  💖 VoxaChat Room
+  <div class="sub">ID: 10001 · Animated Emoji Demo</div>
+ </div>
+ <p>Normal · 20 Seats</p>
+ <div class="seats" id="seats">
+  <div class="seat">
+   <div class="circle">⌂</div>Owner
+  </div>
+  <div class="seat">
+   <div class="circle">🔒</div>Super Mic
+  </div>
+ </div>
+ <p style="color:#50eeee;margin-top:45px">
+  Tap the smiley to open emojis.
+ </p>
+</main>
 
-<div id="panel">
-<section class="tier" data-tier="free">
-<h3>💚 FREE EMOJIS (15)</h3>
-<div class="grid" id="free"></div>
-<div class="arrows">
-<button data-move="-1">◀</button>
-<button data-move="1">▶</button>
-</div>
+<section class="panel" id="panel">
+ <button class="close" id="close">×</button>
+ <h2>😘 Animated Emojis 👑</h2>
+
+ <div class="tabs">
+  <button class="tab active" data-tier="free">💚 FREE 15</button>
+  <button class="tab" data-tier="vip2">👑 VIP 2+</button>
+  <button class="tab" data-tier="vip6">💎 VIP 6+</button>
+ </div>
+
+ <section class="page active" id="page-free">
+  <div class="grid" id="grid-free"></div>
+  <div class="pager">
+   <button class="arrow" data-dir="-1">◀</button>
+   <span class="dots" id="dots-free"></span>
+   <button class="arrow" data-dir="1">▶</button>
+  </div>
+ </section>
+
+ <section class="page" id="page-vip2">
+  <div class="grid" id="grid-vip2"></div>
+  <div class="pager">
+   <button class="arrow" data-dir="-1">◀</button>
+   <span class="dots" id="dots-vip2"></span>
+   <button class="arrow" data-dir="1">▶</button>
+  </div>
+ </section>
+
+ <section class="page" id="page-vip6">
+  <div class="grid" id="grid-vip6"></div>
+  <div class="pager">
+   <button class="arrow" data-dir="-1">◀</button>
+   <span class="dots" id="dots-vip6"></span>
+   <button class="arrow" data-dir="1">▶</button>
+  </div>
+ </section>
+
+ <div class="custom">
+  <b>✨ Customize Animation</b>
+  <label>Animation
+   <select id="anim">
+    <option value="bounce">Bouncy Pop</option>
+    <option value="float">Floating</option>
+    <option value="pulse">Pulse</option>
+   </select>
+  </label>
+  <label>Extra Effect
+   <select id="effect">
+    <option value="✨">✨ Sparkles</option>
+    <option value="💗">💗 Hearts</option>
+    <option value="">None</option>
+   </select>
+  </label>
+ </div>
+ <p class="note">Tap emoji to preview above Owner seat.</p>
 </section>
 
-<section class="tier vip2" data-tier="vip2">
-<h3>👑 VIP 2+ (5)</h3>
-<div class="grid" id="vip2"></div>
-<div class="arrows">
-<button data-move="-1">◀</button>
-<button data-move="1">▶</button>
-</div>
-</section>
-
-<section class="tier vip6" data-tier="vip6">
-<h3>💎 VIP 6+ (5)</h3>
-<div class="grid" id="vip6"></div>
-<div class="arrows">
-<button data-move="-1">◀</button>
-<button data-move="1">▶</button>
-</div>
-</section>
-
-<div class="custom">
-<b>🎨 Customize Animation</b>
-<label>Animation
-<select id="animation">
-<option value="bounce">Bouncy</option>
-<option value="float">Floating</option>
-<option value="pulse">Pulse</option>
-</select>
-</label>
-<label>Effect
-<select id="effect">
-<option value="✨">✨ Sparkles</option>
-<option value="💗">💗 Hearts</option>
-<option value="">No effect</option>
-</select>
-</label>
-</div>
-</div>
-
-<div id="avatar">🙂</div>
-<p style="text-align:center;font-size:12px;color:#c8b9e4">
-Tap an emoji to preview its animation
-</p>
-</div>
+<nav class="bottom">
+ <button aria-label="Speaker">◖))</button>
+ <button aria-label="Microphone">🎙</button>
+ <button aria-label="Chat">☷</button>
+ <button id="toggle" aria-label="Emoji picker">☻</button>
+ <button aria-label="Gifts">🎁</button>
+</nav>
 
 <script>
 const emojis={
- free:["😘","😉","🥰","😂","😎","😍","💞","😴","😜","😡","🥹","😤","🎧","😊","😭"],
- vip2:["💋","😍","🫶","🥳","😏"],
+ free:[
+  "😘","🥰","😎","😴","😂",
+  "😍","🫶","😜","😡","🤫",
+  "😭","🤩","😗","🤔","🥹"
+ ],
+ vip2:["💋","💞","😏","🥳","📣"],
  vip6:["💖","💘","👑","✨","😘"]
 };
 
-const toggle=document.getElementById("toggle");
+const tiers=["free","vip2","vip6"];
+const pageIndex={free:0,vip2:0,vip6:0};
 const panel=document.getElementById("panel");
 
-toggle.onclick=()=>{
+document.getElementById("toggle").onclick=()=>{
  panel.classList.toggle("open");
- toggle.setAttribute("aria-expanded",panel.classList.contains("open"));
 };
 
-function render(key){
- const grid=document.getElementById(key);
+document.getElementById("close").onclick=()=>{
+ panel.classList.remove("open");
+};
+
+document.querySelectorAll(".tab").forEach(btn=>{
+ btn.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(t=>{
+   t.classList.toggle("active",t===btn);
+  });
+  tiers.forEach(t=>{
+   document.getElementById("page-"+t)
+    .classList.toggle("active",t===btn.dataset.tier);
+  });
+ };
+});
+
+function render(tier){
+ const grid=document.getElementById("grid-"+tier);
  grid.replaceChildren();
 
- emojis[key].forEach(emoji=>{
+ for(let i=0;i<5;i++){
+  const emoji=emojis[tier][
+   (pageIndex[tier]*5+i)%emojis[tier].length
+  ];
   const btn=document.createElement("button");
   btn.className="emoji";
   btn.textContent=emoji;
-  btn.setAttribute("aria-label","Preview "+emoji);
-  btn.onclick=()=>showReaction(emoji);
+  btn.setAttribute("aria-label","Use "+emoji);
+  btn.onclick=()=>react(emoji);
   grid.appendChild(btn);
- });
+ }
+
+ const total=Math.ceil(emojis[tier].length/5);
+ document.getElementById("dots-"+tier).textContent=
+  "● ".repeat(pageIndex[tier]+1)+
+  "○ ".repeat(total-pageIndex[tier]-1);
 }
 
-function showReaction(emoji){
- const avatar=document.getElementById("avatar");
- avatar.querySelector(".reaction")?.remove();
-
- const reaction=document.createElement("span");
- reaction.className="reaction "+document.getElementById("animation").value;
- reaction.textContent=emoji+document.getElementById("effect").value;
- avatar.appendChild(reaction);
-
- setTimeout(()=>reaction.remove(),2200);
-}
-
-document.querySelectorAll(".tier").forEach(section=>{
- const key=section.dataset.tier;
- section.querySelectorAll("[data-move]").forEach(btn=>{
-  btn.onclick=()=>{
-   const list=emojis[key];
-   if(Number(btn.dataset.move)>0)list.push(list.shift());
-   else list.unshift(list.pop());
-   render(key);
-  };
- });
+document.querySelectorAll(".arrow").forEach(btn=>{
+ btn.onclick=()=>{
+  const tier=btn.closest(".page").id.replace("page-","");
+  const total=Math.ceil(emojis[tier].length/5);
+  pageIndex[tier]=(
+   pageIndex[tier]+Number(btn.dataset.dir)+total
+  )%total;
+  render(tier);
+ };
 });
 
-Object.keys(emojis).forEach(render);
+function react(emoji){
+ const seat=document.querySelector(".seat:first-child .circle");
+ seat.querySelector(".reaction")?.remove();
+
+ const node=document.createElement("span");
+ node.className="reaction "+document.getElementById("anim").value;
+ node.textContent=emoji+document.getElementById("effect").value;
+ seat.appendChild(node);
+
+ setTimeout(()=>node.remove(),2300);
+ panel.classList.remove("open");
+}
+
+tiers.forEach(render);
+
+const seats=document.getElementById("seats");
+for(let i=2;i<=12;i++){
+ const seat=document.createElement("div");
+ seat.className="seat";
+ seat.innerHTML=
+  '<div class="circle">'+(i>=3?"🔒":"🎙")+
+  '</div>No.'+i;
+ seats.appendChild(seat);
+}
 </script>
 </body>
 </html>
