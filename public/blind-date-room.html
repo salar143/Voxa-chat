@@ -2829,5 +2829,175 @@ addAnnouncementToChat();
 setTimeout(()=>userJoinMessage(ME),1000);
 checkPendingInvite();
 </script>
+  <!-- VOXA EMOJI REACTION START -->
+
+<style>
+.reaction-toggle{
+  position:fixed;
+  right:14px;
+  bottom:calc(18px + env(safe-area-inset-bottom));
+  z-index:9999;
+  background:linear-gradient(45deg,#ffd700,#ff8c00);
+  color:#000;
+  border:none;
+  padding:10px 16px;
+  border-radius:25px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.reaction-panel{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:9998;
+  background:#111;
+  border-top:1px solid #333;
+  padding:10px;
+  max-height:45vh;
+  overflow-y:auto;
+  display:none;
+}
+.reaction-panel.open{display:block}
+
+.reaction-title{
+  color:#aaa;
+  font-size:12px;
+  text-align:center;
+  margin-bottom:10px;
+}
+
+.reaction-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+}
+
+.reaction-btn{
+  width:100%;
+  aspect-ratio:1;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;
+  background:rgba(255,255,255,.05);
+  padding:4px;
+  cursor:pointer;
+}
+.reaction-btn img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+.reaction-clear{
+  width:100%;
+  margin-top:12px;
+  background:#ff4444;
+  color:white;
+  border:none;
+  padding:10px;
+  border-radius:20px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.seat-emoji{
+  position:absolute;
+  top:-20px;
+  left:-20px;
+  width:125px;
+  height:125px;
+  object-fit:contain;
+  filter:drop-shadow(0 15px 20px rgba(0,0,0,.9));
+  opacity:0;
+  transform:scale(.3);
+  transition:all .4s cubic-bezier(.175,.885,.32,1.275);
+  pointer-events:none;
+  z-index:10;
+}
+.seat-emoji.show{opacity:1;transform:scale(1)}
+</style>
+
+<button class="reaction-toggle" onclick="document.getElementById('reactionPanel').classList.toggle('open')">😊 Emoji</button>
+
+<div class="reaction-panel" id="reactionPanel">
+  <div class="reaction-title">Select Emoji · 25 Animations</div>
+
+  <div class="reaction-grid">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f618/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Kiss">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60d/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Heart eyes">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f914/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Thinking">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f602/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Laugh">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f62d/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Crying">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f621/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Angry">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60e/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Cool">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60a/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Blush">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f44d/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Thumbs up">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f973/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Party">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f634/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Sleeping">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f92f/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Mind blown">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f44f/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Clapping">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f615/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Confused">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f929/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Star eyes">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f971/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Yawning">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f631/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Screaming">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f608/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Devil">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f609/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Wink">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/270c_1f3fb/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Peace">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f61e/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Sad">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f607/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Halo">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f924/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Drooling">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f644/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Rolling eyes">
+    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f64f/512.gif" class="reaction-btn" onclick="applyRoomEmoji(this.src)" alt="Namaste">
+  </div>
+
+  <button class="reaction-clear" onclick="clearRoomEmoji()">Remove Effect</button>
+</div>
+
+<script>
+function applyRoomEmoji(imageSource){
+  const seat=document.querySelector(".avatar-circle");
+
+  if(!seat){
+    alert("Seat nahi mila.");
+    return;
+  }
+
+  let emojiImg=seat.querySelector(".seat-emoji");
+
+  if(!emojiImg){
+    emojiImg=document.createElement("img");
+    emojiImg.className="seat-emoji";
+    emojiImg.alt="Emoji";
+    seat.appendChild(emojiImg);
+  }
+
+  emojiImg.src=imageSource;
+
+  setTimeout(()=>{
+    emojiImg.classList.add("show");
+    seat.classList.add("has-effect");
+  },50);
+}
+
+function clearRoomEmoji(){
+  const seat=document.querySelector(".avatar-circle");
+
+  if(!seat) return;
+
+  const emojiImg=seat.querySelector(".seat-emoji");
+
+  if(emojiImg){
+    emojiImg.classList.remove("show");
+    setTimeout(()=>{
+      emojiImg.src="";
+    },400);
+  }
+
+  seat.classList.remove("has-effect");
+}
+</script>
+
+<!-- VOXA EMOJI REACTION END -->
 </body>
 </html>
