@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VoxaChat Sticker Demo</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #141020;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.app {
+  max-width: 460px;
+  min-height: 100vh;
+  margin: auto;
+  padding: 22px 16px;
+  background:
+    radial-gradient(circle at top left, #78445b, transparent 65%),
+    #191329;
+}
+
+h1 {
+  font-size: 21px;
+  margin: 0 0 8px;
+}
+
+.description {
+  color: #d0bfd8;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.stage {
+  height: 280px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.seat {
+  width: 82px;
+  height: 82px;
+  border: 2px solid #c0a0bb;
+  border-radius: 50%;
+  background: #ffffff12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ded1e1;
+}
+
+.seat-name {
+  position: absolute;
+  top: 195px;
+  font-size: 14px;
+}
+
+.reaction {
+  position: absolute;
+  top: 40px;
+  width: 180px;
+  height: 180px;
+  pointer-events: none;
+}
+
+.reaction svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.panel {
+  padding: 18px;
+  background: #211b36;
+  border: 1px solid #ffffff20;
+  border-radius: 20px;
+}
+
+.panel-title {
+  margin-bottom: 16px;
+  color: #f0c8f5;
+  font-size: 16px;
+}
+
+.sticker-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.sticker-button {
+  padding: 8px 3px 12px;
+  background: #352b4c;
+  color: white;
+  border: 1px solid #ffffff25;
+  border-radius: 14px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.sticker-button svg {
+  display: block;
+  width: 100%;
+  max-width: 100px;
+  margin: auto;
+}
+
+.sticker-button span {
+  display: block;
+  font-size: 12px;
+}
+
+.sticker-button:active {
+  background: #58416c;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+}
+
+.controls button {
+  flex: 1;
+  padding: 12px;
+  background: #49345f;
+  border: 1px solid #ffffff25;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+}
+
+#status {
+  min-height: 36px;
+  margin: 16px 0 8px;
+  color: #ecc0e0;
+  font-size: 13px;
+}
+
+.note {
+  color: #c9bad3;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.left-facing {
+  transform: scaleX(-1);
+}
+
+/* Default character expressions */
+.closed-eyes,
+.kiss-mouth {
+  display: none;
+}
+
+.heart,
+.clap-lines {
+  opacity: 0;
+}
+
+/* Kiss expression */
+.playing.kiss .open-eyes,
+.playing.kiss .smile-mouth {
+  display: none;
+}
+
+.playing.kiss .closed-eyes,
+.playing.kiss .kiss-mouth {
+  display: block;
+}
+
+.head {
+  transform-origin: 100px 95px;
+}
+
+.playing.kiss .head {
+  animation: kiss-head 900ms ease-in-out infinite alternate;
+}
+
+.playing.kiss .cheeks {
+  animation: blush 900ms ease-in-out infinite alternate;
+}
+
+.playing.kiss .heart {
+  animation: flying-heart 1600ms ease-out infinite;
+}
+
+.playing.kiss .heart-two {
+  animation-delay: 500ms;
+}
+
+.playing.kiss .heart-three {
+  animation-delay: 1000ms;
+}
+
+/* Hands move individually */
+.arm {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+
+.playing.clap .arm-left {
+  animation: clap-left 450ms ease-in-out infinite alternate;
+}
+
+.playing.clap .arm-right {
+  animation: clap-right 450ms ease-in-out infinite alternate;
+}
+
+.playing.clap .clap-lines {
+  animation: clap-flash 900ms ease-in-out infinite;
+}
+
+.playing.clap .open-eyes {
+  animation: blink 1800ms infinite;
+}
+
+@keyframes kiss-head {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes blush {
+  from {
+    opacity: .5;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes flying-heart {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(.4);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(38px, -40px) scale(1.15);
+  }
+}
+
+@keyframes clap-left {
+  from {
+    transform: translateX(-10px) rotate(-18deg);
+  }
+  to {
+    transform: translateX(12px) rotate(12deg);
+  }
+}
+
+@keyframes clap-right {
+  from {
+    transform: translateX(10px) rotate(18deg);
+  }
+  to {
+    transform: translateX(-12px) rotate(-12deg);
+  }
+}
+
+@keyframes clap-flash {
+  0%, 35%, 100% {
+    opacity: 0;
+  }
+  45%, 60% {
+    opacity: 1;
+  }
+}
+
+@keyframes blink {
+  0%, 42%, 50%, 100% {
+    opacity: 1;
+  }
+  46% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .playing * {
+    animation: none !important;
+  }
+
+  .playing.kiss .heart {
+    opacity: 1;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+  <h1>VoxaChat · Sticker Demo</h1>
+
+  <div class="description">
+    Custom cartoon cat · Left Kiss, Right Kiss aur Clap
+  </div>
+
+  <div class="stage">
+    <div class="seat">Your DP</div>
+
+    <div
+      id="reaction"
+      class="reaction"
+      aria-hidden="true"
+      hidden
+    ></div>
+
+    <div class="seat-name">Your sample seat</div>
+  </div>
+
+  <section class="panel">
+    <div class="panel-title">Normal · 3 sample stickers</div>
+
+    <div id="stickerGrid" class="sticker-grid"></div>
+
+    <div id="status" role="status">
+      Kisi sticker ko tap karo.
+    </div>
+
+    <div class="controls">
+      <button type="button" id="replayBtn">Replay</button>
+      <button type="button" id="stopBtn">Stop</button>
+    </div>
+  </section>
+
+  <p class="note">
+    Ye alag demo hai. Isse aapke existing room ya emoji code
+    mein koi change nahi hota. Abhi poore 26 stickers nahi,
+    sirf 3 sample animations hain.
+  </p>
+</div>
+
+<script>
+"use strict";
+
+const reactionBox = document.getElementById("reaction");
+const stickerGrid = document.getElementById("stickerGrid");
+const statusBox = document.getElementById("status");
+
+let reactionTimer = null;
+let lastSticker = 0;
+
+const stickers = [
+  {
+    name: "Left Kiss",
+    effect: "kiss",
+    left: true
+  },
+  {
+    name: "Right Kiss",
+    effect: "kiss",
+    left: false
+  },
+  {
+    name: "Clap",
+    effect: "clap",
+    left: false
+  }
+];
+
+function createCatSVG() {
+  return `
+  <svg
+    viewBox="0 0 200 200"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <!-- Shadow -->
+    <ellipse
+      cx="100" cy="184"
+      rx="42" ry="6"
+      fill="#000000"
+      opacity=".15"
+    />
+
+    <!-- Body -->
+    <ellipse
+      cx="100" cy="151"
+      rx="37" ry="33"
+      fill="#fff4df"
+      stroke="#995c34"
+      stroke-width="3"
+    />
+
+    <!-- Feet -->
+    <ellipse
+      cx="80" cy="178"
+      rx="14" ry="8"
+      fill="#fff4df"
+      stroke="#995c34"
+      stroke-width="3"
+    />
+
+    <ellipse
+      cx="120" cy="178"
+      rx="14" ry="8"
+      fill="#fff4df"
+      stroke="#995c34"
+      stroke-width="3"
+    />
+
+    <g class="head">
+      <!-- Ears -->
+      <path
+        d="M43 77 L37 21 L80 42
+           Q100 30 121 42
+           L163 21 L157 77"
+        fill="#eea643"
+        stroke="#995c34"
+        stroke-width="3"
+        stroke-linejoin="round"
+      />
+
+      <path
+        d="M47 36 L52 61 L69 46
+           M153 36 L148 61 L131 46"
+        fill="#f2abb7"
+      />
+
+      <!-- Face -->
+      <ellipse
+        cx="100" cy="95"
+        rx="66" ry="55"
+        fill="#fff5e6"
+        stroke="#995c34"
+        stroke-width="3"
+      />
+
+      <!-- Orange patches -->
+      <path
+        d="M36 80 Q39 44 76 41
+           L86 60 L66 56 L73 73 Z"
+        fill="#eea643"
+      />
+
+      <path
+        d="M164 80 Q161 44 124 41
+           L114 60 L134 56 L127 73 Z"
+        fill="#eea643"
+      />
+
+      <!-- Forehead stripes -->
+      <path
+        d="M90 42 L96 60 L102 43
+           L109 60 L115 43"
+        fill="#d88b31"
+      />
+
+      <!-- Open eyes -->
+      <g class="open-eyes" fill="#473143">
+        <ellipse cx="75" cy="91" rx="6" ry="9"/>
+        <ellipse cx="125" cy="91" rx="6" ry="9"/>
+
+        <circle cx="77" cy="88" r="2" fill="white"/>
+        <circle cx="127" cy="88" r="2" fill="white"/>
+      </g>
+
+      <!-- Closed kiss eyes -->
+      <g
+        class="closed-eyes"
+        stroke="#473143"
+        stroke-width="4"
+        fill="none"
+        stroke-linecap="round"
+      >
+        <path d="M65 93 Q75 82 85 93"/>
+        <path d="M115 93 Q125 82 135 93"/>
+      </g>
+
+      <!-- Cheeks -->
+      <g class="cheeks" fill="#ed9ca9">
+        <ellipse cx="57" cy="111" rx="13" ry="7"/>
+        <ellipse cx="143" cy="111" rx="13" ry="7"/>
+      </g>
+
+      <!-- Nose -->
+      <path
+        d="M96 102 Q100 107 104 102"
+        fill="none"
+        stroke="#b87682"
+        stroke-width="4"
+        stroke-linecap="round"
+      />
+
+      <!-- Smile -->
+      <path
+        class="smile-mouth"
+        d="M87 114 Q100 130 113 114"
+        fill="#e995a8"
+        stroke="#69414a"
+        stroke-width="3"
+      />
+
+      <!-- Kiss lips -->
+      <path
+        class="kiss-mouth"
+        d="M110 111 L120 115 L110 119 L120 123"
+        fill="none"
+        stroke="#bd567b"
+        stroke-width="4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </g>
+
+    <!-- Left hand -->
+    <g class="arm arm-left">
+      <ellipse
+        cx="76" cy="151"
+        rx="14" ry="21"
+        fill="#fff4df"
+        stroke="#995c34"
+        stroke-width="3"
+      />
+
+      <path
+        d="M70 138 L71 144 M77 137 L78 143"
+        stroke="#d7a178"
+        stroke-width="2"
+        stroke-linecap="round"
+      />
+    </g>
+
+    <!-- Right hand -->
+    <g class="arm arm-right">
+      <ellipse
+        cx="124" cy="151"
+        rx="14" ry="21"
+        fill="#fff4df"
+        stroke="#995c34"
+        stroke-width="3"
+      />
+
+      <path
+        d="M123 137 L122 143 M130 138 L129 144"
+        stroke="#d7a178"
+        stroke-width="2"
+        stroke-linecap="round"
+      />
+    </g>
+
+    <!-- Clap marks -->
+    <g
+      class="clap-lines"
+      fill="none"
+      stroke="#ffdc69"
+      stroke-width="4"
+      stroke-linecap="round"
+    >
+      <path d="M100 130 L100 120"/>
+      <path d="M90 132 L84 125"/>
+      <path d="M110 132 L116 125"/>
+    </g>
+
+    <!-- Flying hearts -->
+    <g fill="#f570a6">
+      <path
+        class="heart"
+        d="M147 91
+           C128 80 139 65 147 76
+           C157 64 169 80 147 91 Z"
+      />
+
+      <path
+        class="heart heart-two"
+        d="M147 91
+           C128 80 139 65 147 76
+           C157 64 169 80 147 91 Z"
+      />
+
+      <path
+        class="heart heart-three"
+        d="M147 91
+           C128 80 139 65 147 76
+           C157 64 169 80 147 91 Z"
+      />
+    </g>
+  </svg>
+  `;
+}
+
+function stopSticker() {
+  clearTimeout(reactionTimer);
+  reactionTimer = null;
+
+  reactionBox.hidden = true;
+  reactionBox.innerHTML = "";
+
+  statusBox.textContent = "Stopped — koi sticker tap karo.";
+}
+
+function playSticker(index) {
+  const sticker = stickers[index];
+  if (!sticker) return;
+
+  clearTimeout(reactionTimer);
+  lastSticker = index;
+
+  reactionBox.className =
+    "reaction playing " +
+    sticker.effect +
+    (sticker.left ? " left-facing" : "");
+
+  // New SVG restarts the animation on every tap.
+  reactionBox.innerHTML = createCatSVG();
+  reactionBox.hidden = false;
+
+  statusBox.textContent =
+    sticker.name + " — 4 seconds chal raha hai.";
+
+  reactionTimer = setTimeout(() => {
+    stopSticker();
+    statusBox.textContent =
+      "Finished — Replay ya doosra sticker tap karo.";
+  }, 4000);
+}
+
+stickers.forEach((sticker, index) => {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "sticker-button";
+  button.setAttribute("aria-label", sticker.name);
+
+  const preview = document.createElement("div");
+  if (sticker.left) {
+    preview.className = "left-facing";
+  }
+
+  preview.innerHTML = createCatSVG();
+
+  const label = document.createElement("span");
+  label.textContent = sticker.name;
+
+  button.append(preview, label);
+  button.onclick = () => playSticker(index);
+
+  stickerGrid.appendChild(button);
+});
+
+document.getElementById("replayBtn").onclick = () => {
+  playSticker(lastSticker);
+};
+
+document.getElementById("stopBtn").onclick = stopSticker;
+</script>
+</body>
+  </html>
