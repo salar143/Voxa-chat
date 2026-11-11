@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Animated Emojis</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Live Animated Emojis</title>
     <style>
-        /* Basic Reset & Dark Theme Background */
         * {
             margin: 0;
             padding: 0;
@@ -14,185 +13,235 @@
         }
 
         body {
-            background-color: #0d0d12;
-            color: white;
+            background: linear-gradient(to bottom, #0f172a, #000000);
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
-        /* Section Styling */
-        .section-container {
-            width: 100%;
-            max-width: 900px;
-            margin-bottom: 30px;
-            padding: 15px;
-            border-radius: 15px;
-            border: 2px solid transparent;
-            background: rgba(255, 255, 255, 0.03);
-            position: relative;
-        }
-
-        /* Border Colors for different tiers */
-        .tier-free { border-color: #28a745; box-shadow: 0 0 15px rgba(40, 167, 69, 0.3); }
-        .tier-vip2 { border-color: #ffc107; box-shadow: 0 0 15px rgba(255, 193, 7, 0.3); }
-        .tier-vip6 { border-color: #8a2be2; box-shadow: 0 0 15px rgba(138, 43, 226, 0.3); }
-        .tier-premium { border-color: #00e5ff; box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); }
-
-        /* Titles */
-        .section-title {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            padding: 8px 15px;
-            border-radius: 20px;
-            background: #1a1a24;
-            position: absolute;
-            top: -18px;
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: nowrap;
-        }
-
-        .tier-free .section-title { border: 2px solid #28a745; color: #28a745; }
-        .tier-vip2 .section-title { border: 2px solid #ffc107; color: #ffc107; }
-        .tier-vip6 .section-title { border: 2px solid #8a2be2; color: #d19aff; }
-        .tier-premium .section-title { border: 2px solid #00e5ff; color: #00e5ff; }
-
-        /* Grid Layout */
-        .emoji-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        /* Emoji Card Styling */
-        .emoji-card {
-            background: #1e1e2a;
-            border-radius: 15px;
-            aspect-ratio: 1 / 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 45px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
+            color: white;
             overflow: hidden;
         }
 
-        /* Hover Effects & Animations */
-        .emoji-card:hover {
-            transform: translateY(-8px) scale(1.1);
+        .header {
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #4ade80;
+        }
+
+        /* Seats Area */
+        .room-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+            justify-items: center;
+            align-content: start;
+            margin-top: 20px;
+        }
+
+        .seat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .avatar-circle {
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            background: #222;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .avatar-circle.has-effect {
+            border-color: #ffcc00;
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.6);
+            background: #333;
+        }
+
+        .user-icon {
+            font-size: 45px;
+            color: #555;
+            transition: opacity 0.3s;
+        }
+
+        /* Live GIF Emoji Layer */
+        .seat-emoji {
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            width: 125px;
+            height: 125px;
+            object-fit: contain;
+            filter: drop-shadow(0px 15px 20px rgba(0,0,0,0.9));
+            opacity: 0;
+            transform: scale(0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
             z-index: 10;
         }
 
-        .tier-free .emoji-card:hover { box-shadow: 0 10px 20px rgba(40, 167, 69, 0.4); }
-        .tier-vip2 .emoji-card:hover { box-shadow: 0 10px 20px rgba(255, 193, 7, 0.4); }
-        .tier-vip6 .emoji-card:hover { box-shadow: 0 10px 20px rgba(138, 43, 226, 0.5); }
-        .tier-premium .emoji-card:hover { box-shadow: 0 10px 20px rgba(0, 229, 255, 0.5); }
-
-        /* Click Animation (Bounce) */
-        @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.3); }
+        .seat-emoji.show {
+            opacity: 1;
+            transform: scale(1);
         }
 
-        .clicked {
-            animation: bounce 0.4s ease;
+        .seat-name {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #ddd;
+            background: rgba(0,0,0,0.6);
+            padding: 3px 12px;
+            border-radius: 12px;
         }
 
-        /* Responsive Design */
-        @media (max-width: 600px) {
-            .emoji-grid { grid-template-columns: repeat(3, 1fr); }
-            .section-title { font-size: 14px; }
+        /* Control Panel (Niche ke buttons) */
+        .control-panel {
+            background: #111;
+            padding: 15px;
+            border-top: 1px solid #333;
+            padding-bottom: 25px;
+        }
+
+        .panel-title {
+            text-align: center;
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 15px;
+        }
+
+        .emoji-list {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        /* Emoji Buttons (Jo niche hain) */
+        .select-btn {
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            padding: 5px;
+        }
+
+        .select-btn:active {
+            transform: scale(0.8);
+            background: rgba(255,255,255,0.3);
+        }
+
+        .clear-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin: 15px auto 0;
+            display: block;
+            font-weight: bold;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <!-- 1. FREE TIER -->
-    <div class="section-container tier-free">
-        <div class="section-title">✅ 15 Free Emoji (Sabhi Users ke liye)</div>
-        <div class="emoji-grid">
-            <div class="emoji-card">👍</div>
-            <div class="emoji-card">😘</div>
-            <div class="emoji-card">😎</div>
-            <div class="emoji-card">😂</div>
-            <div class="emoji-card">🥰</div>
-            <div class="emoji-card">🤔</div>
-            <div class="emoji-card">🥺</div>
-            <div class="emoji-card">😡</div>
-            <div class="emoji-card">😴</div>
-            <div class="emoji-card">✌️</div>
-            <div class="emoji-card">😇</div>
-            <div class="emoji-card">😳</div>
-            <div class="emoji-card">🥳</div>
-            <div class="emoji-card">🤩</div>
-            <div class="emoji-card">🫶</div>
+    <div class="header">Tap on Emoji to see Live Animation</div>
+
+    <!-- Seats Area -->
+    <div class="room-grid">
+        
+        <!-- Seat No. 1 -->
+        <div class="seat">
+            <div class="avatar-circle" id="seat1">
+                <span class="user-icon" id="icon1">👤</span>
+                <!-- Yahan GIF load hoga -->
+                <img src="" class="seat-emoji" id="emoji1" alt="Emoji">
+            </div>
+            <div class="seat-name">Owner</div>
+        </div>
+
+        <div class="seat">
+            <div class="avatar-circle"><span class="user-icon">👤</span></div>
+            <div class="seat-name">No.2</div>
+        </div>
+
+        <div class="seat">
+            <div class="avatar-circle" style="background: rgba(0,0,0,0.6);"><span class="user-icon">🔒</span></div>
+            <div class="seat-name">No.3</div>
         </div>
     </div>
 
-    <!-- 2. VIP 2+ TIER -->
-    <div class="section-container tier-vip2">
-        <div class="section-title">👑 5 VIP 2+ Emoji (Premium Access)</div>
-        <div class="emoji-grid">
-            <div class="emoji-card">🤴</div>
-            <div class="emoji-card">👼</div>
-            <div class="emoji-card">😊</div>
-            <div class="emoji-card">🎉</div>
-            <div class="emoji-card">🎧</div>
+    <!-- Bottom Control Panel -->
+    <div class="control-panel">
+        <div class="panel-title">Niche se emoji par tap karein (Live GIF)</div>
+        <div class="emoji-list">
+            
+            <!-- Kissing Emoji (Flying kiss GIF) -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f618/512.gif" 
+                 class="select-btn" onclick="applyEmoji(this.src)">
+            
+            <!-- Thinking Emoji (Head scratch GIF) -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f914/512.gif" 
+                 class="select-btn" onclick="applyEmoji(this.src)">
+            
+            <!-- Heart Eyes (Love GIF) -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60d/512.gif" 
+                 class="select-btn" onclick="applyEmoji(this.src)">
+            
+            <!-- Crying Emoji -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f62d/512.gif" 
+                 class="select-btn" onclick="applyEmoji(this.src)">
+            
+            <!-- Angry Emoji (Gussa) -->
+            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f621/512.gif" 
+                 class="select-btn" onclick="applyEmoji(this.src)">
+                 
         </div>
+        <button class="clear-btn" onclick="clearEmoji()">Remove Effect</button>
     </div>
 
-    <!-- 3. VIP 6+ TIER -->
-    <div class="section-container tier-vip6">
-        <div class="section-title">👑 5 VIP 6+ Emoji (Super Premium)</div>
-        <div class="emoji-grid">
-            <div class="emoji-card">😈</div>
-            <div class="emoji-card">🥷</div>
-            <div class="emoji-card">👸</div>
-            <div class="emoji-card">🎮</div>
-            <div class="emoji-card">🧑‍💼</div>
-        </div>
-    </div>
-
-    <!-- 4. PREMIUM TIER -->
-    <div class="section-container tier-premium">
-        <div class="section-title">💎 5 Premium Emoji (Exclusive)</div>
-        <div class="emoji-grid">
-            <div class="emoji-card">💖</div>
-            <div class="emoji-card">🕶️</div>
-            <div class="emoji-card">😭</div>
-            <div class="emoji-card">🐼</div>
-            <div class="emoji-card">👨‍🚀</div>
-        </div>
-    </div>
-
-    <!-- JavaScript for Click Animation -->
     <script>
-        // Saare emoji cards ko select karein
-        const emojiCards = document.querySelectorAll('.emoji-card');
+        const seat1Avatar = document.getElementById('seat1');
+        const seat1EmojiImg = document.getElementById('emoji1');
+        const seat1NormalIcon = document.getElementById('icon1');
 
-        emojiCards.forEach(card => {
-            card.addEventListener('click', function() {
-                // Animation class add karein
-                this.classList.add('clicked');
+        function applyEmoji(imageSource) {
+            // 1. Emoji ka naya GIF source set karo
+            seat1EmojiImg.src = imageSource;
+            
+            // 2. Thoda delay dekar Animation trigger karo
+            setTimeout(() => {
+                seat1EmojiImg.classList.add('show');
+                seat1Avatar.classList.add('has-effect');
                 
-                // 400ms (animation duration) ke baad class remove kar dein taaki dobara click kar sakein
-                setTimeout(() => {
-                    this.classList.remove('clicked');
-                }, 400);
+                // Piche wala normal user icon hide karo
+                seat1NormalIcon.style.opacity = '0'; 
+            }, 50);
+        }
 
-                // Yahan aap sound effect ya copy feature bhi add kar sakte hain
-                console.log("Emoji Clicked: " + this.innerText);
-            });
-        });
+        function clearEmoji() {
+            // Animation hatao
+            seat1EmojiImg.classList.remove('show');
+            seat1Avatar.classList.remove('has-effect');
+            
+            // Normal icon wapas dikhao
+            seat1NormalIcon.style.opacity = '1';
+
+            // Thodi der baad GIF source clear kar do taaki memory free ho
+            setTimeout(() => {
+                seat1EmojiImg.src = "";
+            }, 400);
+        }
     </script>
 </body>
 </html>
