@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VoxaChat · Animated Reactions</title>
+<title>VoxaChat · Animated Faces</title>
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -27,25 +27,13 @@ body{
   padding:22px 18px 30px;
 }
 
-header{
-  text-align:center;
-  margin-bottom:18px;
-}
-
-h1{
-  font-size:22px;
-  letter-spacing:.3px;
-}
-
-p{
-  margin-top:6px;
-  color:#c9b8d8;
-  font-size:13px;
-}
+header{text-align:center;margin-bottom:18px}
+h1{font-size:22px}
+p{margin-top:6px;color:#c9b8d8;font-size:13px}
 
 .stage{
   position:relative;
-  height:310px;
+  height:330px;
   border-radius:28px;
   overflow:hidden;
   background:
@@ -58,93 +46,10 @@ p{
   justify-content:center;
 }
 
-.emoji{
-  font-size:118px;
-  line-height:1;
-  filter:drop-shadow(0 12px 22px rgba(0,0,0,.45));
-  user-select:none;
-}
+#actor{width:240px;height:240px}
+#actor svg{width:100%;height:100%;overflow:visible}
 
-.hidden{
-  display:none;
-}
-
-/* Base pop animation */
-@keyframes pop{
-  0%{transform:scale(.3);opacity:0}
-  45%{transform:scale(1.12);opacity:1}
-  65%{transform:scale(.98)}
-  100%{transform:scale(1);opacity:1}
-}
-
-@keyframes float{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-6px)}
-}
-
-@keyframes shake{
-  0%,100%{transform:translateX(0)}
-  25%{transform:translateX(-4px)}
-  75%{transform:translateX(4px)}
-}
-
-@keyframes bounce{
-  0%,100%{transform:translateY(0)}
-  40%{transform:translateY(-12px)}
-}
-
-@keyframes pulse{
-  0%,100%{transform:scale(1)}
-  50%{transform:scale(1.07)}
-}
-
-@keyframes rise{
-  0%{transform:translateY(0) scale(.6);opacity:0}
-  20%{opacity:1}
-  100%{transform:translateY(-160px) scale(1.15);opacity:0}
-}
-
-@keyframes fall{
-  0%{transform:translateY(-40px) scale(.7);opacity:0}
-  15%{opacity:1}
-  100%{transform:translateY(230px) scale(1.1);opacity:0}
-}
-
-@keyframes fadeUp{
-  0%{transform:translateY(18px);opacity:0}
-  25%{opacity:1}
-  100%{transform:translateY(-70px);opacity:0}
-}
-
-.pop{animation:pop .65s cubic-bezier(.2,.9,.25,1.2) both}
-.float{animation:pop .6s both,float 2.4s ease-in-out .6s infinite}
-.shake{animation:pop .55s both,shake .55s ease-in-out .6s 3}
-.bounce{animation:pop .55s both,bounce 1.5s ease-in-out .6s 2}
-.pulse{animation:pop .55s both,pulse 1.1s ease-in-out .6s 3}
-
-.particle{
-  position:absolute;
-  font-size:26px;
-  pointer-events:none;
-  animation:rise 1.9s ease-out forwards;
-}
-
-.tear{
-  position:absolute;
-  font-size:22px;
-  pointer-events:none;
-  animation:fall 1.7s ease-in forwards;
-}
-
-.text{
-  position:absolute;
-  bottom:28px;
-  font-size:15px;
-  font-weight:700;
-  color:#ffe9a8;
-  text-shadow:0 2px 10px rgba(0,0,0,.6);
-  animation:fadeUp 2.4s ease-out forwards;
-}
+.hidden{display:none}
 
 .panel{
   margin-top:18px;
@@ -154,23 +59,11 @@ p{
   border:1px solid rgba(255,255,255,.13);
 }
 
-.panel h2{
-  font-size:14px;
-  margin-bottom:12px;
-  color:#e6d6f5;
-}
+.panel h2{font-size:14px;margin-bottom:12px;color:#e6d6f5}
 
-.grid{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:8px;
-}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 
-button{
-  font-family:inherit;
-  border:0;
-  cursor:pointer;
-}
+button{font-family:inherit;border:0;cursor:pointer}
 
 .choice{
   padding:10px 4px 8px;
@@ -181,10 +74,7 @@ button{
   transition:.18s;
 }
 
-.choice:hover{
-  background:rgba(255,255,255,.16);
-  transform:translateY(-2px);
-}
+.choice:hover{background:rgba(255,255,255,.16);transform:translateY(-2px)}
 
 .choice.active{
   background:linear-gradient(135deg,#8d4bd6,#c2449b);
@@ -192,31 +82,12 @@ button{
   box-shadow:0 8px 20px rgba(160,60,190,.4);
 }
 
-.choice span:first-child{
-  display:block;
-  font-size:27px;
-}
+.choice span:first-child{display:block;font-size:27px}
+.choice span:last-child{display:block;margin-top:5px;font-size:9.5px;color:#e8dcf5}
 
-.choice span:last-child{
-  display:block;
-  margin-top:5px;
-  font-size:9.5px;
-  color:#e8dcf5;
-}
+.status{margin-top:14px;min-height:20px;text-align:center;font-size:13px;color:#d9c7ea}
 
-.status{
-  margin-top:14px;
-  min-height:20px;
-  text-align:center;
-  font-size:13px;
-  color:#d9c7ea;
-}
-
-.controls{
-  display:flex;
-  gap:10px;
-  margin-top:14px;
-}
+.controls{display:flex;gap:10px;margin-top:14px}
 
 .controls button{
   flex:1;
@@ -229,15 +100,10 @@ button{
   box-shadow:0 8px 18px rgba(120,40,180,.35);
 }
 
-.controls button:active{
-  transform:scale(.97);
-}
+.controls button:active{transform:scale(.97)}
 
 @media (prefers-reduced-motion:reduce){
-  .emoji,.particle,.tear,.text{
-    animation:none!important;
-    opacity:1!important;
-  }
+  #actor svg *{animation:none!important}
 }
 </style>
 </head>
@@ -246,23 +112,18 @@ button{
 <div class="app">
 
   <header>
-    <h1>VoxaChat Reactions</h1>
-    <p>Tap any reaction to preview</p>
+    <h1>VoxaChat · Animated Faces</h1>
+    <p>Custom faces — blinking eyes, moving mouth, hands & tears</p>
   </header>
 
-  <div class="stage" id="stage">
-    <div class="emoji hidden" id="emoji"></div>
+  <div class="stage">
+    <div id="actor" class="hidden"></div>
   </div>
 
   <section class="panel">
     <h2>Choose a reaction</h2>
-
     <div class="grid" id="grid"></div>
-
-    <div class="status" id="status">
-      Select a reaction to see the animation
-    </div>
-
+    <div class="status" id="status">Select a reaction</div>
     <div class="controls">
       <button id="replay">Replay</button>
       <button id="stop">Stop</button>
@@ -275,181 +136,385 @@ button{
 "use strict";
 
 const reactions=[
-  {
-    emoji:"😒",
-    name:"Unamused",
-    text:"Seriously?",
-    anim:"float",
-    particles:["💨","🌫️"]
-  },
-  {
-    emoji:"🤗",
-    name:"Hug",
-    text:"Sending hugs!",
-    anim:"pulse",
-    particles:["💛","🤍","✨"]
-  },
-  {
-    emoji:"🤔",
-    name:"Thinking",
-    text:"Hmm… let me think",
-    anim:"float",
-    particles:["💭","❓"]
-  },
-  {
-    emoji:"😘",
-    name:"Kiss",
-    text:"Mwah!",
-    anim:"pop",
-    particles:["💋","❤️","💖"]
-  },
-  {
-    emoji:"🥰",
-    name:"Love",
-    text:"So sweet!",
-    anim:"pulse",
-    particles:["❤️","💕","💖","✨"]
-  },
-  {
-    emoji:"🤣",
-    name:"Big Laugh",
-    text:"Hahaha!",
-    anim:"shake",
-    particles:["😂","🤣","✨"]
-  },
-  {
-    emoji:"🤭",
-    name:"Giggle",
-    text:"Hehe…",
-    anim:"float",
-    particles:["🤭","✨","💫"]
-  },
-  {
-    emoji:"😂",
-    name:"Laugh Cry",
-    text:"Can’t stop laughing!",
-    anim:"bounce",
-    particles:["😂","💦","✨"]
-  },
-  {
-    emoji:"🥹",
-    name:"Touched",
-    text:"That’s so sweet…",
-    anim:"float",
-    particles:["🥹","💧","✨"]
-  },
-  {
-    emoji:"😭",
-    name:"Crying",
-    text:"I’m crying!",
-    anim:"shake",
-    particles:["😭","💧","💦"]
-  }
+  {emoji:"😒",name:"Unamused",kind:"unamused"},
+  {emoji:"🤗",name:"Hug",kind:"hug"},
+  {emoji:"🤔",name:"Thinking",kind:"thinking"},
+  {emoji:"😘",name:"Kiss",kind:"kiss"},
+  {emoji:"🥰",name:"Love",kind:"love"},
+  {emoji:"🤣",name:"Big Laugh",kind:"biglaugh"},
+  {emoji:"🤭",name:"Giggle",kind:"giggle"},
+  {emoji:"😂",name:"Laugh Cry",kind:"laughcry"},
+  {emoji:"🥹",name:"Touched",kind:"touched"},
+  {emoji:"😭",name:"Crying",kind:"cry"}
 ];
 
-const stage=document.getElementById("stage");
-const emojiBox=document.getElementById("emoji");
+const actor=document.getElementById("actor");
 const grid=document.getElementById("grid");
 const statusBox=document.getElementById("status");
 
+let frameId=0;
 let current=-1;
-let timer=null;
+let startTime=0;
 
-function clearStage(){
-  stage.querySelectorAll(".particle,.tear,.text")
-    .forEach(el=>el.remove());
+const clamp=x=>Math.max(0,Math.min(1,x));
+const ease=x=>{x=clamp(x);return x*x*(3-2*x)};
+const mix=(a,b,t)=>a+(b-a)*t;
+
+function path(d,fill="none",extra=""){
+  return `<path d="${d}" fill="${fill}" ${extra}/>`;
+}
+
+function stroke(d,w=3.5,color="#5b3a22"){
+  return path(d,"none",
+    `stroke="${color}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"`);
+}
+
+function ellipse(x,y,rx,ry,fill,extra=""){
+  return `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${fill}" ${extra}/>`;
+}
+
+function heart(x,y,s,o=1){
+  return `<g transform="translate(${x} ${y}) scale(${s})" opacity="${clamp(o)}">
+    ${path("M0 6C-24-9-14-30 0-16C14-30 24-9 0 6Z","#ee3155")}
+    ${stroke("M-11-16Q-13-22-7-23",2,"#ffb4bf")}
+  </g>`;
+}
+
+function tear(x,y,s=1,o=1){
+  return `<g transform="translate(${x} ${y}) scale(${s})" opacity="${clamp(o)}">
+    ${path("M0-8Q-11 6 0 11Q11 6 0-8Z","#68c9f4")}
+    ${stroke("M-2 0L-3 5",1.5,"#d1f5ff")}
+  </g>`;
+}
+
+function hand(x,y,angle=0,s=1){
+  return `<g transform="translate(${x} ${y}) rotate(${angle}) scale(${s})">
+    ${path(
+      "M-10 14L-13-2Q-14-8-10-8L-7-2V-18Q-7-24-3-23Q0-22 0-17V-6V-24Q0-29 4-28Q7-27 7-22V-6V-20Q7-25 11-24Q14-23 14-18V-3L18-8Q22-12 25-8Q28-4 23 3L16 18Q8 28-2 25Z",
+      "#ffd044",
+      'stroke="#df9b25" stroke-width="1.6"'
+    )}
+    ${stroke("M0 3Q7-1 14 4",1.4,"#dba02f")}
+  </g>`;
+}
+
+// Natural blink: quick close, quick open, long pause
+function blinkAmount(t){
+  const cycle=t%3.8;
+  if(cycle<0.1)return ease(cycle/0.1);
+  if(cycle<0.22)return 1-ease((cycle-0.1)/0.12);
+  return 0;
+}
+
+function eye(x,y,look=0,openScale=1,lookY=0){
+  const open=Math.max(0.03,openScale);
+  return `<g transform="translate(${x} ${y}) scale(1 ${open})">
+    ${ellipse(0,0,9,11,"#fff8e6")}
+    ${ellipse(look,lookY,4,7.5,"#4a3324")}
+    ${ellipse(look-1.2,lookY-3.5,1.4,1.8,"#fff",'opacity=".75"')}
+  </g>`;
+}
+
+function closedEye(x,y,up=true){
+  return stroke(
+    `M${x-10} ${y}
+     Q${x} ${y+(up?-11:9)} ${x+10} ${y}`,
+    3.5
+  );
+}
+
+function smile(w=14,d=10){
+  return stroke(`M${78-w} 100Q78 ${100+d} ${78+w} 100`);
+}
+
+function openMouth(t,big=false){
+  const rhythm=0.5+Math.sin(t*9)*0.3+Math.sin(t*15+0.7)*0.15;
+  const s=clamp(rhythm);
+  const w=mix(14,big?20:17,s);
+  const h=mix(9,big?22:17,s);
+  const top=102-h*0.6;
+  const bottom=102+h;
+
+  return path(
+    `M${78-w} ${top}Q78 ${top+5} ${78+w} ${top}
+     C${78+w+2} ${bottom-3} ${78+w*0.45} ${bottom} 78 ${bottom}
+     C${78-w*0.45} ${bottom} ${78-w-2} ${bottom-3} ${78-w} ${top}Z`,
+    "#74313b"
+  )+
+  path(
+    `M${78-w+3} ${top+2}Q78 ${top+6} ${78+w-3} ${top+2}
+     L${78+w-5} ${top+7}Q78 ${top+10} ${78-w+5} ${top+7}Z`,
+    "#fff9ed"
+  )+
+  ellipse(78,bottom-4,w*0.55,3+s*2,"#f58e9a");
+}
+
+function draw(kind,t){
+  const blink=blinkAmount(t);
+
+  let eyes=eye(56,74,0,1-blink)+eye(100,74,0,1-blink);
+  let brows=stroke("M45 56Q56 52 66 56",3)+stroke("M90 56Q100 52 111 56",3);
+  let mouth=smile();
+  let hands="";
+  let effects="";
+  let cheeks=0.22;
+
+  // 😒 Unamused
+  if(kind==="unamused"){
+    const gaze=(Math.sin(t*1.2)+1)/2*6-3;
+    eyes=ellipse(56+gaze,76,4,4.5*(1-blink*0.9),"#4a3324")
+        +ellipse(100+gaze,76,4,4.5*(1-blink*0.9),"#4a3324")
+        +stroke("M44 70L67 71",4)
+        +stroke("M89 71L112 70",4);
+    brows=stroke("M45 55Q56 50 67 54",3)+stroke("M90 57L111 60",3);
+    mouth=stroke("M66 105Q78 100 91 103",3);
+  }
+
+  // 🤗 Hug — hands open then close
+  if(kind==="hug"){
+    const cycle=t%3.6;
+    const open=cycle<1?ease(cycle):cycle<2.4?1:1-ease((cycle-2.4)/1.2);
+
+    eyes=closedEye(56,76)+closedEye(100,76);
+    mouth=smile(15+open*3,11+open*4);
+    cheeks=0.35+open*0.1;
+
+    hands=hand(mix(46,20,open),mix(120,100,open),mix(-12,-42,open),0.72)
+         +hand(mix(110,136,open),mix(120,100,open),mix(12,42,open),0.72);
+
+    effects=heart(78,138,0.22+open*0.05,0.45+open*0.3);
+  }
+
+  // 🤔 Thinking
+  if(kind==="thinking"){
+    const cycle=t%4;
+    const look=ease((cycle-0.2)/0.8)*(1-ease((cycle-3)/0.8));
+
+    eyes=eye(56,72,3*look,1-blink,-2*look)
+        +eye(100,72,3*look,1-blink,-2*look);
+    brows=stroke(`M45 56Q56 ${49-look*4} 67 51`,3)
+         +stroke("M90 58L110 56",3);
+    mouth=stroke("M70 105Q80 101 90 105",3);
+
+    const lift=ease(cycle/0.7);
+    hands=hand(mix(110,100,lift),mix(140,126,lift)-Math.sin(t*2)*0.7,mix(-18,-38,lift),0.65);
+
+    const q=ease((cycle-1)/0.5)*(1-ease((cycle-3.2)/0.7));
+    effects=`<text x="128" y="38" fill="#fff2cb" font-size="24" font-family="Arial" opacity="${q}">?</text>`;
+  }
+
+  // 😘 Kiss — one heart
+  if(kind==="kiss"){
+    const cycle=t%2.8;
+    const prep=ease(cycle/0.45);
+    const release=ease((cycle-1.9)/0.55);
+    const e=prep*(1-release);
+
+    eyes=eye(56,74,0,1-blink)
+        +`<g opacity="${1-e}">${ellipse(100,74,4.5,7*(1-e),"#4a3324")}</g>`
+        +`<g opacity="${e}">${closedEye(100,76)}</g>`;
+
+    const x=mix(66,84,e), y=mix(99,95,e);
+    mouth=stroke(
+      `M${x} ${y}
+       Q${mix(78,98,e)} ${mix(110,98,e)} ${mix(92,86,e)} ${mix(99,101,e)}
+       Q${mix(78,98,e)} ${mix(110,104,e)} ${mix(66,85,e)} ${mix(99,108,e)}`,
+      3.5
+    );
+    cheeks=0.2+e*0.3;
+
+    if(cycle<0.5){
+      effects=heart(108,105,0.42,ease(cycle/0.4));
+    }else if(cycle<2.2){
+      const f=ease((cycle-0.5)/1.7);
+      effects=heart(108+f*34,105-f*30,0.42+f*0.25,f<0.55?1:1-ease((f-0.55)/0.45));
+    }
+  }
+
+  // 🥰 Love
+  if(kind==="love"){
+    const w=(Math.sin(t*2.2)+1)/2;
+    eyes=closedEye(56,76-w)+closedEye(100,76-w);
+    mouth=smile(15,10+w*4);
+    cheeks=0.45+w*0.15;
+
+    const pos=[[30,62],[126,58],[120,124]];
+    pos.forEach((p,i)=>{
+      const c=(t*0.35+i/3)%1;
+      effects+=heart(p[0],p[1]-ease(c)*10,0.27+Math.sin(c*Math.PI)*0.07,Math.sin(c*Math.PI));
+    });
+  }
+
+  // 🤣 Big Laugh
+  if(kind==="biglaugh"){
+    const sq=Math.sin(t*10)*1.2;
+    eyes=stroke(`M44 68L62 ${76+sq}L44 83`,4)
+        +stroke(`M112 68L94 ${76+sq}L112 83`,4);
+    brows="";
+    mouth=openMouth(t,true);
+    cheeks=0.45;
+    hands=hand(44,128+Math.sin(t*10)*1.5,15,0.55)
+         +hand(112,128-Math.sin(t*10)*1.5,-15,0.55);
+  }
+
+  // 🤭 Giggle
+  if(kind==="giggle"){
+    eyes=closedEye(56,75)+closedEye(100,75);
+    mouth=openMouth(t,false);
+    cheeks=0.48;
+    const cover=ease((t%3.5)/0.55);
+    hands=hand(mix(92,75,cover),mix(140,113,cover)+Math.sin(t*11)*0.6,mix(10,-12,cover),0.75);
+  }
+
+  // 😂 Laugh Cry
+  if(kind==="laughcry"){
+    eyes=closedEye(56,77)+closedEye(100,77);
+    mouth=openMouth(t,false);
+    cheeks=0.35;
+    brows="";
+
+    for(let s=0;s<2;s++){
+      for(let i=0;i<2;i++){
+        const p=(t*0.9+s*0.22+i*0.5)%1;
+        const fall=p*p;
+        const x=s?110+fall*11:46-fall*11;
+        const y=84+fall*36;
+        const o=ease(p/0.1)*(1-ease((p-0.7)/0.3));
+        effects+=tear(x,y,0.42+p*0.12,o);
+      }
+    }
+  }
+
+  // 🥹 Touched
+  if(kind==="touched"){
+    const g=(Math.sin(t*2.4)+1)/2;
+    brows=stroke("M45 57Q56 58 66 49",3)+stroke("M90 49Q100 58 111 57",3);
+
+    eyes=`<g transform="translate(56 76) scale(1 ${Math.max(0.03,1-blink)})">
+      ${ellipse(0,0,10,12,"#5b4230")}
+      ${ellipse(-3,-5,3,4,"#fff")}
+      ${ellipse(2,6,6,2.5+g,"#8bd9f7")}
+    </g>`+
+    `<g transform="translate(100 76) scale(1 ${Math.max(0.03,1-blink)})">
+      ${ellipse(0,0,10,12,"#5b4230")}
+      ${ellipse(-3,-5,3,4,"#fff")}
+      ${ellipse(2,6,6,2.5+g,"#8bd9f7")}
+    </g>`;
+
+    mouth=smile(10,6);
+    cheeks=0.43;
+
+    const c=t%4.2;
+    if(c>2.2&&c<3.6){
+      const p=(c-2.2)/1.4;
+      effects=tear(110+p*2,89+p*p*28,0.35+p*0.1,ease(p/0.12)*(1-ease((p-0.7)/0.3)));
+    }
+  }
+
+  // 😭 Crying
+  if(kind==="cry"){
+    const sob=(Math.sin(t*4.5)+1)/2;
+    const tremble=Math.sin(t*19)*0.6*sob;
+
+    brows=stroke(`M45 ${57+sob}Q56 55 66 ${48-sob}`,3.5)
+         +stroke(`M90 ${48-sob}Q100 55 111 ${57+sob}`,3.5);
+
+    eyes=closedEye(56,76+sob,false)+closedEye(100,76+sob,false);
+
+    const mw=9+sob*3,mh=8+sob*6;
+    mouth=ellipse(78+tremble,107,mw,mh,"#74313b")
+         +ellipse(78+tremble,111+sob*3,mw*0.55,2.5,"#ef8b9c");
+
+    effects=ellipse(55,83,7,2.1,"#8ddcf8",'opacity=".85"')
+           +ellipse(101,83,7,2.1,"#8ddcf8",'opacity=".85"');
+
+    for(let s=0;s<2;s++){
+      for(let i=0;i<2;i++){
+        const p=(t*0.8+i*0.5+s*0.22)%1;
+        const fall=p*p;
+        const x=(s?102:54)+(s?1:-1)*fall*3;
+        const y=86+fall*46;
+        const o=ease(p/0.12)*(1-ease((p-0.75)/0.25));
+        effects+=tear(x,y,0.35+p*0.2,o);
+      }
+    }
+
+    cheeks=0.3+sob*0.1;
+  }
+
+  return `
+  <svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="faceFill" cx="35%" cy="25%" r="80%">
+        <stop offset="0" stop-color="#ffe983"/>
+        <stop offset=".65" stop-color="#ffd13d"/>
+        <stop offset="1" stop-color="#eea31c"/>
+      </radialGradient>
+    </defs>
+
+    <circle cx="78" cy="80" r="52" fill="url(#faceFill)" stroke="#dfa02c" stroke-width="1.5"/>
+    ${ellipse(60,45,18,7,"#fff7bd",'opacity=".15"')}
+
+    ${brows}
+    ${eyes}
+
+    <g opacity="${cheeks}">
+      ${ellipse(42,93,10,5,"#f38568")}
+      ${ellipse(114,93,10,5,"#f38568")}
+    </g>
+
+    ${mouth}
+    ${hands}
+    ${effects}
+  </svg>`;
 }
 
 function stop(){
-  clearTimeout(timer);
-  timer=null;
+  cancelAnimationFrame(frameId);
+  frameId=0;
   current=-1;
-
-  emojiBox.className="emoji hidden";
-  emojiBox.textContent="";
-
-  clearStage();
-
-  document.querySelectorAll(".choice")
-    .forEach(b=>b.classList.remove("active"));
-
-  statusBox.textContent="Select a reaction to see the animation";
-}
-
-function spawnParticles(reaction){
-  const symbols=reaction.particles;
-
-  for(let i=0;i<12;i++){
-    const el=document.createElement("div");
-
-    el.className=symbols.includes("💧")?"tear":"particle";
-    el.textContent=symbols[i%symbols.length];
-
-    el.style.left=(8+Math.random()*84)+"%";
-    el.style.top=(symbols.includes("💧")?"18%":"55%");
-
-    el.style.animationDelay=(Math.random()*.8)+"s";
-    el.style.fontSize=(18+Math.random()*18)+"px";
-
-    stage.appendChild(el);
-
-    setTimeout(()=>{
-      el.remove();
-    },2800);
-  }
+  actor.classList.add("hidden");
+  actor.innerHTML="";
+  document.querySelectorAll(".choice").forEach(b=>b.classList.remove("active"));
+  statusBox.textContent="Select a reaction";
 }
 
 function play(index){
-  const reaction=reactions[index];
+  const r=reactions[index];
+  if(!r)return;
 
-  if(!reaction)return;
-
-  clearTimeout(timer);
-  clearStage();
-
+  stop();
   current=index;
+  actor.classList.remove("hidden");
 
-  document.querySelectorAll(".choice")
-    .forEach((button,i)=>{
-      button.classList.toggle("active",i===index);
-    });
+  grid.children[index].classList.add("active");
+  statusBox.textContent=r.name+" playing…";
 
-  emojiBox.textContent=reaction.emoji;
-  emojiBox.className="emoji "+reaction.anim;
+  startTime=performance.now();
 
-  const text=document.createElement("div");
-  text.className="text";
-  text.textContent=reaction.text;
-
-  stage.appendChild(text);
-  spawnParticles(reaction);
-
-  statusBox.textContent=reaction.name+" reaction playing…";
-
-  timer=setTimeout(()=>{
-    stop();
-    statusBox.textContent="Finished — replay or choose another reaction";
-  },3200);
+  function tick(now){
+    const t=(now-startTime)/1000;
+    if(t>8){
+      stop();
+      statusBox.textContent="Finished — replay or choose another";
+      return;
+    }
+    actor.innerHTML=draw(r.kind,t);
+    frameId=requestAnimationFrame(tick);
+  }
+  frameId=requestAnimationFrame(tick);
 }
 
-reactions.forEach((reaction,index)=>{
-  const button=document.createElement("button");
-  button.type="button";
-  button.className="choice";
-
-  button.innerHTML=`
-    <span>${reaction.emoji}</span>
-    <span>${reaction.name}</span>
-  `;
-
-  button.onclick=()=>play(index);
-  grid.appendChild(button);
+reactions.forEach((r,i)=>{
+  const b=document.createElement("button");
+  b.type="button";
+  b.className="choice";
+  b.innerHTML=`<span>${r.emoji}</span><span>${r.name}</span>`;
+  b.onclick=()=>play(i);
+  grid.appendChild(b);
 });
 
-document.getElementById("replay").onclick=()=>{
-  if(current>=0)play(current);
-};
-
+document.getElementById("replay").onclick=()=>{if(current>=0)play(current)};
 document.getElementById("stop").onclick=stop;
 </script>
 
