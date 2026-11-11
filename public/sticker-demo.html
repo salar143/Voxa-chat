@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VoxaChat · Animated Faces</title>
+<title>VoxaChat · Reactions</title>
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -13,97 +13,213 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  background:
-    radial-gradient(circle at 20% 20%,#4b2b5e 0%,transparent 45%),
-    radial-gradient(circle at 80% 80%,#20365c 0%,transparent 45%),
-    #120d1d;
+  background:#0b141a;
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-  color:#fff;
+  color:#e9edef;
 }
 
 .app{
   width:100%;
-  max-width:430px;
-  padding:22px 18px 30px;
+  max-width:420px;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  background:#0b141a;
 }
 
-header{text-align:center;margin-bottom:18px}
-h1{font-size:22px}
-p{margin-top:6px;color:#c9b8d8;font-size:13px}
-
-.stage{
-  position:relative;
-  height:330px;
-  border-radius:28px;
-  overflow:hidden;
-  background:
-    radial-gradient(circle at 50% 30%,rgba(255,255,255,.09),transparent 60%),
-    linear-gradient(160deg,#2b1f3f,#191427);
-  border:1px solid rgba(255,255,255,.12);
-  box-shadow:0 20px 50px rgba(0,0,0,.45);
+/* Top bar */
+.topbar{
   display:flex;
   align-items:center;
-  justify-content:center;
+  gap:12px;
+  padding:12px 16px;
+  background:#202c33;
+  border-bottom:1px solid rgba(255,255,255,.06);
 }
 
-#actor{width:240px;height:240px}
-#actor svg{width:100%;height:100%;overflow:visible}
-
-.hidden{display:none}
-
-.panel{
-  margin-top:18px;
-  padding:16px;
-  border-radius:22px;
-  background:rgba(255,255,255,.07);
-  border:1px solid rgba(255,255,255,.13);
-}
-
-.panel h2{font-size:14px;margin-bottom:12px;color:#e6d6f5}
-
-.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-
-button{font-family:inherit;border:0;cursor:pointer}
-
-.choice{
-  padding:10px 4px 8px;
-  border-radius:15px;
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.12);
-  color:#fff;
-  transition:.18s;
-}
-
-.choice:hover{background:rgba(255,255,255,.16);transform:translateY(-2px)}
-
-.choice.active{
+.avatar{
+  width:40px;height:40px;
+  border-radius:50%;
   background:linear-gradient(135deg,#8d4bd6,#c2449b);
-  border-color:#ffb8e6;
-  box-shadow:0 8px 20px rgba(160,60,190,.4);
+  display:grid;place-items:center;
+  font-size:18px;
 }
 
-.choice span:first-child{display:block;font-size:27px}
-.choice span:last-child{display:block;margin-top:5px;font-size:9.5px;color:#e8dcf5}
+.topbar .info{flex:1}
+.topbar .name{font-size:15px;font-weight:600}
+.topbar .status{font-size:12px;color:#8696a0}
 
-.status{margin-top:14px;min-height:20px;text-align:center;font-size:13px;color:#d9c7ea}
-
-.controls{display:flex;gap:10px;margin-top:14px}
-
-.controls button{
+/* Chat area */
+.chat{
   flex:1;
-  padding:12px;
-  border-radius:14px;
-  font-size:14px;
-  font-weight:700;
-  color:#fff;
-  background:linear-gradient(135deg,#7b3fd1,#c0399b);
-  box-shadow:0 8px 18px rgba(120,40,180,.35);
+  padding:20px 16px;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
 }
 
-.controls button:active{transform:scale(.97)}
+.bubble{
+  max-width:78%;
+  padding:10px 14px;
+  border-radius:16px;
+  background:#005c4b;
+  position:relative;
+  font-size:14.5px;
+  line-height:1.45;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+
+.bubble.them{
+  align-self:flex-start;
+  background:#202c33;
+  border-bottom-left-radius:4px;
+}
+
+.bubble.me{
+  align-self:flex-end;
+  background:#005c4b;
+  border-bottom-right-radius:4px;
+}
+
+.bubble .time{
+  display:block;
+  margin-top:4px;
+  font-size:11px;
+  color:rgba(233,237,239,.6);
+  text-align:right;
+}
+
+/* Reaction chip on bubble */
+.chip{
+  position:absolute;
+  bottom:-12px;
+  right:8px;
+  display:flex;
+  align-items:center;
+  gap:4px;
+  padding:3px 8px;
+  border-radius:14px;
+  background:#2a3942;
+  border:1px solid rgba(255,255,255,.1);
+  font-size:13px;
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
+}
+
+.chip .count{
+  font-size:11px;
+  color:#8696a0;
+}
+
+/* Reaction trigger button */
+.react-btn{
+  position:absolute;
+  bottom:-14px;
+  right:10px;
+  width:28px;height:28px;
+  border-radius:50%;
+  background:#2a3942;
+  border:1px solid rgba(255,255,255,.1);
+  display:grid;place-items:center;
+  font-size:14px;
+  cursor:pointer;
+  transition:.15s;
+}
+
+.react-btn:hover{background:#3b4a54}
+
+/* Floating animated face popup */
+.popup{
+  position:absolute;
+  width:110px;height:110px;
+  pointer-events:none;
+  z-index:10;
+}
+
+.popup svg{width:100%;height:100%;overflow:visible}
+
+@keyframes popIn{
+  0%{transform:scale(.3) translateY(20px);opacity:0}
+  60%{transform:scale(1.1) translateY(-4px);opacity:1}
+  100%{transform:scale(1) translateY(0);opacity:1}
+}
+
+.popup{animation:popIn .4s cubic-bezier(.2,.9,.3,1.2) both}
+
+/* Reaction bar (bottom sheet) */
+.bar{
+  position:absolute;
+  left:0;right:0;
+  bottom:0;
+  padding:14px 12px 20px;
+  background:#233138;
+  border-top:1px solid rgba(255,255,255,.08);
+  border-radius:20px 20px 0 0;
+  box-shadow:0 -8px 30px rgba(0,0,0,.5);
+  transform:translateY(110%);
+  transition:transform .28s cubic-bezier(.2,.9,.3,1);
+  z-index:20;
+}
+
+.bar.open{transform:translateY(0)}
+
+.bar .row{
+  display:flex;
+  gap:6px;
+  overflow-x:auto;
+  padding-bottom:4px;
+}
+
+.bar .opt{
+  flex:0 0 auto;
+  width:52px;height:52px;
+  border-radius:50%;
+  background:rgba(255,255,255,.06);
+  display:grid;place-items:center;
+  font-size:26px;
+  cursor:pointer;
+  transition:.15s;
+}
+
+.bar .opt:hover{
+  background:rgba(255,255,255,.14);
+  transform:scale(1.12);
+}
+
+.bar .opt:active{transform:scale(.95)}
+
+/* Composer */
+.composer{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  background:#202c33;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+
+.composer input{
+  flex:1;
+  padding:10px 14px;
+  border-radius:20px;
+  border:0;
+  background:#2a3942;
+  color:#e9edef;
+  font-size:14px;
+  outline:none;
+}
+
+.composer button{
+  width:42px;height:42px;
+  border-radius:50%;
+  background:#00a884;
+  display:grid;place-items:center;
+  font-size:18px;
+  cursor:pointer;
+}
 
 @media (prefers-reduced-motion:reduce){
-  #actor svg *{animation:none!important}
+  .popup,.bar{animation:none!important;transition:none!important}
 }
 </style>
 </head>
@@ -111,24 +227,39 @@ button{font-family:inherit;border:0;cursor:pointer}
 <body>
 <div class="app">
 
-  <header>
-    <h1>VoxaChat · Animated Faces</h1>
-    <p>Custom faces — blinking eyes, moving mouth, hands & tears</p>
-  </header>
-
-  <div class="stage">
-    <div id="actor" class="hidden"></div>
+  <div class="topbar">
+    <div class="avatar">💬</div>
+    <div class="info">
+      <div class="name">VoxaChat Demo</div>
+      <div class="status">online</div>
+    </div>
   </div>
 
-  <section class="panel">
-    <h2>Choose a reaction</h2>
-    <div class="grid" id="grid"></div>
-    <div class="status" id="status">Select a reaction</div>
-    <div class="controls">
-      <button id="replay">Replay</button>
-      <button id="stop">Stop</button>
+  <div class="chat" id="chat">
+
+    <div class="bubble them" id="msg1">
+      Hey! Kaise ho? 😊
+      <span class="time">10:42 AM</span>
+      <button class="react-btn" data-target="msg1">😊</button>
     </div>
-  </section>
+
+    <div class="bubble me" id="msg2">
+      Main theek hoon, tum sunao!
+      <span class="time">10:43 AM</span>
+      <button class="react-btn" data-target="msg2">😊</button>
+    </div>
+
+  </div>
+
+  <!-- Reaction bar -->
+  <div class="bar" id="bar">
+    <div class="row" id="row"></div>
+  </div>
+
+  <div class="composer">
+    <input placeholder="Type a message" />
+    <button>➤</button>
+  </div>
 
 </div>
 
@@ -136,25 +267,104 @@ button{font-family:inherit;border:0;cursor:pointer}
 "use strict";
 
 const reactions=[
-  {emoji:"😒",name:"Unamused",kind:"unamused"},
-  {emoji:"🤗",name:"Hug",kind:"hug"},
-  {emoji:"🤔",name:"Thinking",kind:"thinking"},
-  {emoji:"😘",name:"Kiss",kind:"kiss"},
-  {emoji:"🥰",name:"Love",kind:"love"},
-  {emoji:"🤣",name:"Big Laugh",kind:"biglaugh"},
-  {emoji:"🤭",name:"Giggle",kind:"giggle"},
-  {emoji:"😂",name:"Laugh Cry",kind:"laughcry"},
-  {emoji:"🥹",name:"Touched",kind:"touched"},
-  {emoji:"😭",name:"Crying",kind:"cry"}
+  {emoji:"😒",kind:"unamused"},
+  {emoji:"🤗",kind:"hug"},
+  {emoji:"🤔",kind:"thinking"},
+  {emoji:"😘",kind:"kiss"},
+  {emoji:"🥰",kind:"love"},
+  {emoji:"🤣",kind:"biglaugh"},
+  {emoji:"🤭",kind:"giggle"},
+  {emoji:"😂",kind:"laughcry"},
+  {emoji:"🥹",kind:"touched"},
+  {emoji:"😭",kind:"cry"}
 ];
 
-const actor=document.getElementById("actor");
-const grid=document.getElementById("grid");
-const statusBox=document.getElementById("status");
+const bar=document.getElementById("bar");
+const row=document.getElementById("row");
+const chat=document.getElementById("chat");
 
-let frameId=0;
-let current=-1;
-let startTime=0;
+let activeTarget=null;
+let popupTimer=null;
+
+// Build reaction options
+reactions.forEach(r=>{
+  const b=document.createElement("div");
+  b.className="opt";
+  b.textContent=r.emoji;
+  b.onclick=()=>applyReaction(r);
+  row.appendChild(b);
+});
+
+// Open bar on reaction button click
+document.querySelectorAll(".react-btn").forEach(btn=>{
+  btn.onclick=e=>{
+    e.stopPropagation();
+    activeTarget=btn.dataset.target;
+    bar.classList.add("open");
+  };
+});
+
+// Close bar on outside click
+document.addEventListener("click",e=>{
+  if(!bar.contains(e.target)&&!e.target.closest(".react-btn")){
+    bar.classList.remove("open");
+  }
+});
+
+function applyReaction(r){
+  bar.classList.remove("open");
+
+  const bubble=document.getElementById(activeTarget);
+  if(!bubble)return;
+
+  // Remove old chip
+  const old=bubble.querySelector(".chip");
+  if(old)old.remove();
+
+  // Add chip
+  const chip=document.createElement("div");
+  chip.className="chip";
+  chip.innerHTML=`<span>${r.emoji}</span><span class="count">1</span>`;
+  bubble.appendChild(chip);
+
+  // Show floating animated face popup
+  showPopup(r,bubble);
+}
+
+function showPopup(r,bubble){
+  clearTimeout(popupTimer);
+
+  const old=document.querySelector(".popup");
+  if(old)old.remove();
+
+  const popup=document.createElement("div");
+  popup.className="popup";
+  popup.innerHTML=drawFace(r.kind,0);
+
+  // Position near bubble
+  const rect=bubble.getBoundingClientRect();
+  const chatRect=chat.getBoundingClientRect();
+
+  popup.style.left=(rect.left-chatRect.left+rect.width/2-55)+"px";
+  popup.style.top=(rect.top-chatRect.top-90)+"px";
+
+  chat.style.position="relative";
+  chat.appendChild(popup);
+
+  // Animate face
+  const start=performance.now();
+  function tick(now){
+    const t=(now-start)/1000;
+    if(t>2.2){popup.remove();return}
+    popup.innerHTML=drawFace(r.kind,t);
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  popupTimer=setTimeout(()=>popup.remove(),2300);
+}
+
+// ---------- Custom SVG face drawing ----------
 
 const clamp=x=>Math.max(0,Math.min(1,x));
 const ease=x=>{x=clamp(x);return x*x*(3-2*x)};
@@ -165,8 +375,7 @@ function path(d,fill="none",extra=""){
 }
 
 function stroke(d,w=3.5,color="#5b3a22"){
-  return path(d,"none",
-    `stroke="${color}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"`);
+  return path(d,"none",`stroke="${color}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"`);
 }
 
 function ellipse(x,y,rx,ry,fill,extra=""){
@@ -198,11 +407,10 @@ function hand(x,y,angle=0,s=1){
   </g>`;
 }
 
-// Natural blink: quick close, quick open, long pause
 function blinkAmount(t){
-  const cycle=t%3.8;
-  if(cycle<0.1)return ease(cycle/0.1);
-  if(cycle<0.22)return 1-ease((cycle-0.1)/0.12);
+  const c=t%3.8;
+  if(c<0.1)return ease(c/0.1);
+  if(c<0.22)return 1-ease((c-0.1)/0.12);
   return 0;
 }
 
@@ -216,11 +424,7 @@ function eye(x,y,look=0,openScale=1,lookY=0){
 }
 
 function closedEye(x,y,up=true){
-  return stroke(
-    `M${x-10} ${y}
-     Q${x} ${y+(up?-11:9)} ${x+10} ${y}`,
-    3.5
-  );
+  return stroke(`M${x-10} ${y}Q${x} ${y+(up?-11:9)} ${x+10} ${y}`,3.5);
 }
 
 function smile(w=14,d=10){
@@ -228,12 +432,11 @@ function smile(w=14,d=10){
 }
 
 function openMouth(t,big=false){
-  const rhythm=0.5+Math.sin(t*9)*0.3+Math.sin(t*15+0.7)*0.15;
-  const s=clamp(rhythm);
+  const r=0.5+Math.sin(t*9)*0.3+Math.sin(t*15+0.7)*0.15;
+  const s=clamp(r);
   const w=mix(14,big?20:17,s);
   const h=mix(9,big?22:17,s);
-  const top=102-h*0.6;
-  const bottom=102+h;
+  const top=102-h*0.6, bottom=102+h;
 
   return path(
     `M${78-w} ${top}Q78 ${top+5} ${78+w} ${top}
@@ -249,7 +452,7 @@ function openMouth(t,big=false){
   ellipse(78,bottom-4,w*0.55,3+s*2,"#f58e9a");
 }
 
-function draw(kind,t){
+function drawFace(kind,t){
   const blink=blinkAmount(t);
 
   let eyes=eye(56,74,0,1-blink)+eye(100,74,0,1-blink);
@@ -259,105 +462,79 @@ function draw(kind,t){
   let effects="";
   let cheeks=0.22;
 
-  // 😒 Unamused
   if(kind==="unamused"){
     const gaze=(Math.sin(t*1.2)+1)/2*6-3;
     eyes=ellipse(56+gaze,76,4,4.5*(1-blink*0.9),"#4a3324")
         +ellipse(100+gaze,76,4,4.5*(1-blink*0.9),"#4a3324")
-        +stroke("M44 70L67 71",4)
-        +stroke("M89 71L112 70",4);
+        +stroke("M44 70L67 71",4)+stroke("M89 71L112 70",4);
     brows=stroke("M45 55Q56 50 67 54",3)+stroke("M90 57L111 60",3);
     mouth=stroke("M66 105Q78 100 91 103",3);
   }
 
-  // 🤗 Hug — hands open then close
   if(kind==="hug"){
-    const cycle=t%3.6;
-    const open=cycle<1?ease(cycle):cycle<2.4?1:1-ease((cycle-2.4)/1.2);
-
+    const c=t%3.6;
+    const open=c<1?ease(c):c<2.4?1:1-ease((c-2.4)/1.2);
     eyes=closedEye(56,76)+closedEye(100,76);
     mouth=smile(15+open*3,11+open*4);
     cheeks=0.35+open*0.1;
-
     hands=hand(mix(46,20,open),mix(120,100,open),mix(-12,-42,open),0.72)
          +hand(mix(110,136,open),mix(120,100,open),mix(12,42,open),0.72);
-
     effects=heart(78,138,0.22+open*0.05,0.45+open*0.3);
   }
 
-  // 🤔 Thinking
   if(kind==="thinking"){
-    const cycle=t%4;
-    const look=ease((cycle-0.2)/0.8)*(1-ease((cycle-3)/0.8));
-
-    eyes=eye(56,72,3*look,1-blink,-2*look)
-        +eye(100,72,3*look,1-blink,-2*look);
-    brows=stroke(`M45 56Q56 ${49-look*4} 67 51`,3)
-         +stroke("M90 58L110 56",3);
+    const c=t%4;
+    const look=ease((c-0.2)/0.8)*(1-ease((c-3)/0.8));
+    eyes=eye(56,72,3*look,1-blink,-2*look)+eye(100,72,3*look,1-blink,-2*look);
+    brows=stroke(`M45 56Q56 ${49-look*4} 67 51`,3)+stroke("M90 58L110 56",3);
     mouth=stroke("M70 105Q80 101 90 105",3);
-
-    const lift=ease(cycle/0.7);
+    const lift=ease(c/0.7);
     hands=hand(mix(110,100,lift),mix(140,126,lift)-Math.sin(t*2)*0.7,mix(-18,-38,lift),0.65);
-
-    const q=ease((cycle-1)/0.5)*(1-ease((cycle-3.2)/0.7));
+    const q=ease((c-1)/0.5)*(1-ease((c-3.2)/0.7));
     effects=`<text x="128" y="38" fill="#fff2cb" font-size="24" font-family="Arial" opacity="${q}">?</text>`;
   }
 
-  // 😘 Kiss — one heart
   if(kind==="kiss"){
-    const cycle=t%2.8;
-    const prep=ease(cycle/0.45);
-    const release=ease((cycle-1.9)/0.55);
+    const c=t%2.8;
+    const prep=ease(c/0.45), release=ease((c-1.9)/0.55);
     const e=prep*(1-release);
-
     eyes=eye(56,74,0,1-blink)
         +`<g opacity="${1-e}">${ellipse(100,74,4.5,7*(1-e),"#4a3324")}</g>`
         +`<g opacity="${e}">${closedEye(100,76)}</g>`;
-
     const x=mix(66,84,e), y=mix(99,95,e);
     mouth=stroke(
-      `M${x} ${y}
-       Q${mix(78,98,e)} ${mix(110,98,e)} ${mix(92,86,e)} ${mix(99,101,e)}
+      `M${x} ${y}Q${mix(78,98,e)} ${mix(110,98,e)} ${mix(92,86,e)} ${mix(99,101,e)}
        Q${mix(78,98,e)} ${mix(110,104,e)} ${mix(66,85,e)} ${mix(99,108,e)}`,
       3.5
     );
     cheeks=0.2+e*0.3;
-
-    if(cycle<0.5){
-      effects=heart(108,105,0.42,ease(cycle/0.4));
-    }else if(cycle<2.2){
-      const f=ease((cycle-0.5)/1.7);
+    if(c<0.5)effects=heart(108,105,0.42,ease(c/0.4));
+    else if(c<2.2){
+      const f=ease((c-0.5)/1.7);
       effects=heart(108+f*34,105-f*30,0.42+f*0.25,f<0.55?1:1-ease((f-0.55)/0.45));
     }
   }
 
-  // 🥰 Love
   if(kind==="love"){
     const w=(Math.sin(t*2.2)+1)/2;
     eyes=closedEye(56,76-w)+closedEye(100,76-w);
     mouth=smile(15,10+w*4);
     cheeks=0.45+w*0.15;
-
-    const pos=[[30,62],[126,58],[120,124]];
-    pos.forEach((p,i)=>{
+    [[30,62],[126,58],[120,124]].forEach((p,i)=>{
       const c=(t*0.35+i/3)%1;
       effects+=heart(p[0],p[1]-ease(c)*10,0.27+Math.sin(c*Math.PI)*0.07,Math.sin(c*Math.PI));
     });
   }
 
-  // 🤣 Big Laugh
   if(kind==="biglaugh"){
     const sq=Math.sin(t*10)*1.2;
-    eyes=stroke(`M44 68L62 ${76+sq}L44 83`,4)
-        +stroke(`M112 68L94 ${76+sq}L112 83`,4);
+    eyes=stroke(`M44 68L62 ${76+sq}L44 83`,4)+stroke(`M112 68L94 ${76+sq}L112 83`,4);
     brows="";
     mouth=openMouth(t,true);
     cheeks=0.45;
-    hands=hand(44,128+Math.sin(t*10)*1.5,15,0.55)
-         +hand(112,128-Math.sin(t*10)*1.5,-15,0.55);
+    hands=hand(44,128+Math.sin(t*10)*1.5,15,0.55)+hand(112,128-Math.sin(t*10)*1.5,-15,0.55);
   }
 
-  // 🤭 Giggle
   if(kind==="giggle"){
     eyes=closedEye(56,75)+closedEye(100,75);
     mouth=openMouth(t,false);
@@ -366,44 +543,32 @@ function draw(kind,t){
     hands=hand(mix(92,75,cover),mix(140,113,cover)+Math.sin(t*11)*0.6,mix(10,-12,cover),0.75);
   }
 
-  // 😂 Laugh Cry
   if(kind==="laughcry"){
     eyes=closedEye(56,77)+closedEye(100,77);
     mouth=openMouth(t,false);
     cheeks=0.35;
     brows="";
-
-    for(let s=0;s<2;s++){
-      for(let i=0;i<2;i++){
-        const p=(t*0.9+s*0.22+i*0.5)%1;
-        const fall=p*p;
-        const x=s?110+fall*11:46-fall*11;
-        const y=84+fall*36;
-        const o=ease(p/0.1)*(1-ease((p-0.7)/0.3));
-        effects+=tear(x,y,0.42+p*0.12,o);
-      }
+    for(let s=0;s<2;s++)for(let i=0;i<2;i++){
+      const p=(t*0.9+s*0.22+i*0.5)%1;
+      const fall=p*p;
+      const x=s?110+fall*11:46-fall*11;
+      const y=84+fall*36;
+      const o=ease(p/0.1)*(1-ease((p-0.7)/0.3));
+      effects+=tear(x,y,0.42+p*0.12,o);
     }
   }
 
-  // 🥹 Touched
   if(kind==="touched"){
     const g=(Math.sin(t*2.4)+1)/2;
     brows=stroke("M45 57Q56 58 66 49",3)+stroke("M90 49Q100 58 111 57",3);
-
     eyes=`<g transform="translate(56 76) scale(1 ${Math.max(0.03,1-blink)})">
-      ${ellipse(0,0,10,12,"#5b4230")}
-      ${ellipse(-3,-5,3,4,"#fff")}
-      ${ellipse(2,6,6,2.5+g,"#8bd9f7")}
+      ${ellipse(0,0,10,12,"#5b4230")}${ellipse(-3,-5,3,4,"#fff")}${ellipse(2,6,6,2.5+g,"#8bd9f7")}
     </g>`+
     `<g transform="translate(100 76) scale(1 ${Math.max(0.03,1-blink)})">
-      ${ellipse(0,0,10,12,"#5b4230")}
-      ${ellipse(-3,-5,3,4,"#fff")}
-      ${ellipse(2,6,6,2.5+g,"#8bd9f7")}
+      ${ellipse(0,0,10,12,"#5b4230")}${ellipse(-3,-5,3,4,"#fff")}${ellipse(2,6,6,2.5+g,"#8bd9f7")}
     </g>`;
-
     mouth=smile(10,6);
     cheeks=0.43;
-
     const c=t%4.2;
     if(c>2.2&&c<3.6){
       const p=(c-2.2)/1.4;
@@ -411,34 +576,25 @@ function draw(kind,t){
     }
   }
 
-  // 😭 Crying
   if(kind==="cry"){
     const sob=(Math.sin(t*4.5)+1)/2;
     const tremble=Math.sin(t*19)*0.6*sob;
-
     brows=stroke(`M45 ${57+sob}Q56 55 66 ${48-sob}`,3.5)
          +stroke(`M90 ${48-sob}Q100 55 111 ${57+sob}`,3.5);
-
     eyes=closedEye(56,76+sob,false)+closedEye(100,76+sob,false);
-
     const mw=9+sob*3,mh=8+sob*6;
     mouth=ellipse(78+tremble,107,mw,mh,"#74313b")
          +ellipse(78+tremble,111+sob*3,mw*0.55,2.5,"#ef8b9c");
-
     effects=ellipse(55,83,7,2.1,"#8ddcf8",'opacity=".85"')
            +ellipse(101,83,7,2.1,"#8ddcf8",'opacity=".85"');
-
-    for(let s=0;s<2;s++){
-      for(let i=0;i<2;i++){
-        const p=(t*0.8+i*0.5+s*0.22)%1;
-        const fall=p*p;
-        const x=(s?102:54)+(s?1:-1)*fall*3;
-        const y=86+fall*46;
-        const o=ease(p/0.12)*(1-ease((p-0.75)/0.25));
-        effects+=tear(x,y,0.35+p*0.2,o);
-      }
+    for(let s=0;s<2;s++)for(let i=0;i<2;i++){
+      const p=(t*0.8+i*0.5+s*0.22)%1;
+      const fall=p*p;
+      const x=(s?102:54)+(s?1:-1)*fall*3;
+      const y=86+fall*46;
+      const o=ease(p/0.12)*(1-ease((p-0.75)/0.25));
+      effects+=tear(x,y,0.35+p*0.2,o);
     }
-
     cheeks=0.3+sob*0.1;
   }
 
@@ -451,72 +607,17 @@ function draw(kind,t){
         <stop offset="1" stop-color="#eea31c"/>
       </radialGradient>
     </defs>
-
     <circle cx="78" cy="80" r="52" fill="url(#faceFill)" stroke="#dfa02c" stroke-width="1.5"/>
     ${ellipse(60,45,18,7,"#fff7bd",'opacity=".15"')}
-
-    ${brows}
-    ${eyes}
-
+    ${brows}${eyes}
     <g opacity="${cheeks}">
       ${ellipse(42,93,10,5,"#f38568")}
       ${ellipse(114,93,10,5,"#f38568")}
     </g>
-
-    ${mouth}
-    ${hands}
-    ${effects}
+    ${mouth}${hands}${effects}
   </svg>`;
 }
-
-function stop(){
-  cancelAnimationFrame(frameId);
-  frameId=0;
-  current=-1;
-  actor.classList.add("hidden");
-  actor.innerHTML="";
-  document.querySelectorAll(".choice").forEach(b=>b.classList.remove("active"));
-  statusBox.textContent="Select a reaction";
-}
-
-function play(index){
-  const r=reactions[index];
-  if(!r)return;
-
-  stop();
-  current=index;
-  actor.classList.remove("hidden");
-
-  grid.children[index].classList.add("active");
-  statusBox.textContent=r.name+" playing…";
-
-  startTime=performance.now();
-
-  function tick(now){
-    const t=(now-startTime)/1000;
-    if(t>8){
-      stop();
-      statusBox.textContent="Finished — replay or choose another";
-      return;
-    }
-    actor.innerHTML=draw(r.kind,t);
-    frameId=requestAnimationFrame(tick);
-  }
-  frameId=requestAnimationFrame(tick);
-}
-
-reactions.forEach((r,i)=>{
-  const b=document.createElement("button");
-  b.type="button";
-  b.className="choice";
-  b.innerHTML=`<span>${r.emoji}</span><span>${r.name}</span>`;
-  b.onclick=()=>play(i);
-  grid.appendChild(b);
-});
-
-document.getElementById("replay").onclick=()=>{if(current>=0)play(current)};
-document.getElementById("stop").onclick=stop;
 </script>
 
 </body>
-</html>
+  </html>
