@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VC App - EXP based VIP</title>
+    <title>VC App - All 3D Emojis</title>
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -29,26 +29,46 @@
         .seat-emoji.show { opacity: 1; transform: scale(1); }
         .seat-name { margin-top: 10px; font-size: 13px; color: #ddd; background: rgba(0,0,0,0.6); padding: 3px 12px; border-radius: 12px; }
 
-        /* Control Panel */
-        .control-panel { background: #111; padding: 10px; border-top: 1px solid #333; max-height: 340px; overflow-y: auto; }
-        .category-title { font-size: 13px; font-weight: bold; margin: 12px 0 8px 10px; display: flex; justify-content: space-between; align-items: center;}
+        /* Control Panel - YARI STYLE (White Background) */
+        .control-panel { background: #f8f9fa; padding: 15px 10px; border-top-left-radius: 20px; border-top-right-radius: 20px; max-height: 400px; overflow-y: auto; }
+        .category-title { font-size: 13px; font-weight: bold; margin: 10px 0 5px 5px; display: flex; justify-content: space-between; align-items: center; color: #333;}
         .cat-free { color: #28a745; }
-        .cat-vip2 { color: #ffd700; }
-        .cat-vip6 { color: #d19aff; }
+        .cat-vip2 { color: #d48806; }
+        .cat-vip6 { color: #8a2be2; }
         
-        .buy-vip-btn { font-size: 11px; padding: 4px 10px; border-radius: 10px; border: none; cursor: pointer; color: #000; font-weight: bold; }
-        .buy-btn-2 { background: #ffd700; }
-        .buy-btn-6 { background: #b02aed; color: white; }
-
-        .emoji-list { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 0 10px; margin-bottom: 15px; }
-        .select-btn { width: 50px; height: 50px; cursor: pointer; transition: transform 0.2s; border-radius: 50%; background: rgba(255,255,255,0.05); padding: 5px; border: 1px solid rgba(255,255,255,0.1); position: relative; }
+        /* Emojis Grid - 4 columns */
+        .emoji-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; padding: 0 5px; margin-bottom: 15px; }
+        
+        /* Emoji Buttons */
+        .select-btn { width: 65px; height: 65px; cursor: pointer; transition: transform 0.2s; border-radius: 12px; background: transparent; padding: 2px; position: relative; display: flex; justify-content: center; align-items: center;}
         .select-btn:active { transform: scale(0.8); }
+        .select-btn img { width: 100%; height: 100%; object-fit: contain; }
         
-        .vip-locked { opacity: 0.6; }
-        .lock-icon { position: absolute; top: -2px; right: -2px; font-size: 12px; background: #000; border-radius: 50%; width: 18px; height: 18px; display: flex; justify-content: center; align-items: center; z-index: 5; }
-        .clear-btn { background: #ff4444; color: white; border: none; padding: 8px 20px; border-radius: 20px; margin: 5px auto 10px; display: block; font-weight: bold; cursor: pointer; font-size: 14px; }
+        /* --- VIP CRAVING EFFECTS --- */
+        
+        /* Locked VIP Emojis */
+        .vip-locked { position: relative; overflow: hidden; }
+        .vip-locked img { filter: blur(1px) brightness(0.8); opacity: 0.9; }
+        
+        /* SVIP Badge (Golden Tag) */
+        .svip-badge { position: absolute; top: -5px; right: -5px; background: linear-gradient(45deg, #ffd700, #ff8c00); color: #000; font-size: 9px; font-weight: bold; padding: 2px 4px; border-radius: 5px; z-index: 6; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        
+        /* Lock Icon for standard VIP */
+        .lock-icon { position: absolute; top: 0; right: 0; font-size: 14px; background: rgba(0,0,0,0.6); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; justify-content: center; align-items: center; z-index: 5;}
+        
+        /* --- MAGIC TRICK: MIRROR IMAGE CLASS --- */
+        .mirror-image { transform: scaleX(-1) !important; }
+        
+        /* Premium Popup Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(5px); }
+        .modal-box { background: linear-gradient(135deg, #1e1e2a, #0f172a); padding: 25px; border-radius: 20px; width: 85%; max-width: 350px; text-align: center; border: 2px solid #ffd700; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); position: relative;}
+        .modal-box h2 { color: #ffd700; font-size: 20px; margin-bottom: 10px; }
+        .modal-box p { color: #ddd; font-size: 14px; margin-bottom: 20px; line-height: 1.5;}
+        .modal-btn { background: linear-gradient(45deg, #ffd700, #ff8c00); color: #000; border: none; padding: 12px 20px; border-radius: 25px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; margin-bottom: 10px;}
+        .modal-close { background: transparent; border: none; color: #888; cursor: pointer; font-size: 12px;}
+
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -58,7 +78,6 @@
             <div class="stat-box exp-box" id="expDisplay">EXP: 0</div>
             <div class="stat-box diamond-box" id="diamondDisplay">💎 0</div>
         </div>
-        <!-- Testing ke liye EXP add karne ka button -->
         <button class="btn-recharge" onclick="addExp(1000)">+1000 EXP</button>
     </div>
 
@@ -70,100 +89,102 @@
             </div>
             <div class="seat-name">Owner (You)</div>
         </div>
-        <div class="seat">
-            <div class="avatar-circle"><span class="user-icon">👤</span></div>
-            <div class="seat-name">No.2</div>
+    </div>
+
+    <!-- Yari Style White Emoji Panel -->
+    <div class="control-panel">
+        <!-- FREE TIER -->
+        <div class="category-title cat-free"><span>✅ 15 Free Emojis</span></div>
+        <div class="emoji-list">
+            <!-- Normal Smile, Normal Hatoda (Right), Normal Kiss (Right) -->
+            <div class="select-btn" onclick="applyEmoji(this.querySelector('img').src)"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60a/512.gif"></div>
+            <div class="select-btn" onclick="applyEmoji(this.querySelector('img').src)"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f528/512.gif"></div>
+            <div class="select-btn" onclick="applyEmoji(this.querySelector('img').src)"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f618/512.gif"></div>
+            <div class="select-btn" onclick="applyEmoji(this.querySelector('img').src)"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f602/512.gif"></div>
+            <div class="select-btn" onclick="applyEmoji(this.querySelector('img').src)"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f621/512.gif"></div>
+        </div>
+
+        <!-- VIP 2+ TIER -->
+        <div class="category-title cat-vip2">
+            <span>👑 VIP 2+ Premium (4000 EXP)</span>
+            <span id="vip2-status" style="font-size:10px;">Locked</span>
+        </div>
+        <div class="emoji-list" id="vip2-list">
+            <!-- VIP Hatoda (Left side) -->
+            <div class="select-btn vip-locked" onclick="showVipModal(2, this)">
+                <img class="mirror-image" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f528/512.gif">
+                <div class="lock-icon">🔒</div>
+            </div>
+            <!-- VIP Kiss (Left side) -->
+            <div class="select-btn vip-locked" onclick="showVipModal(2, this)">
+                <img class="mirror-image" src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Face%20blowing%20a%20kiss/3D/face_blowing_a_kiss_3d.png">
+                <div class="lock-icon">🔒</div>
+            </div>
+            <!-- 3D Spy -->
+            <div class="select-btn vip-locked" onclick="showVipModal(2, this)">
+                <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Disguised%20face/3D/disguised_face_3d.png">
+                <div class="lock-icon">🔒</div>
+            </div>
+            <!-- 3D Nerd -->
+            <div class="select-btn vip-locked" onclick="showVipModal(2, this)">
+                <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Nerd%20face/3D/nerd_face_3d.png">
+                <div class="lock-icon">🔒</div>
+            </div>
+        </div>
+
+        <!-- VIP 6+ TIER (With SVIP Badge) -->
+        <div class="category-title cat-vip6">
+            <span>💎 VIP 6+ Exclusive (15000 EXP)</span>
+            <span id="vip6-status" style="font-size:10px;">Locked</span>
+        </div>
+        <div class="emoji-list" id="vip6-list">
+            
+            <!-- 1. POPCORN (With SVIP Badge) -->
+            <div class="select-btn vip-locked" onclick="showVipModal(6, this)">
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f37f/512.gif">
+                <span class="svip-badge">SVIP</span>
+            </div>
+
+            <!-- 2. 3D Prince -->
+            <div class="select-btn vip-locked" onclick="showVipModal(6, this)">
+                <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Prince/3D/prince_3d.png">
+                <div class="lock-icon">🔒</div>
+            </div>
+            
+            <!-- 3. 3D Genie -->
+            <div class="select-btn vip-locked" onclick="showVipModal(6, this)">
+                <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Genie/3D/genie_3d.png">
+                <div class="lock-icon">🔒</div>
+            </div>
+            
+            <!-- 4. 3D Lion -->
+            <div class="select-btn vip-locked" onclick="showVipModal(6, this)">
+                <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Lion/3D/lion_3d.png">
+                <div class="lock-icon">🔒</div>
+            </div>
         </div>
     </div>
 
-    <div class="control-panel">
-        <!-- FREE TIER -->
-        <div class="category-title cat-free"><span>✅ 15 Free Emojis (All Users)</span></div>
-        <div class="emoji-list">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60a/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f44d/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f609/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f602/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60d/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f615/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f61e/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f621/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f634/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f44f/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f618/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f914/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f62d/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60e/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f971/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
+    <!-- Premium VIP Popup Modal -->
+    <div class="modal-overlay" id="vipModal">
+        <div class="modal-box">
+            <h2 id="modalTitle">Unlock Premium Emojis</h2>
+            <p id="modalDesc"></p>
+            <button class="modal-btn" onclick="goToRecharge()">Recharge & Unlock VIP</button>
+            <button class="modal-close" onclick="closeModal()">Maybe Later</button>
         </div>
-
-        <!-- VIP 2+ TIER (4000 EXP Required) -->
-        <div class="category-title cat-vip2">
-            <span>👑 VIP 2+ Emojis (Needs 4000 EXP)</span>
-            <span id="vip2-status" style="color:#ffd700; font-size:10px;">Locked</span>
-        </div>
-        <div class="emoji-list" id="vip2-list">
-            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f92f/512.gif" style="width:100%; height:100%;"><span class="lock-icon">🔒</span>
-            </div>
-            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f929/512.gif" style="width:100%; height:100%;"><span class="lock-icon">🔒</span>
-            </div>
-            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f973/512.gif" style="width:100%; height:100%;"><span class="lock-icon">🔒</span>
-            </div>
-            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/270c_1f3fb/512.gif" style="width:100%; height:100%;"><span class="lock-icon">🔒</span>
-            </div>
-            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f644/512.gif" style="width:100%; height:100%;"><span class="lock-icon">🔒</span>
-            </div>
-        </div>
-
-        <!-- VIP 6+ TIER (15000 EXP Required) -->
-        <div class="category-title cat-vip6">
-            <span>💎 VIP 6+ Emojis (Needs 15000 EXP)</span>
-            <span id="vip6-status" style="color:#d19aff; font-size:10px;">Locked</span>
-        </div>
-        <div class="emoji-list" id="vip6-list">
-            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f608/512.gif" style="width:100%; height:100%;"><span class="lock-icon">🔒</span>
-            </div>
-            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f631/512.gif" style="width:100%; height:100%;"><span class="lock-icon">🔒</span>
-            </div>
-            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f924/512.gif" style="width:100%; height:100%;"><span class="lock-icon">🔒</span>
-            </div>
-            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f64f/512.gif" style="width:100%; height:100%;"><span class="lock-icon">🔒</span>
-            </div>
-            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f607/512.gif" style="width:100%; height:100%;"><span class="lock-icon">🔒</span>
-            </div>
-        </div>
-        <button class="clear-btn" onclick="clearEmoji()">Remove Effect</button>
     </div>
 
     <script>
-        // ==========================================
-        // 1. SUPABASE SETUP
-        // ==========================================
-        // IMPORTANT: Apne Supabase profiles table me 'exp' (int) column add karein
         const SUPABASE_URL = 'YOUR_SUPABASE_URL'; 
         const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; 
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentUser = null;
-        // userData me ab 'exp' bhi add kar diya hai
         let userData = { diamonds: 0, exp: 0 }; 
 
-        // ==========================================
-        // 2. APP INITIALIZATION
-        // ==========================================
         async function initApp() {
             const { data: { user } } = await supabase.auth.getUser();
-            
             if (user) {
                 currentUser = user;
                 await fetchUserData(user.id);
@@ -179,35 +200,29 @@
         async function fetchUserData(userId) {
             const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
             if (data) {
-                // Agar database me exp nahi hai toh 0 maan lo
                 userData = { ...data, exp: data.exp || 0 };
                 updateUI();
             }
         }
 
-        // ==========================================
-        // 3. UI UPDATE & VIP UNLOCK LOGIC
-        // ==========================================
         function updateUI() {
             document.getElementById('diamondDisplay').innerText = `💎 ${userData.diamonds}`;
             document.getElementById('expDisplay').innerText = `EXP: ${userData.exp}`;
 
-            // VIP 2 Check (4000 EXP)
             if (userData.exp >= 4000) {
                 document.getElementById('vip2-status').innerText = "✅ Unlocked";
                 document.getElementById('vip2-status').style.color = "#28a745";
                 unlockEmojis('vip2-list');
             } else {
-                document.getElementById('vip2-status').innerText = `Need ${4000 - userData.exp} more EXP`;
+                document.getElementById('vip2-status').innerText = `Need ${4000 - userData.exp} EXP`;
             }
 
-            // VIP 6 Check (15000 EXP)
             if (userData.exp >= 15000) {
                 document.getElementById('vip6-status').innerText = "✅ Unlocked";
                 document.getElementById('vip6-status').style.color = "#28a745";
                 unlockEmojis('vip6-list');
             } else {
-                document.getElementById('vip6-status').innerText = `Need ${15000 - userData.exp} more EXP`;
+                document.getElementById('vip6-status').innerText = `Need ${15000 - userData.exp} EXP`;
             }
         }
 
@@ -216,52 +231,72 @@
             const lockedEmojis = list.querySelectorAll('.vip-locked');
             lockedEmojis.forEach(emoji => {
                 emoji.classList.remove('vip-locked'); 
+                emoji.onclick = function() { 
+                    applyEmoji(this.querySelector('img').src, this.querySelector('img').classList.contains('mirror-image')); 
+                }; 
                 const lockIcon = emoji.querySelector('.lock-icon');
                 if (lockIcon) lockIcon.remove(); 
             });
         }
 
-        // ==========================================
-        // 4. TESTING: EXP ADD KARNA (Real app me gifts se EXP badhega)
-        // ==========================================
+        function showVipModal(requiredVip, element) {
+            if (requiredVip === 2 && userData.exp >= 4000) { 
+                applyEmoji(element.querySelector('img').src, element.querySelector('img').classList.contains('mirror-image')); 
+                return; 
+            }
+            if (requiredVip === 6 && userData.exp >= 15000) { 
+                applyEmoji(element.querySelector('img').src, element.querySelector('img').classList.contains('mirror-image')); 
+                return; 
+            }
+
+            const modal = document.getElementById('vipModal');
+            const title = document.getElementById('modalTitle');
+            const desc = document.getElementById('modalDesc');
+
+            if (requiredVip === 2) {
+                title.innerText = "👑 VIP 2+ Premium Emoji";
+                let needed = 4000 - userData.exp;
+                desc.innerHTML = `Yeh unique 3D Emoji sirf <b>VIP 2+</b> members ke liye hai.<br><br>Aapke paas abhi <b>${userData.exp} EXP</b> hai. Bas <b>${needed} EXP</b> aur chahiye VIP 2+ ke liye!`;
+            } else {
+                title.innerText = "💎 VIP 6+ Exclusive Emoji";
+                let needed = 15000 - userData.exp;
+                desc.innerHTML = `Yeh Royal & Attitude wala Emoji sirf <b>VIP 6+</b> members ke liye hai.<br><br>Aapke paas abhi <b>${userData.exp} EXP</b> hai. Bas <b>${needed} EXP</b> aur chahiye VIP 6+ ke liye!`;
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('vipModal').style.display = 'none';
+        }
+
+        function goToRecharge() {
+            closeModal();
+            alert("Recharge page par ja rahe hain...");
+        }
+
         async function addExp(amount) {
             const newExp = userData.exp + amount;
             const { error } = await supabase.from('profiles').update({ exp: newExp }).eq('id', currentUser.id);
-            
             if (!error) {
                 userData.exp = newExp;
                 updateUI();
-                // Agar EXP se VIP unlock hua toh alert bhi dikhayein
-                if (newExp >= 4000 && newExp < 4000 + amount) {
-                    alert("🎉 Badhai ho! Aapne 4000 EXP cross kar liye. VIP 2+ Emojis Unlock ho gaye hain!");
-                }
-                if (newExp >= 15000 && newExp < 15000 + amount) {
-                    alert("💎 Badhai ho! Aapne 15000 EXP cross kar liye. VIP 6+ Premium Emojis Unlock ho gaye hain!");
-                }
             }
         }
 
-        // ==========================================
-        // 5. EMOJI CLICK & ANIMATION
-        // ==========================================
-        function handleVipClick(requiredVip, element) {
-            if (requiredVip === 2 && userData.exp < 4000) {
-                alert("🔒 Yeh emoji VIP 2+ ka hai. Isko unlock karne ke liye aapko 4000 EXP chahiye. (Gifts receive karein)");
-                return;
-            }
-            if (requiredVip === 6 && userData.exp < 15000) {
-                alert("🔒 Yeh emoji VIP 6+ ka hai. Isko unlock karne ke liye aapko 15000 EXP chahiye. (Gifts receive karein)");
-                return;
-            }
-            applyEmoji(element.querySelector('img').src);
-        }
-
-        function applyEmoji(imageSource) {
+        function applyEmoji(imageSource, isMirror) {
             const emojiImg = document.getElementById('emoji1');
             const avatar = document.getElementById('seat1');
             const icon = document.getElementById('icon1');
 
             emojiImg.src = imageSource;
+            
+            if (isMirror) {
+                emojiImg.style.transform = "scaleX(-1) scale(1)"; 
+            } else {
+                emojiImg.style.transform = "scale(1)"; 
+            }
+
             setTimeout(() => {
                 emojiImg.classList.add('show');
                 avatar.classList.add('has-effect');
@@ -275,6 +310,7 @@
             const icon = document.getElementById('icon1');
 
             emojiImg.classList.remove('show');
+            emojiImg.style.transform = ""; 
             avatar.classList.remove('has-effect');
             icon.style.opacity = '1';
             setTimeout(() => { emojiImg.src = ""; }, 400);
