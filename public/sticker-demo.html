@@ -3,270 +3,179 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>VoxaChat Kiss Preview</title>
+<title>VoxaChat — Animated Faces</title>
 
 <style>
 *{box-sizing:border-box}
-
 body{
   margin:0;
-  background:#151022;
-  color:white;
+  background:#140f20;
+  color:#fff;
   font-family:Arial,sans-serif;
 }
-
 .app{
-  max-width:440px;
+  max-width:460px;
   min-height:100vh;
   margin:auto;
-  padding:24px 18px;
+  padding:22px 16px;
   background:
-    radial-gradient(at top left,#72465e,transparent 65%),
+    radial-gradient(at top left,#70435b,transparent 65%),
     #191428;
 }
-
-h1{
-  font-size:20px;
-  margin:0 0 10px;
-}
-
-p{
-  color:#d0bfd8;
+h1{font-size:20px;margin:0 0 10px}
+.description,.note{
+  color:#cebed7;
   font-size:13px;
   line-height:1.6;
 }
-
 .stage{
-  height:280px;
+  height:260px;
   position:relative;
   display:grid;
   place-items:center;
 }
-
 .seat{
   width:76px;
   height:76px;
-  border:2px solid #bea3bf;
+  border:2px solid #bfa0bf;
   border-radius:50%;
+  background:#ffffff12;
   display:grid;
   place-items:center;
-  background:#ffffff12;
-  color:#dacbdd;
+  font-size:13px;
 }
-
-.actor{
+#actor{
   position:absolute;
-  width:110px;
-  height:110px;
+  width:125px;
+  height:125px;
   pointer-events:none;
 }
-
-.actor[hidden]{display:none}
-
-.actor svg{
-  display:block;
+#actor[hidden]{display:none}
+#actor svg{
   width:100%;
   height:100%;
   overflow:visible;
+  display:block;
 }
-
 .name{
   position:absolute;
-  bottom:56px;
+  bottom:43px;
   font-size:13px;
 }
-
 .panel{
-  padding:20px;
-  border-radius:20px;
+  background:#241c37;
   border:1px solid #ffffff20;
-  background:#241c38;
-  text-align:center;
+  border-radius:20px;
+  padding:15px;
 }
-
-button{
-  padding:13px 24px;
-  border:1px solid #ffffff30;
+.heading{font-size:15px;margin-bottom:15px}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+}
+.choice{
+  border:1px solid #ffffff25;
   border-radius:12px;
-  background:#714782;
-  color:white;
+  background:#382b4b;
+  color:#fff;
+  padding:10px 2px;
   cursor:pointer;
-  font-size:15px;
   touch-action:manipulation;
 }
-
-button.secondary{
-  background:#392a4b;
-  margin-left:8px;
+.choice.active{
+  background:#684473;
+  border-color:#e9b6f3;
 }
-
+.choice .icon{
+  display:block;
+  font-size:29px;
+  line-height:1.4;
+}
+.choice .label{
+  display:block;
+  margin-top:6px;
+  font-size:10px;
+}
+.controls{
+  display:flex;
+  gap:9px;
+}
+.controls button{
+  flex:1;
+  padding:12px;
+  border:1px solid #ffffff25;
+  border-radius:11px;
+  background:#513563;
+  color:#fff;
+  cursor:pointer;
+}
 #status{
-  min-height:35px;
-  margin-top:18px;
-  color:#efc8e7;
+  min-height:36px;
+  margin:15px 0 8px;
   font-size:13px;
+  color:#efc4e5;
 }
-
-.note{margin-top:20px}
 </style>
 </head>
 
 <body>
 <main class="app">
-  <h1>VoxaChat · Kiss Sample</h1>
+  <h1>VoxaChat · Animated Faces</h1>
 
-  <p>
-    Wink + lips movement + ek red heart.
-    Face apni jagah rahega.
-  </p>
+  <div class="description">
+    10 custom face reactions · Eyes, mouth aur hands animation
+  </div>
 
   <div class="stage">
     <div class="seat">Your DP</div>
-
-    <div id="actor" class="actor" hidden>
-      <svg
-        viewBox="0 0 160 160"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-      >
-        <defs>
-          <radialGradient id="faceColor" cx="35%" cy="28%" r="75%">
-            <stop offset="0" stop-color="#ffe779"/>
-            <stop offset=".65" stop-color="#ffd139"/>
-            <stop offset="1" stop-color="#f3a51c"/>
-          </radialGradient>
-
-          <linearGradient id="heartColor" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#ff465a"/>
-            <stop offset="1" stop-color="#dc143a"/>
-          </linearGradient>
-        </defs>
-
-        <!-- The face does not move. -->
-        <circle
-          cx="72" cy="78" r="51"
-          fill="url(#faceColor)"
-          stroke="#e7a12c"
-          stroke-width="1.5"
-        />
-
-        <!-- Soft face highlights -->
-        <ellipse
-          cx="52" cy="45"
-          rx="20" ry="9"
-          fill="#fff4b1"
-          opacity=".22"
-        />
-
-        <!-- Open eye -->
-        <ellipse
-          cx="53" cy="68"
-          rx="5" ry="8"
-          fill="#583a29"
-        />
-
-        <!-- Eyebrows -->
-        <path
-          d="M43 52Q52 47 61 51"
-          fill="none"
-          stroke="#8b5829"
-          stroke-width="3.5"
-          stroke-linecap="round"
-        />
-
-        <path
-          id="rightBrow"
-          d="M83 51Q92 47 101 52"
-          fill="none"
-          stroke="#8b5829"
-          stroke-width="3.5"
-          stroke-linecap="round"
-        />
-
-        <!-- Animated eye -->
-        <ellipse
-          id="rightEye"
-          cx="91" cy="68"
-          rx="5" ry="8"
-          fill="#583a29"
-        />
-
-        <path
-          id="wink"
-          d="M82 70Q91 62 100 70"
-          fill="none"
-          stroke="#583a29"
-          stroke-width="4"
-          stroke-linecap="round"
-          opacity="0"
-        />
-
-        <!-- Cheek blush -->
-        <g id="blush" fill="#ee8e55" opacity=".25">
-          <ellipse cx="40" cy="89" rx="10" ry="5"/>
-          <ellipse cx="106" cy="88" rx="9" ry="5"/>
-        </g>
-
-        <!-- Mouth shape changes in JavaScript -->
-        <path
-          id="mouth"
-          d="M64 94Q74 102 84 94"
-          fill="none"
-          stroke="#7a432c"
-          stroke-width="3.7"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-
-        <!-- One red heart, attached to the kiss cycle -->
-        <g id="heart">
-          <path
-            d="M0 5
-               C-22-8 -13-27 0-15
-               C13-27 22-8 0 5Z"
-            fill="url(#heartColor)"
-          />
-          <path
-            d="M-10-14Q-13-19-7-20"
-            fill="none"
-            stroke="#ffb0b6"
-            stroke-width="2.5"
-            stroke-linecap="round"
-          />
-        </g>
-      </svg>
-    </div>
-
+    <div id="actor" hidden aria-hidden="true"></div>
     <div class="name">Sample seat</div>
   </div>
 
   <section class="panel">
-    <button type="button" id="play">Play Kiss</button>
-    <button type="button" id="stop" class="secondary">Stop</button>
+    <div class="heading">Reaction select karo</div>
+    <div id="grid" class="grid"></div>
 
     <div id="status" role="status">
-      Play Kiss dabao.
+      Kisi reaction par tap karo.
+    </div>
+
+    <div class="controls">
+      <button type="button" id="replay">Replay</button>
+      <button type="button" id="stop">Stop</button>
     </div>
   </section>
 
   <p class="note">
-    Ye sirf kiss ka independent preview hai.
-    Room ka purana emoji code abhi replace nahi karna.
+    Ye independent demo hai, room se connected nahi.
+    Panel ke emoji reference icons hain; seat par custom-drawn
+    animated faces dikhte hain.
   </p>
 </main>
 
 <script>
 "use strict";
 
+const items=[
+  {icon:"😒",name:"Unamused",kind:"unamused"},
+  {icon:"🤗",name:"Hug",kind:"hug"},
+  {icon:"🤔",name:"Thinking",kind:"thinking"},
+  {icon:"😘",name:"Kiss",kind:"kiss"},
+  {icon:"🥰",name:"Love",kind:"love"},
+  {icon:"🤣",name:"Big Laugh",kind:"biglaugh"},
+  {icon:"🤭",name:"Giggle",kind:"giggle"},
+  {icon:"😂",name:"Laugh Cry",kind:"laughcry"},
+  {icon:"🥹",name:"Touched",kind:"touched"},
+  {icon:"😭",name:"Crying",kind:"cry"}
+];
+
 const actor=document.getElementById("actor");
-const rightEye=document.getElementById("rightEye");
-const wink=document.getElementById("wink");
-const mouth=document.getElementById("mouth");
-const blush=document.getElementById("blush");
-const heart=document.getElementById("heart");
+const grid=document.getElementById("grid");
 const statusBox=document.getElementById("status");
 
-let animationFrame=0;
+let frameId=0;
+let lastIndex=3;
 let startedAt=0;
 
 const clamp=x=>Math.max(0,Math.min(1,x));
@@ -280,123 +189,474 @@ function mix(a,b,t){
   return a+(b-a)*t;
 }
 
-function setHeart(x,y,scale,opacity){
-  heart.setAttribute(
-    "transform",
-    `translate(${x} ${y}) scale(${scale})`
-  );
-  heart.setAttribute("opacity",opacity);
+function path(d,fill="none",extra=""){
+  return `<path d="${d}" fill="${fill}" ${extra}/>`;
 }
 
-function render(seconds){
-  const t=seconds%2.8;
+function stroke(d,width=3.5,color="#68402c"){
+  return path(
+    d,
+    "none",
+    `stroke="${color}" stroke-width="${width}"
+     stroke-linecap="round" stroke-linejoin="round"`
+  );
+}
 
-  // Prepare kiss, hold expression, then return to normal.
-  const prepare=ease(t/.45);
-  const release=ease((t-1.85)/.55);
-  const expression=prepare*(1-release);
+function ellipse(x,y,rx,ry,fill,extra=""){
+  return `<ellipse
+    cx="${x}" cy="${y}" rx="${rx}" ry="${ry}"
+    fill="${fill}" ${extra}/>`;
+}
 
-  rightEye.setAttribute(
-    "ry",
-    Math.max(.2,8*(1-expression))
+function heart(x,y,scale,opacity){
+  return `<g
+    transform="translate(${x} ${y}) scale(${scale})"
+    opacity="${opacity}">
+    ${path(
+      "M0 5C-22-8-13-27 0-15C13-27 22-8 0 5Z",
+      "#ee3155"
+    )}
+    ${stroke("M-10-14Q-12-19-7-20",2,"#ffb4bf")}
+  </g>`;
+}
+
+function tear(x,y,size=1,opacity=1){
+  return `<g
+    transform="translate(${x} ${y}) scale(${size})"
+    opacity="${opacity}">
+    ${path(
+      "M0-7Q-10 5 0 10Q10 5 0-7Z",
+      "#68c9f4"
+    )}
+    ${stroke("M-2 0L-3 4",1.5,"#d1f5ff")}
+  </g>`;
+}
+
+function hand(x,y,angle=0,scale=1){
+  return `<g
+    transform="translate(${x} ${y})
+               rotate(${angle}) scale(${scale})">
+    ${path(
+      "M-10 13L-12-1Q-13-7-9-7L-6-1V-16" +
+      "Q-6-22-2-21Q1-21 1-16V-5V-22" +
+      "Q1-27 5-26Q8-25 8-20V-5V-18" +
+      "Q8-23 12-22Q15-21 15-16V-2L19-7" +
+      "Q23-11 26-7Q29-3 24 4L17 17" +
+      "Q9 26-1 23Z",
+      "#ffd044",
+      'stroke="#df9b25" stroke-width="1.7"'
+    )}
+    ${stroke("M1 2Q8-2 15 3",1.5,"#dba02f")}
+  </g>`;
+}
+
+function eye(x,y,look=0,height=7){
+  return ellipse(x,y,8,10,"#fff6df")+
+    ellipse(x+look,y,3.8,height,"#583b2c");
+}
+
+function closedEye(x,y,up=true){
+  return stroke(
+    `M${x-9} ${y}
+     Q${x} ${y+(up?-10:8)} ${x+9} ${y}`
+  );
+}
+
+function smile(width=14,depth=10){
+  return stroke(
+    `M${78-width} 98Q78 ${98+depth} ${78+width} 98`
+  );
+}
+
+function openLaugh(t,big=false){
+  const opening=(big?17:12)+
+    (Math.sin(t*16)+1)*3;
+
+  return ellipse(78,104,18,opening,"#74313b")+
+    path(
+      "M63 94Q78 97 93 94L90 100H66Z",
+      "#fff9ed"
+    )+
+    ellipse(78,112+opening*.25,10,4,"#f58e9a");
+}
+
+function draw(kind,t){
+  const blink=Math.pow(
+    Math.max(0,Math.sin(t*2.5)),24
   );
 
-  rightEye.setAttribute("opacity",1-expression);
-  wink.setAttribute("opacity",expression);
-  blush.setAttribute("opacity",.25+expression*.35);
+  const phase=t%2.8;
 
-  // Smoothly morph smile into puckered lips.
-  const x=mix(64,79,expression);
-  const y=mix(94,93,expression);
-  const cx=mix(74,94,expression);
-  const cy=mix(102,96,expression);
-  const ex=mix(84,81,expression);
-  const ey=mix(94,99,expression);
+  let eyes=
+    eye(57,72,0,Math.max(.3,7*(1-blink)))+
+    eye(100,72,0,Math.max(.3,7*(1-blink)));
 
-  const cx2=mix(74,94,expression);
-  const cy2=mix(102,102,expression);
-  const ex2=mix(64,80,expression);
-  const ey2=mix(94,106,expression);
+  let brows=
+    stroke("M47 55Q56 51 65 55",3)+
+    stroke("M91 55Q100 51 109 55",3);
 
-  mouth.setAttribute(
-    "d",
-    `M${x} ${y}
-     Q${cx} ${cy} ${ex} ${ey}
-     Q${cx2} ${cy2} ${ex2} ${ey2}`
-  );
+  let mouth=smile();
+  let hands="";
+  let effects="";
+  let cheeks=.22;
 
-  if(t<.48){
-    // The single heart appears beside the lips.
-    const appear=ease(t/.4);
-    setHeart(104,102,.48,appear);
-  }else if(t<2.1){
-    // That same heart flies away and fades.
-    const flight=clamp((t-.48)/1.62);
-    const travel=ease(flight);
+  if(kind==="unamused"){
+    const look=-4*ease((Math.sin(t*1.8)+1)/2);
 
-    const opacity=flight<.55
-      ?1
-      :1-ease((flight-.55)/.45);
+    eyes=
+      ellipse(57+look,75,4,5,"#583b2c")+
+      ellipse(100+look,75,4,5,"#583b2c")+
+      stroke("M46 69L67 70",4)+
+      stroke("M89 70L110 69",4);
 
-    setHeart(
-      104+travel*37,
-      102-travel*29,
-      .48+travel*.32,
-      opacity
-    );
-  }else{
-    setHeart(104,102,.48,0);
+    brows=
+      stroke("M46 54Q57 46 68 51",3)+
+      stroke("M90 56L110 59",3);
+
+    mouth=stroke("M65 104Q78 99 92 102",3);
   }
+
+  if(kind==="hug"){
+    const opening=(Math.sin(t*2.8)+1)/2;
+
+    eyes=closedEye(57,75)+closedEye(100,75);
+    mouth=smile(16,17);
+    cheeks=.42;
+
+    hands=
+      hand(mix(47,19,opening),mix(118,98,opening),
+        mix(-15,-45,opening),.7)+
+      hand(mix(109,137,opening),mix(118,98,opening),
+        mix(15,45,opening),.7);
+
+    effects=heart(78,137,.25,.65);
+  }
+
+  if(kind==="thinking"){
+    const look=(Math.sin(t*1.7)+1)/2;
+
+    eyes=
+      eye(57,70,3*look,6)+
+      eye(100,70,3*look,6);
+
+    brows=
+      stroke("M46 55Q56 44 67 50",3)+
+      stroke("M90 57L109 55",3);
+
+    mouth=stroke("M70 104Q80 100 90 104",3);
+
+    hands=hand(
+      99,
+      124-Math.sin(t*2.8)*2,
+      -40,
+      .63
+    );
+
+    const opacity=(Math.sin(t*2)+1)/2;
+
+    effects=`<g opacity="${opacity}"
+      fill="#fff2cb"
+      font-family="Arial" font-size="23">
+      <text x="127" y="36">?</text>
+    </g>`;
+  }
+
+  if(kind==="kiss"){
+    const prepare=ease(phase/.45);
+    const release=ease((phase-1.85)/.55);
+    const expression=prepare*(1-release);
+
+    eyes=
+      ellipse(57,72,4.5,7,"#583b2c")+
+      `<g opacity="${1-expression}">
+        ${ellipse(
+          100,72,4.5,
+          Math.max(.2,7*(1-expression)),
+          "#583b2c"
+        )}
+      </g>`+
+      `<g opacity="${expression}">
+        ${closedEye(100,74)}
+      </g>`;
+
+    const x=mix(65,83,expression);
+    const y=mix(98,94,expression);
+
+    mouth=stroke(
+      `M${x} ${y}
+       Q${mix(78,98,expression)}
+        ${mix(109,97,expression)}
+        ${mix(92,85,expression)}
+        ${mix(98,100,expression)}
+       Q${mix(78,98,expression)}
+        ${mix(109,103,expression)}
+        ${mix(65,84,expression)}
+        ${mix(98,107,expression)}`,
+      3.5
+    );
+
+    cheeks=.2+expression*.3;
+
+    if(phase<.48){
+      effects=heart(
+        111,104,.42,ease(phase/.4)
+      );
+    }else if(phase<2.1){
+      const flight=clamp((phase-.48)/1.62);
+      const travel=ease(flight);
+
+      effects=heart(
+        111+travel*31,
+        104-travel*30,
+        .42+travel*.25,
+        flight<.55
+          ?1
+          :1-ease((flight-.55)/.45)
+      );
+    }
+  }
+
+  if(kind==="love"){
+    const squeeze=(Math.sin(t*3)+1)/2;
+
+    eyes=
+      closedEye(57,75-squeeze)+
+      closedEye(100,75-squeeze);
+
+    mouth=smile(15,10+squeeze*5);
+    cheeks=.5+squeeze*.2;
+
+    for(let i=0;i<3;i++){
+      const p=(t*.45+i/3)%1;
+      const positions=[[30,60],[125,56],[119,121]];
+      const [x,y]=positions[i];
+
+      effects+=heart(
+        x,
+        y-p*12,
+        .27+p*.12,
+        Math.sin(p*Math.PI)
+      );
+    }
+  }
+
+  if(kind==="biglaugh"){
+    const squeeze=Math.sin(t*12)*1.5;
+
+    eyes=
+      stroke(`M46 68L62 ${75+squeeze}L46 81`,4)+
+      stroke(`M111 68L95 ${75+squeeze}L111 81`,4);
+
+    brows="";
+    mouth=openLaugh(t,true);
+    cheeks=.45;
+
+    hands=
+      hand(45,127+Math.sin(t*12)*2,15,.55)+
+      hand(111,127-Math.sin(t*12)*2,-15,.55);
+  }
+
+  if(kind==="giggle"){
+    eyes=closedEye(57,74)+closedEye(100,74);
+    mouth=openLaugh(t,false);
+    cheeks=.48;
+
+    hands=hand(
+      74+Math.sin(t*11),
+      112+Math.sin(t*13)*1.5,
+      -12,
+      .73
+    );
+  }
+
+  if(kind==="laughcry"){
+    eyes=closedEye(57,76)+closedEye(100,76);
+    mouth=openLaugh(t,false);
+    cheeks=.35;
+    brows="";
+
+    for(let side=0;side<2;side++){
+      const p=(t*1.4+side*.35)%1;
+
+      effects+=tear(
+        side?113+p*8:44-p*8,
+        84+p*35,
+        .6,
+        1-p
+      );
+    }
+  }
+
+  if(kind==="touched"){
+    const glisten=(Math.sin(t*3)+1)/2;
+
+    brows=
+      stroke("M46 56Q57 57 66 48",3)+
+      stroke("M90 48Q100 57 111 56",3);
+
+    eyes=
+      ellipse(57,75,10,12,"#59402f")+
+      ellipse(100,75,10,12,"#59402f")+
+      ellipse(54,70,3,4,"#fff")+
+      ellipse(97,70,3,4,"#fff")+
+      ellipse(59,81,6,2.5+glisten,"#8bd9f7")+
+      ellipse(102,81,6,2.5+glisten,"#8bd9f7");
+
+    mouth=smile(10,6);
+    cheeks=.43;
+
+    if(glisten>.75){
+      effects=tear(109,91,.4,(glisten-.75)*4);
+    }
+  }
+
+  if(kind==="cry"){
+    brows=
+      stroke("M46 56L66 47",3.5)+
+      stroke("M90 47L110 56",3.5);
+
+    eyes=
+      closedEye(57,75,false)+
+      closedEye(100,75,false);
+
+    const opening=11+(Math.sin(t*11)+1)*3;
+
+    mouth=ellipse(78,106,12,opening,"#74313b")+
+      ellipse(78,113,7,3,"#ef8b9c");
+
+    effects=
+      path(
+        "M50 81Q55 85 61 81L62 119Q55 125 49 119Z",
+        "#66c9f1",'opacity=".8"'
+      )+
+      path(
+        "M93 81Q99 85 106 81L107 119Q100 125 92 119Z",
+        "#66c9f1",'opacity=".8"'
+      );
+
+    for(let i=0;i<4;i++){
+      const p=(t*1.25+i*.25)%1;
+      effects+=tear(
+        i%2?100:55,
+        113+p*26,
+        .55,
+        1-p
+      );
+    }
+  }
+
+  return `<svg viewBox="0 0 160 160"
+    xmlns="http://www.w3.org/2000/svg">
+
+    <defs>
+      <radialGradient id="faceFill"
+        cx="35%" cy="25%" r="80%">
+        <stop offset="0" stop-color="#ffe983"/>
+        <stop offset=".65" stop-color="#ffd13d"/>
+        <stop offset="1" stop-color="#eea31c"/>
+      </radialGradient>
+    </defs>
+
+    <circle
+      cx="78" cy="79" r="51"
+      fill="url(#faceFill)"
+      stroke="#dfa02c"
+      stroke-width="1.5"
+    />
+
+    ${ellipse(61,44,18,7,"#fff7bd",'opacity=".16"')}
+
+    ${brows}
+    ${eyes}
+
+    <g opacity="${cheeks}">
+      ${ellipse(43,92,10,5,"#f38568")}
+      ${ellipse(113,92,10,5,"#f38568")}
+    </g>
+
+    ${mouth}
+    ${hands}
+    ${effects}
+  </svg>`;
 }
 
 function stop(){
-  cancelAnimationFrame(animationFrame);
-  animationFrame=0;
+  cancelAnimationFrame(frameId);
+  frameId=0;
+
   actor.hidden=true;
-  statusBox.textContent="Stopped — Play Kiss dabao.";
+  actor.replaceChildren();
+
+  [...grid.children].forEach(button=>{
+    button.classList.remove("active");
+  });
+
+  statusBox.textContent="Stopped — reaction select karo.";
 }
 
-function play(){
-  cancelAnimationFrame(animationFrame);
+function play(index){
+  stop();
+
+  lastIndex=index;
+  const item=items[index];
 
   actor.hidden=false;
+  grid.children[index].classList.add("active");
+
+  statusBox.textContent=item.name+" · Playing";
   startedAt=performance.now();
 
-  const reduced=window.matchMedia(
+  if(window.matchMedia(
     "(prefers-reduced-motion: reduce)"
-  ).matches;
-
-  if(reduced){
-    render(.48);
+  ).matches){
+    actor.innerHTML=draw(item.kind,1);
     statusBox.textContent=
-      "Reduced-motion mode: still kiss preview.";
+      item.name+" · Reduced-motion still preview";
     return;
   }
-
-  statusBox.textContent=
-    "Kiss playing — same red heart lips se nikal raha hai.";
 
   function tick(now){
     const elapsed=(now-startedAt)/1000;
 
     if(elapsed>=8.4){
       stop();
-      statusBox.textContent="Finished — dobara Play Kiss dabao.";
+      statusBox.textContent=
+        "Finished — Replay ya doosra reaction select karo.";
       return;
     }
 
-    render(elapsed);
-    animationFrame=requestAnimationFrame(tick);
+    actor.innerHTML=draw(item.kind,elapsed);
+    frameId=requestAnimationFrame(tick);
   }
 
-  animationFrame=requestAnimationFrame(tick);
+  frameId=requestAnimationFrame(tick);
 }
 
-document.getElementById("play").onclick=play;
-document.getElementById("stop").onclick=stop;
+items.forEach((item,index)=>{
+  const button=document.createElement("button");
+  button.type="button";
+  button.className="choice";
+  button.setAttribute("aria-label",item.name);
 
-// Set initial appearance before the first play.
-render(0);
+  const icon=document.createElement("span");
+  icon.className="icon";
+  icon.textContent=item.icon;
+
+  const label=document.createElement("span");
+  label.className="label";
+  label.textContent=item.name;
+
+  button.append(icon,label);
+  button.onclick=()=>play(index);
+
+  grid.appendChild(button);
+});
+
+document.getElementById("replay").onclick=()=>{
+  play(lastIndex);
+};
+
+document.getElementById("stop").onclick=stop;
 </script>
 </body>
 </html>
