@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Live Animated Emojis</title>
+    <title>3D Emoji With Flying Kiss Effect</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,8 @@
         }
 
         body {
-            background: linear-gradient(to bottom, #0f172a, #000000);
+            background: #0a0a0f;
+            background-image: radial-gradient(circle at top, #1a1a2e, #0a0a0f);
             height: 100vh;
             display: flex;
             flex-direction: column;
@@ -22,11 +23,12 @@
         }
 
         .header {
-            padding: 15px 20px;
+            padding: 15px;
             text-align: center;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
-            color: #4ade80;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
 
         /* Seats Area */
@@ -48,6 +50,7 @@
             position: relative;
         }
 
+        /* Avatar Circle */
         .avatar-circle {
             width: 85px;
             height: 85px;
@@ -62,8 +65,8 @@
         }
 
         .avatar-circle.has-effect {
-            border-color: #ffcc00;
-            box-shadow: 0 0 20px rgba(255, 204, 0, 0.6);
+            border-color: #ffd700;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.7);
             background: #333;
         }
 
@@ -73,7 +76,7 @@
             transition: opacity 0.3s;
         }
 
-        /* Live GIF Emoji Layer */
+        /* 3D Emoji Image Layer */
         .seat-emoji {
             position: absolute;
             top: -20px;
@@ -87,6 +90,9 @@
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             pointer-events: none;
             z-index: 10;
+            /* Image ka background white hai, isliye blend mode use kiya hai */
+            mix-blend-mode: screen; 
+            background-color: transparent;
         }
 
         .seat-emoji.show {
@@ -103,12 +109,13 @@
             border-radius: 12px;
         }
 
-        /* Control Panel (Niche ke buttons) */
+        /* Control Panel */
         .control-panel {
-            background: #111;
+            background: rgba(0,0,0,0.8);
             padding: 15px;
             border-top: 1px solid #333;
             padding-bottom: 25px;
+            backdrop-filter: blur(10px);
         }
 
         .panel-title {
@@ -124,20 +131,19 @@
             align-items: center;
         }
 
-        /* Emoji Buttons (Jo niche hain) */
+        /* Niche ke 3D Emoji Buttons (Aapki Image Se) */
         .select-btn {
             width: 60px;
             height: 60px;
             cursor: pointer;
             transition: transform 0.2s;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
             padding: 5px;
+            object-fit: contain;
         }
 
         .select-btn:active {
             transform: scale(0.8);
-            background: rgba(255,255,255,0.3);
         }
 
         .clear-btn {
@@ -151,20 +157,31 @@
             font-weight: bold;
             cursor: pointer;
         }
+
+        /* Flying Heart Animation */
+        @keyframes flyHeart {
+            0% { transform: translate(0, 0) scale(0.5); opacity: 1; }
+            100% { transform: translate(-30px, -60px) scale(1.5); opacity: 0; }
+        }
+
+        .flying-heart {
+            position: absolute;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 20;
+            animation: flyHeart 1s ease-out forwards;
+        }
+
     </style>
 </head>
 <body>
 
-    <div class="header">Tap on Emoji to see Live Animation</div>
+    <div class="header">Tap Emojis For Magic Effect</div>
 
-    <!-- Seats Area -->
     <div class="room-grid">
-        
-        <!-- Seat No. 1 -->
         <div class="seat">
             <div class="avatar-circle" id="seat1">
                 <span class="user-icon" id="icon1">👤</span>
-                <!-- Yahan GIF load hoga -->
                 <img src="" class="seat-emoji" id="emoji1" alt="Emoji">
             </div>
             <div class="seat-name">Owner</div>
@@ -181,30 +198,32 @@
         </div>
     </div>
 
-    <!-- Bottom Control Panel -->
     <div class="control-panel">
-        <div class="panel-title">Niche se emoji par tap karein (Live GIF)</div>
+        <div class="panel-title">Select 3D Emoji</div>
         <div class="emoji-list">
             
-            <!-- Kissing Emoji (Flying kiss GIF) -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f618/512.gif" 
-                 class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- Maine yahan aapki image ke hisaab se emojis lagaye hain. 
+                 Aap in src links ko apni image ke direct links se replace kar sakte hain. -->
             
-            <!-- Thinking Emoji (Head scratch GIF) -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f914/512.gif" 
-                 class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- Kissing Emoji with Bow -->
+            <img src="https://i.ibb.co/68ZqXqz/kiss-emoji.png" 
+                 class="select-btn" onclick="applyEmoji(this.src, true)">
             
-            <!-- Heart Eyes (Love GIF) -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60d/512.gif" 
-                 class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- Shy Love Emoji -->
+            <img src="https://i.ibb.co/3s7Y1sB/shy-emoji.png" 
+                 class="select-btn" onclick="applyEmoji(this.src, false)">
             
-            <!-- Crying Emoji -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f62d/512.gif" 
-                 class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- Cool Sunglasses Emoji -->
+            <img src="https://i.ibb.co/5K1x7t7/cool-emoji.png" 
+                 class="select-btn" onclick="applyEmoji(this.src, false)">
             
-            <!-- Angry Emoji (Gussa) -->
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f621/512.gif" 
-                 class="select-btn" onclick="applyEmoji(this.src)">
+            <!-- Sleeping Emoji -->
+            <img src="https://i.ibb.co/L5k8ZgC/sleep-emoji.png" 
+                 class="select-btn" onclick="applyEmoji(this.src, false)">
+            
+            <!-- Laughing Emoji -->
+            <img src="https://i.ibb.co/1Jt6YpQ/laugh-emoji.png" 
+                 class="select-btn" onclick="applyEmoji(this.src, false)">
                  
         </div>
         <button class="clear-btn" onclick="clearEmoji()">Remove Effect</button>
@@ -215,29 +234,45 @@
         const seat1EmojiImg = document.getElementById('emoji1');
         const seat1NormalIcon = document.getElementById('icon1');
 
-        function applyEmoji(imageSource) {
-            // 1. Emoji ka naya GIF source set karo
+        function applyEmoji(imageSource, isKiss) {
             seat1EmojiImg.src = imageSource;
             
-            // 2. Thoda delay dekar Animation trigger karo
             setTimeout(() => {
                 seat1EmojiImg.classList.add('show');
                 seat1Avatar.classList.add('has-effect');
-                
-                // Piche wala normal user icon hide karo
                 seat1NormalIcon.style.opacity = '0'; 
+
+                // Agar Kiss wala emoji select kiya hai, to dil udaao
+                if (isKiss) {
+                    createFlyingHeart(seat1Avatar);
+                }
+
             }, 50);
         }
 
+        // Flying Heart banane ka function
+        function createFlyingHeart(parentElement) {
+            const heart = document.createElement('div');
+            heart.classList.add('flying-heart');
+            heart.innerHTML = '❤️'; // Ya '💖' use kar sakte hain
+            
+            // Heart ko avatar ke paas position karo
+            heart.style.left = '60px';
+            heart.style.top = '20px';
+            
+            parentElement.appendChild(heart);
+
+            // 1 second baad heart remove kar do
+            setTimeout(() => {
+                heart.remove();
+            }, 1000);
+        }
+
         function clearEmoji() {
-            // Animation hatao
             seat1EmojiImg.classList.remove('show');
             seat1Avatar.classList.remove('has-effect');
-            
-            // Normal icon wapas dikhao
             seat1NormalIcon.style.opacity = '1';
 
-            // Thodi der baad GIF source clear kar do taaki memory free ho
             setTimeout(() => {
                 seat1EmojiImg.src = "";
             }, 400);
