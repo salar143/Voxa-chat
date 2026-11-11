@@ -3,34 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>VoxaChat Emoji Preview</title>
+<title>VoxaChat Kiss Preview</title>
 
 <style>
 *{box-sizing:border-box}
 
 body{
   margin:0;
-  background:#120e1e;
+  background:#151022;
   color:white;
   font-family:Arial,sans-serif;
 }
 
 .app{
-  max-width:460px;
+  max-width:440px;
   min-height:100vh;
   margin:auto;
-  padding:22px 16px;
+  padding:24px 18px;
   background:
-    radial-gradient(at top left,#75465f,transparent 65%),
+    radial-gradient(at top left,#72465e,transparent 65%),
     #191428;
 }
 
-h1{font-size:20px;margin:0 0 10px}
+h1{
+  font-size:20px;
+  margin:0 0 10px;
+}
 
-.description,.note{
+p{
+  color:#d0bfd8;
   font-size:13px;
   line-height:1.6;
-  color:#ccbdd5;
 }
 
 .stage{
@@ -41,360 +44,359 @@ h1{font-size:20px;margin:0 0 10px}
 }
 
 .seat{
-  width:82px;
-  height:82px;
-  border:2px solid #bea3c0;
+  width:76px;
+  height:76px;
+  border:2px solid #bea3bf;
   border-radius:50%;
   display:grid;
   place-items:center;
   background:#ffffff12;
-  color:#e0d0e4;
+  color:#dacbdd;
+}
+
+.actor{
+  position:absolute;
+  width:110px;
+  height:110px;
+  pointer-events:none;
+}
+
+.actor[hidden]{display:none}
+
+.actor svg{
+  display:block;
+  width:100%;
+  height:100%;
+  overflow:visible;
 }
 
 .name{
   position:absolute;
-  bottom:45px;
+  bottom:56px;
   font-size:13px;
-}
-
-#reaction{
-  position:absolute;
-  width:180px;
-  height:180px;
-  display:grid;
-  place-items:center;
-  pointer-events:none;
-}
-
-#reaction[hidden]{display:none}
-
-.face{
-  font-family:
-    "Apple Color Emoji",
-    "Segoe UI Emoji",
-    "Noto Color Emoji",
-    sans-serif;
-  font-size:90px;
-  line-height:1.2;
-  filter:drop-shadow(0 6px 8px #0004);
-}
-
-.particle{
-  position:absolute;
-  top:50%;
-  left:50%;
-  font-size:24px;
-  line-height:1;
 }
 
 .panel{
-  background:#211b35;
-  border:1px solid #ffffff20;
+  padding:20px;
   border-radius:20px;
-  padding:16px;
+  border:1px solid #ffffff20;
+  background:#241c38;
+  text-align:center;
 }
 
-.heading{font-size:15px;margin-bottom:16px}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:9px;
-}
-
-.emoji-button{
-  padding:10px 2px;
-  border:1px solid #ffffff25;
-  border-radius:13px;
-  background:#372b4b;
+button{
+  padding:13px 24px;
+  border:1px solid #ffffff30;
+  border-radius:12px;
+  background:#714782;
   color:white;
   cursor:pointer;
+  font-size:15px;
   touch-action:manipulation;
 }
 
-.emoji-button .icon{
-  display:block;
-  font-size:33px;
-  margin-bottom:7px;
-}
-
-.emoji-button .label{
-  display:block;
-  font-size:10px;
-}
-
-.emoji-button.active{
-  border-color:#edb4f5;
-  background:#67416c;
+button.secondary{
+  background:#392a4b;
+  margin-left:8px;
 }
 
 #status{
-  min-height:36px;
-  margin:16px 0 8px;
-  color:#ecc3e5;
+  min-height:35px;
+  margin-top:18px;
+  color:#efc8e7;
   font-size:13px;
 }
 
-.controls{display:flex;gap:10px}
-
-.controls button{
-  flex:1;
-  padding:12px;
-  background:#48315e;
-  color:white;
-  border:1px solid #ffffff25;
-  border-radius:11px;
-  cursor:pointer;
-}
+.note{margin-top:20px}
 </style>
 </head>
 
 <body>
 <main class="app">
-  <h1>VoxaChat · Emoji Demo</h1>
+  <h1>VoxaChat · Kiss Sample</h1>
 
-  <div class="description">
-    Tumhare select kiye hue 10 emojis
-  </div>
+  <p>
+    Wink + lips movement + ek red heart.
+    Face apni jagah rahega.
+  </p>
 
   <div class="stage">
     <div class="seat">Your DP</div>
-    <div id="reaction" hidden aria-hidden="true"></div>
+
+    <div id="actor" class="actor" hidden>
+      <svg
+        viewBox="0 0 160 160"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <defs>
+          <radialGradient id="faceColor" cx="35%" cy="28%" r="75%">
+            <stop offset="0" stop-color="#ffe779"/>
+            <stop offset=".65" stop-color="#ffd139"/>
+            <stop offset="1" stop-color="#f3a51c"/>
+          </radialGradient>
+
+          <linearGradient id="heartColor" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#ff465a"/>
+            <stop offset="1" stop-color="#dc143a"/>
+          </linearGradient>
+        </defs>
+
+        <!-- The face does not move. -->
+        <circle
+          cx="72" cy="78" r="51"
+          fill="url(#faceColor)"
+          stroke="#e7a12c"
+          stroke-width="1.5"
+        />
+
+        <!-- Soft face highlights -->
+        <ellipse
+          cx="52" cy="45"
+          rx="20" ry="9"
+          fill="#fff4b1"
+          opacity=".22"
+        />
+
+        <!-- Open eye -->
+        <ellipse
+          cx="53" cy="68"
+          rx="5" ry="8"
+          fill="#583a29"
+        />
+
+        <!-- Eyebrows -->
+        <path
+          d="M43 52Q52 47 61 51"
+          fill="none"
+          stroke="#8b5829"
+          stroke-width="3.5"
+          stroke-linecap="round"
+        />
+
+        <path
+          id="rightBrow"
+          d="M83 51Q92 47 101 52"
+          fill="none"
+          stroke="#8b5829"
+          stroke-width="3.5"
+          stroke-linecap="round"
+        />
+
+        <!-- Animated eye -->
+        <ellipse
+          id="rightEye"
+          cx="91" cy="68"
+          rx="5" ry="8"
+          fill="#583a29"
+        />
+
+        <path
+          id="wink"
+          d="M82 70Q91 62 100 70"
+          fill="none"
+          stroke="#583a29"
+          stroke-width="4"
+          stroke-linecap="round"
+          opacity="0"
+        />
+
+        <!-- Cheek blush -->
+        <g id="blush" fill="#ee8e55" opacity=".25">
+          <ellipse cx="40" cy="89" rx="10" ry="5"/>
+          <ellipse cx="106" cy="88" rx="9" ry="5"/>
+        </g>
+
+        <!-- Mouth shape changes in JavaScript -->
+        <path
+          id="mouth"
+          d="M64 94Q74 102 84 94"
+          fill="none"
+          stroke="#7a432c"
+          stroke-width="3.7"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+
+        <!-- One red heart, attached to the kiss cycle -->
+        <g id="heart">
+          <path
+            d="M0 5
+               C-22-8 -13-27 0-15
+               C13-27 22-8 0 5Z"
+            fill="url(#heartColor)"
+          />
+          <path
+            d="M-10-14Q-13-19-7-20"
+            fill="none"
+            stroke="#ffb0b6"
+            stroke-width="2.5"
+            stroke-linecap="round"
+          />
+        </g>
+      </svg>
+    </div>
+
     <div class="name">Sample seat</div>
   </div>
 
   <section class="panel">
-    <div class="heading">Emoji select karo</div>
-
-    <div id="grid" class="grid"></div>
+    <button type="button" id="play">Play Kiss</button>
+    <button type="button" id="stop" class="secondary">Stop</button>
 
     <div id="status" role="status">
-      Kisi emoji par tap karo.
-    </div>
-
-    <div class="controls">
-      <button type="button" id="replay">Replay</button>
-      <button type="button" id="stop">Stop</button>
+      Play Kiss dabao.
     </div>
   </section>
 
   <p class="note">
-    Ye independent preview hai. Existing room mein koi change nahi.
-    Emoji ka look phone/browser ke hisaab se thoda alag ho sakta hai.
+    Ye sirf kiss ka independent preview hai.
+    Room ka purana emoji code abhi replace nahi karna.
   </p>
 </main>
 
 <script>
 "use strict";
 
-const items=[
-  {emoji:"😒",name:"Unamused",effect:"side"},
-  {emoji:"🤗",name:"Hug",effect:"hug"},
-  {emoji:"🤔",name:"Thinking",effect:"think"},
-  {emoji:"😘",name:"Kiss",effect:"kiss"},
-  {emoji:"🥰",name:"Love",effect:"love"},
-  {emoji:"🤣",name:"Rolling",effect:"roll"},
-  {emoji:"🤭",name:"Giggle",effect:"giggle"},
-  {emoji:"😂",name:"Laugh",effect:"laugh"},
-  {emoji:"🥹",name:"Touched",effect:"touched"},
-  {emoji:"😭",name:"Cry",effect:"cry"}
-];
-
-const box=document.getElementById("reaction");
-const grid=document.getElementById("grid");
+const actor=document.getElementById("actor");
+const rightEye=document.getElementById("rightEye");
+const wink=document.getElementById("wink");
+const mouth=document.getElementById("mouth");
+const blush=document.getElementById("blush");
+const heart=document.getElementById("heart");
 const statusBox=document.getElementById("status");
 
-let animations=[];
-let timer=null;
-let last=0;
+let animationFrame=0;
+let startedAt=0;
+
+const clamp=x=>Math.max(0,Math.min(1,x));
+
+function ease(x){
+  x=clamp(x);
+  return x*x*(3-2*x);
+}
+
+function mix(a,b,t){
+  return a+(b-a)*t;
+}
+
+function setHeart(x,y,scale,opacity){
+  heart.setAttribute(
+    "transform",
+    `translate(${x} ${y}) scale(${scale})`
+  );
+  heart.setAttribute("opacity",opacity);
+}
+
+function render(seconds){
+  const t=seconds%2.8;
+
+  // Prepare kiss, hold expression, then return to normal.
+  const prepare=ease(t/.45);
+  const release=ease((t-1.85)/.55);
+  const expression=prepare*(1-release);
+
+  rightEye.setAttribute(
+    "ry",
+    Math.max(.2,8*(1-expression))
+  );
+
+  rightEye.setAttribute("opacity",1-expression);
+  wink.setAttribute("opacity",expression);
+  blush.setAttribute("opacity",.25+expression*.35);
+
+  // Smoothly morph smile into puckered lips.
+  const x=mix(64,79,expression);
+  const y=mix(94,93,expression);
+  const cx=mix(74,94,expression);
+  const cy=mix(102,96,expression);
+  const ex=mix(84,81,expression);
+  const ey=mix(94,99,expression);
+
+  const cx2=mix(74,94,expression);
+  const cy2=mix(102,102,expression);
+  const ex2=mix(64,80,expression);
+  const ey2=mix(94,106,expression);
+
+  mouth.setAttribute(
+    "d",
+    `M${x} ${y}
+     Q${cx} ${cy} ${ex} ${ey}
+     Q${cx2} ${cy2} ${ex2} ${ey2}`
+  );
+
+  if(t<.48){
+    // The single heart appears beside the lips.
+    const appear=ease(t/.4);
+    setHeart(104,102,.48,appear);
+  }else if(t<2.1){
+    // That same heart flies away and fades.
+    const flight=clamp((t-.48)/1.62);
+    const travel=ease(flight);
+
+    const opacity=flight<.55
+      ?1
+      :1-ease((flight-.55)/.45);
+
+    setHeart(
+      104+travel*37,
+      102-travel*29,
+      .48+travel*.32,
+      opacity
+    );
+  }else{
+    setHeart(104,102,.48,0);
+  }
+}
 
 function stop(){
-  clearTimeout(timer);
-
-  animations.forEach(animation=>animation.cancel());
-  animations=[];
-
-  box.replaceChildren();
-  box.hidden=true;
-
-  [...grid.children].forEach(button=>{
-    button.classList.remove("active");
-  });
-
-  statusBox.textContent="Stopped — emoji select karo.";
+  cancelAnimationFrame(animationFrame);
+  animationFrame=0;
+  actor.hidden=true;
+  statusBox.textContent="Stopped — Play Kiss dabao.";
 }
 
-function animate(element,frames,options){
-  animations.push(element.animate(frames,options));
-}
+function play(){
+  cancelAnimationFrame(animationFrame);
 
-function particle(symbol,x,y,endX,endY,delay){
-  const p=document.createElement("span");
-  p.className="particle";
-  p.textContent=symbol;
-  box.appendChild(p);
+  actor.hidden=false;
+  startedAt=performance.now();
 
-  animate(p,[
-    {
-      transform:`translate(${x}px,${y}px) scale(.4)`,
-      opacity:0
-    },
-    {
-      transform:`translate(${x}px,${y}px) scale(1)`,
-      opacity:1,
-      offset:.2
-    },
-    {
-      transform:`translate(${endX}px,${endY}px) scale(.7)`,
-      opacity:0
-    }
-  ],{
-    duration:1400,
-    delay,
-    iterations:2,
-    easing:"ease-out",
-    fill:"both"
-  });
-}
-
-function play(index){
-  stop();
-  last=index;
-
-  const item=items[index];
-  box.hidden=false;
-  grid.children[index].classList.add("active");
-
-  const face=document.createElement("span");
-  face.className="face";
-  face.textContent=item.emoji;
-  box.appendChild(face);
-
-  statusBox.textContent=item.emoji+" "+item.name+" · Playing";
-
-  const reduce=window.matchMedia(
+  const reduced=window.matchMedia(
     "(prefers-reduced-motion: reduce)"
   ).matches;
 
-  if(!reduce){
-    const frames={
-      side:[
-        {transform:"translateX(0)"},
-        {transform:"translateX(-9px) rotate(-7deg)"},
-        {transform:"translateX(0)"}
-      ],
-      hug:[
-        {transform:"scale(.95)"},
-        {transform:"scale(1.15) translateY(-5px)"},
-        {transform:"scale(.95)"}
-      ],
-      think:[
-        {transform:"rotate(0deg)"},
-        {transform:"rotate(-12deg) translateY(-4px)"},
-        {transform:"rotate(0deg)"}
-      ],
-      kiss:[
-        {transform:"scale(1) rotate(0deg)"},
-        {transform:"scale(1.1) rotate(-8deg)"},
-        {transform:"scale(1) rotate(0deg)"}
-      ],
-      love:[
-        {transform:"scale(.97)"},
-        {transform:"scale(1.12)"},
-        {transform:"scale(.97)"}
-      ],
-      roll:[
-        {transform:"translateX(-15px) rotate(-22deg)"},
-        {transform:"translateX(15px) rotate(22deg)"},
-        {transform:"translateX(-15px) rotate(-22deg)"}
-      ],
-      giggle:[
-        {transform:"translateY(0) rotate(-4deg)"},
-        {transform:"translateY(-5px) rotate(4deg)"},
-        {transform:"translateY(0) rotate(-4deg)"}
-      ],
-      laugh:[
-        {transform:"translateY(0) scaleY(1)"},
-        {transform:"translateY(-7px) scaleY(.94)"},
-        {transform:"translateY(0) scaleY(1)"}
-      ],
-      touched:[
-        {transform:"scale(1) rotate(-3deg)"},
-        {transform:"scale(1.07) rotate(3deg)"},
-        {transform:"scale(1) rotate(-3deg)"}
-      ],
-      cry:[
-        {transform:"translateX(-3px)"},
-        {transform:"translateX(3px) translateY(2px)"},
-        {transform:"translateX(-3px)"}
-      ]
-    };
-
-    const duration=
-      ["laugh","giggle","cry"].includes(item.effect)
-        ?450:1200;
-
-    animate(face,frames[item.effect],{
-      duration,
-      iterations:Infinity,
-      easing:"ease-in-out"
-    });
-
-    if(["kiss","love","hug","touched"].includes(item.effect)){
-      for(let i=0;i<4;i++){
-        particle(
-          i%2?"💕":"❤️",
-          -8,
-          0,
-          item.effect==="kiss"
-            ?-65-i*5
-            :(i-1.5)*35,
-          -70-i*5,
-          i*260
-        );
-      }
-    }
-
-    if(["cry","laugh"].includes(item.effect)){
-      for(let i=0;i<4;i++){
-        const x=i%2?26:-43;
-        particle("💧",x,-5,x+(i%2?8:-8),65,i*240);
-      }
-    }
-
-    if(item.effect==="think"){
-      particle("?",30,-38,43,-78,0);
-      particle("?",46,-25,61,-65,500);
-    }
+  if(reduced){
+    render(.48);
+    statusBox.textContent=
+      "Reduced-motion mode: still kiss preview.";
+    return;
   }
 
-  timer=setTimeout(()=>{
-    stop();
-    statusBox.textContent="Finished — Replay ya doosra emoji tap karo.";
-  },4000);
+  statusBox.textContent=
+    "Kiss playing — same red heart lips se nikal raha hai.";
+
+  function tick(now){
+    const elapsed=(now-startedAt)/1000;
+
+    if(elapsed>=8.4){
+      stop();
+      statusBox.textContent="Finished — dobara Play Kiss dabao.";
+      return;
+    }
+
+    render(elapsed);
+    animationFrame=requestAnimationFrame(tick);
+  }
+
+  animationFrame=requestAnimationFrame(tick);
 }
 
-items.forEach((item,index)=>{
-  const button=document.createElement("button");
-  button.type="button";
-  button.className="emoji-button";
-  button.setAttribute("aria-label",item.name);
-
-  const icon=document.createElement("span");
-  icon.className="icon";
-  icon.textContent=item.emoji;
-
-  const label=document.createElement("span");
-  label.className="label";
-  label.textContent=item.name;
-
-  button.append(icon,label);
-  button.onclick=()=>play(index);
-  grid.appendChild(button);
-});
-
-document.getElementById("replay").onclick=()=>play(last);
+document.getElementById("play").onclick=play;
 document.getElementById("stop").onclick=stop;
+
+// Set initial appearance before the first play.
+render(0);
 </script>
 </body>
 </html>
