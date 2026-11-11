@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>3D Emoji With Flying Kiss Effect</title>
+    <title>3D Emojis - Fully Working</title>
     <style>
         * {
             margin: 0;
@@ -52,8 +52,8 @@
 
         /* Avatar Circle */
         .avatar-circle {
-            width: 85px;
-            height: 85px;
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
             background: #222;
             border: 2px solid rgba(255, 255, 255, 0.2);
@@ -66,7 +66,7 @@
 
         .avatar-circle.has-effect {
             border-color: #ffd700;
-            box-shadow: 0 0 25px rgba(255, 215, 0, 0.7);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
             background: #333;
         }
 
@@ -76,26 +76,29 @@
             transition: opacity 0.3s;
         }
 
-        /* 3D Emoji Image Layer */
-        .seat-emoji {
+        /* The Cropped Emoji Image Layer */
+        .seat-emoji-container {
             position: absolute;
             top: -20px;
             left: -20px;
-            width: 125px;
-            height: 125px;
-            object-fit: contain;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            overflow: hidden;
+            /* Background image position set karne ke liye */
+            background-image: url('https://i.ibb.co/3k2G5V0/emoji-sheet.jpg'); /* Fallback */
+            background-size: 300% 200%; /* Image me 3 columns aur 2 rows hain */
+            background-repeat: no-repeat;
             filter: drop-shadow(0px 15px 20px rgba(0,0,0,0.9));
             opacity: 0;
             transform: scale(0.3);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             pointer-events: none;
             z-index: 10;
-            /* Image ka background white hai, isliye blend mode use kiya hai */
-            mix-blend-mode: screen; 
-            background-color: transparent;
         }
 
-        .seat-emoji.show {
+        /* Jab emoji show hoga */
+        .seat-emoji-container.show {
             opacity: 1;
             transform: scale(1);
         }
@@ -129,22 +132,34 @@
             display: flex;
             justify-content: space-around;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        /* Niche ke 3D Emoji Buttons (Aapki Image Se) */
+        /* Niche ke Emoji Buttons (Image Cropping) */
         .select-btn {
             width: 60px;
             height: 60px;
             cursor: pointer;
             transition: transform 0.2s;
-            border-radius: 15px;
-            padding: 5px;
-            object-fit: contain;
+            border-radius: 50%;
+            border: 2px solid #444;
+            /* Same image use kar rahe hain buttons ke liye */
+            background-image: url('https://i.ibb.co/3k2G5V0/emoji-sheet.jpg');
+            background-size: 300% 200%;
+            background-repeat: no-repeat;
         }
 
         .select-btn:active {
             transform: scale(0.8);
         }
+
+        /* Alag-alag emojis ke liye image ka position set karna */
+        .btn-kiss { background-position: 0% 0%; }      /* Top Left */
+        .btn-shy { background-position: 50% 0%; }      /* Top Middle */
+        .btn-cool { background-position: 100% 0%; }    /* Top Right */
+        .btn-sleep { background-position: 0% 100%; }   /* Bottom Left */
+        .btn-laugh { background-position: 50% 100%; }  /* Bottom Middle */
 
         .clear-btn {
             background: #ff4444;
@@ -161,12 +176,12 @@
         /* Flying Heart Animation */
         @keyframes flyHeart {
             0% { transform: translate(0, 0) scale(0.5); opacity: 1; }
-            100% { transform: translate(-30px, -60px) scale(1.5); opacity: 0; }
+            100% { transform: translate(-40px, -80px) scale(1.5); opacity: 0; }
         }
 
         .flying-heart {
             position: absolute;
-            font-size: 24px;
+            font-size: 28px;
             pointer-events: none;
             z-index: 20;
             animation: flyHeart 1s ease-out forwards;
@@ -182,7 +197,8 @@
         <div class="seat">
             <div class="avatar-circle" id="seat1">
                 <span class="user-icon" id="icon1">👤</span>
-                <img src="" class="seat-emoji" id="emoji1" alt="Emoji">
+                <!-- Yahan image crop hokar aayegi -->
+                <div class="seat-emoji-container" id="emoji1"></div>
             </div>
             <div class="seat-name">Owner</div>
         </div>
@@ -201,44 +217,36 @@
     <div class="control-panel">
         <div class="panel-title">Select 3D Emoji</div>
         <div class="emoji-list">
-            
-            <!-- Maine yahan aapki image ke hisaab se emojis lagaye hain. 
-                 Aap in src links ko apni image ke direct links se replace kar sakte hain. -->
-            
-            <!-- Kissing Emoji with Bow -->
-            <img src="https://i.ibb.co/68ZqXqz/kiss-emoji.png" 
-                 class="select-btn" onclick="applyEmoji(this.src, true)">
-            
-            <!-- Shy Love Emoji -->
-            <img src="https://i.ibb.co/3s7Y1sB/shy-emoji.png" 
-                 class="select-btn" onclick="applyEmoji(this.src, false)">
-            
-            <!-- Cool Sunglasses Emoji -->
-            <img src="https://i.ibb.co/5K1x7t7/cool-emoji.png" 
-                 class="select-btn" onclick="applyEmoji(this.src, false)">
-            
-            <!-- Sleeping Emoji -->
-            <img src="https://i.ibb.co/L5k8ZgC/sleep-emoji.png" 
-                 class="select-btn" onclick="applyEmoji(this.src, false)">
-            
-            <!-- Laughing Emoji -->
-            <img src="https://i.ibb.co/1Jt6YpQ/laugh-emoji.png" 
-                 class="select-btn" onclick="applyEmoji(this.src, false)">
-                 
+            <!-- Buttons jisme background position se image crop ho rahi hai -->
+            <div class="select-btn btn-kiss" onclick="applyEmoji('btn-kiss', true)"></div>
+            <div class="select-btn btn-shy" onclick="applyEmoji('btn-shy', false)"></div>
+            <div class="select-btn btn-cool" onclick="applyEmoji('btn-cool', false)"></div>
+            <div class="select-btn btn-sleep" onclick="applyEmoji('btn-sleep', false)"></div>
+            <div class="select-btn btn-laugh" onclick="applyEmoji('btn-laugh', false)"></div>
         </div>
         <button class="clear-btn" onclick="clearEmoji()">Remove Effect</button>
     </div>
 
     <script>
         const seat1Avatar = document.getElementById('seat1');
-        const seat1EmojiImg = document.getElementById('emoji1');
+        const seat1EmojiDiv = document.getElementById('emoji1');
         const seat1NormalIcon = document.getElementById('icon1');
 
-        function applyEmoji(imageSource, isKiss) {
-            seat1EmojiImg.src = imageSource;
+        // Background positions jo CSS classes me set hain
+        const positions = {
+            'btn-kiss': '0% 0%',
+            'btn-shy': '50% 0%',
+            'btn-cool': '100% 0%',
+            'btn-sleep': '0% 100%',
+            'btn-laugh': '50% 100%'
+        };
+
+        function applyEmoji(btnClass, isKiss) {
+            // Emoji ke container ka background position set karo
+            seat1EmojiDiv.style.backgroundPosition = positions[btnClass];
             
             setTimeout(() => {
-                seat1EmojiImg.classList.add('show');
+                seat1EmojiDiv.classList.add('show');
                 seat1Avatar.classList.add('has-effect');
                 seat1NormalIcon.style.opacity = '0'; 
 
@@ -254,28 +262,23 @@
         function createFlyingHeart(parentElement) {
             const heart = document.createElement('div');
             heart.classList.add('flying-heart');
-            heart.innerHTML = '❤️'; // Ya '💖' use kar sakte hain
+            heart.innerHTML = '❤️'; 
             
-            // Heart ko avatar ke paas position karo
-            heart.style.left = '60px';
-            heart.style.top = '20px';
+            // Heart ko avatar ke paas position karo (hontho ke paas)
+            heart.style.left = '70px';
+            heart.style.top = '25px';
             
             parentElement.appendChild(heart);
 
-            // 1 second baad heart remove kar do
             setTimeout(() => {
                 heart.remove();
             }, 1000);
         }
 
         function clearEmoji() {
-            seat1EmojiImg.classList.remove('show');
+            seat1EmojiDiv.classList.remove('show');
             seat1Avatar.classList.remove('has-effect');
             seat1NormalIcon.style.opacity = '1';
-
-            setTimeout(() => {
-                seat1EmojiImg.src = "";
-            }, 400);
         }
     </script>
 </body>
