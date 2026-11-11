@@ -3,1065 +3,465 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>VoxaChat — Animated Faces Demo</title>
+<title>VoxaChat · Animated Reactions</title>
 
 <style>
-* {
-  box-sizing: border-box;
-}
+*{box-sizing:border-box;margin:0;padding:0}
 
-body {
-  margin: 0;
-  background: #140f20;
-  color: #fff;
-  font-family: Arial, sans-serif;
-}
-
-.app {
-  max-width: 460px;
-  min-height: 100vh;
-  margin: auto;
-  padding: 22px 16px;
+body{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   background:
-    radial-gradient(at top left, #70435b, transparent 65%),
-    #191428;
+    radial-gradient(circle at 20% 20%,#4b2b5e 0%,transparent 45%),
+    radial-gradient(circle at 80% 80%,#20365c 0%,transparent 45%),
+    #120d1d;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  color:#fff;
 }
 
-h1 {
-  margin: 0 0 10px;
-  font-size: 20px;
+.app{
+  width:100%;
+  max-width:430px;
+  padding:22px 18px 30px;
 }
 
-.description,
-.note {
-  color: #cebed7;
-  font-size: 13px;
-  line-height: 1.6;
+header{
+  text-align:center;
+  margin-bottom:18px;
 }
 
-.stage {
-  height: 260px;
-  position: relative;
-  display: grid;
-  place-items: center;
+h1{
+  font-size:22px;
+  letter-spacing:.3px;
 }
 
-.seat {
-  width: 76px;
-  height: 76px;
-  border: 2px solid #bfa0bf;
-  border-radius: 50%;
-  background: #ffffff12;
-  display: grid;
-  place-items: center;
-  font-size: 13px;
+p{
+  margin-top:6px;
+  color:#c9b8d8;
+  font-size:13px;
 }
 
-#actor {
-  position: absolute;
-  width: 110px;
-  height: 110px;
-  pointer-events: none;
+.stage{
+  position:relative;
+  height:310px;
+  border-radius:28px;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 50% 30%,rgba(255,255,255,.09),transparent 60%),
+    linear-gradient(160deg,#2b1f3f,#191427);
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 20px 50px rgba(0,0,0,.45);
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
-#actor[hidden] {
-  display: none;
+.emoji{
+  font-size:118px;
+  line-height:1;
+  filter:drop-shadow(0 12px 22px rgba(0,0,0,.45));
+  user-select:none;
 }
 
-#actor svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  display: block;
+.hidden{
+  display:none;
 }
 
-.name {
-  position: absolute;
-  bottom: 43px;
-  font-size: 13px;
+/* Base pop animation */
+@keyframes pop{
+  0%{transform:scale(.3) translateY(30px);opacity:0}
+  45%{transform:scale(1.16) translateY(-6px);opacity:1}
+  65%{transform:scale(.97) translateY(2px)}
+  100%{transform:scale(1) translateY(0);opacity:1}
 }
 
-.panel {
-  padding: 15px;
-  background: #241c37;
-  border: 1px solid #ffffff20;
-  border-radius: 20px;
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(0deg)}
+  50%{transform:translateY(-9px) rotate(-3deg)}
 }
 
-.heading {
-  margin-bottom: 15px;
-  font-size: 15px;
+@keyframes shake{
+  0%,100%{transform:translate(0,0) rotate(0)}
+  20%{transform:translate(-5px,2px) rotate(-4deg)}
+  40%{transform:translate(5px,-2px) rotate(4deg)}
+  60%{transform:translate(-4px,2px) rotate(-3deg)}
+  80%{transform:translate(4px,-1px) rotate(3deg)}
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
+@keyframes bounce{
+  0%,100%{transform:translateY(0)}
+  30%{transform:translateY(-22px)}
+  45%{transform:translateY(0)}
+  60%{transform:translateY(-10px)}
+  75%{transform:translateY(0)}
 }
 
-.choice {
-  padding: 10px 2px;
-  border: 1px solid #ffffff25;
-  border-radius: 12px;
-  background: #382b4b;
-  color: #fff;
-  cursor: pointer;
-  touch-action: manipulation;
+@keyframes pulse{
+  0%,100%{transform:scale(1)}
+  40%{transform:scale(1.14)}
 }
 
-.choice.active {
-  background: #684473;
-  border-color: #e9b6f3;
+@keyframes spin{
+  from{transform:rotate(0)}
+  to{transform:rotate(360deg)}
 }
 
-.choice .icon {
-  display: block;
-  font-size: 29px;
-  line-height: 1.4;
+@keyframes rise{
+  0%{transform:translateY(0) scale(.6);opacity:0}
+  20%{opacity:1}
+  100%{transform:translateY(-160px) scale(1.15);opacity:0}
 }
 
-.choice .label {
-  display: block;
-  margin-top: 6px;
-  font-size: 10px;
+@keyframes fall{
+  0%{transform:translateY(-40px) scale(.7);opacity:0}
+  15%{opacity:1}
+  100%{transform:translateY(230px) scale(1.1);opacity:0}
 }
 
-.controls {
-  display: flex;
-  gap: 9px;
+@keyframes fadeUp{
+  0%{transform:translateY(18px);opacity:0}
+  25%{opacity:1}
+  100%{transform:translateY(-70px);opacity:0}
 }
 
-.controls button {
-  flex: 1;
-  padding: 12px;
-  border: 1px solid #ffffff25;
-  border-radius: 11px;
-  background: #513563;
-  color: #fff;
-  cursor: pointer;
-  touch-action: manipulation;
+.pop{animation:pop .65s cubic-bezier(.2,.9,.25,1.2) both}
+.float{animation:pop .6s both,float 2.4s ease-in-out .6s infinite}
+.shake{animation:pop .55s both,shake .55s ease-in-out .6s 3}
+.bounce{animation:pop .55s both,bounce 1.5s ease-in-out .6s 2}
+.pulse{animation:pop .55s both,pulse 1.1s ease-in-out .6s 3}
+.spin{animation:pop .55s both,spin 2.4s linear .6s}
+
+.particle{
+  position:absolute;
+  font-size:26px;
+  pointer-events:none;
+  animation:rise 1.9s ease-out forwards;
 }
 
-#status {
-  min-height: 36px;
-  margin: 15px 0 8px;
-  font-size: 13px;
-  color: #efc4e5;
+.tear{
+  position:absolute;
+  font-size:22px;
+  pointer-events:none;
+  animation:fall 1.7s ease-in forwards;
+}
+
+.text{
+  position:absolute;
+  bottom:28px;
+  font-size:15px;
+  font-weight:700;
+  color:#ffe9a8;
+  text-shadow:0 2px 10px rgba(0,0,0,.6);
+  animation:fadeUp 2.4s ease-out forwards;
+}
+
+.panel{
+  margin-top:18px;
+  padding:16px;
+  border-radius:22px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.13);
+}
+
+.panel h2{
+  font-size:14px;
+  margin-bottom:12px;
+  color:#e6d6f5;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+}
+
+button{
+  font-family:inherit;
+  border:0;
+  cursor:pointer;
+}
+
+.choice{
+  padding:10px 4px 8px;
+  border-radius:15px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);
+  color:#fff;
+  transition:.18s;
+}
+
+.choice:hover{
+  background:rgba(255,255,255,.16);
+  transform:translateY(-2px);
+}
+
+.choice.active{
+  background:linear-gradient(135deg,#8d4bd6,#c2449b);
+  border-color:#ffb8e6;
+  box-shadow:0 8px 20px rgba(160,60,190,.4);
+}
+
+.choice span:first-child{
+  display:block;
+  font-size:27px;
+}
+
+.choice span:last-child{
+  display:block;
+  margin-top:5px;
+  font-size:9.5px;
+  color:#e8dcf5;
+}
+
+.status{
+  margin-top:14px;
+  min-height:20px;
+  text-align:center;
+  font-size:13px;
+  color:#d9c7ea;
+}
+
+.controls{
+  display:flex;
+  gap:10px;
+  margin-top:14px;
+}
+
+.controls button{
+  flex:1;
+  padding:12px;
+  border-radius:14px;
+  font-size:14px;
+  font-weight:700;
+  color:#fff;
+  background:linear-gradient(135deg,#7b3fd1,#c0399b);
+  box-shadow:0 8px 18px rgba(120,40,180,.35);
+}
+
+.controls button:active{
+  transform:scale(.97);
+}
+
+@media (prefers-reduced-motion:reduce){
+  .emoji,.particle,.tear,.text{
+    animation:none!important;
+    opacity:1!important;
+  }
 }
 </style>
 </head>
 
 <body>
+<div class="app">
 
-<main class="app">
-  <h1>VoxaChat · Animated Faces</h1>
+  <header>
+    <h1>VoxaChat Reactions</h1>
+    <p>Tap any reaction to preview</p>
+  </header>
 
-  <div class="description">
-    10 custom face reactions · Natural expressions preview
-  </div>
-
-  <div class="stage">
-    <div class="seat">Your DP</div>
-
-    <div id="actor" hidden aria-hidden="true"></div>
-
-    <div class="name">Sample seat</div>
+  <div class="stage" id="stage">
+    <div class="emoji hidden" id="emoji"></div>
   </div>
 
   <section class="panel">
-    <div class="heading">Reaction select karo</div>
+    <h2>Choose a reaction</h2>
 
-    <div id="grid" class="grid"></div>
+    <div class="grid" id="grid"></div>
 
-    <div id="status" role="status">
-      Kisi reaction par tap karo.
+    <div class="status" id="status">
+      Select a reaction to see the animation
     </div>
 
     <div class="controls">
-      <button type="button" id="replay">Replay</button>
-      <button type="button" id="stop">Stop</button>
+      <button id="replay">Replay</button>
+      <button id="stop">Stop</button>
     </div>
   </section>
 
-  <p class="note">
-    Ye independent demo hai, room se connected nahi.
-    Panel mein reference emojis hain; seat par custom-drawn
-    animated faces dikhte hain.
-  </p>
-</main>
+</div>
 
 <script>
 "use strict";
 
-const items = [
-  { icon: "😒", name: "Unamused", kind: "unamused" },
-  { icon: "🤗", name: "Hug", kind: "hug" },
-  { icon: "🤔", name: "Thinking", kind: "thinking" },
-  { icon: "😘", name: "Kiss", kind: "kiss" },
-  { icon: "🥰", name: "Love", kind: "love" },
-  { icon: "🤣", name: "Big Laugh", kind: "biglaugh" },
-  { icon: "🤭", name: "Giggle", kind: "giggle" },
-  { icon: "😂", name: "Laugh Cry", kind: "laughcry" },
-  { icon: "🥹", name: "Touched", kind: "touched" },
-  { icon: "😭", name: "Crying", kind: "cry" }
+const reactions=[
+  {
+    emoji:"😒",
+    name:"Unamused",
+    text:"Seriously?",
+    anim:"float",
+    particles:["💨","🌫️"]
+  },
+  {
+    emoji:"🤗",
+    name:"Hug",
+    text:"Sending hugs!",
+    anim:"pulse",
+    particles:["💛","🤍","✨"]
+  },
+  {
+    emoji:"🤔",
+    name:"Thinking",
+    text:"Hmm… let me think",
+    anim:"float",
+    particles:["💭","❓"]
+  },
+  {
+    emoji:"😘",
+    name:"Kiss",
+    text:"Mwah!",
+    anim:"pop",
+    particles:["💋","❤️","💖"]
+  },
+  {
+    emoji:"🥰",
+    name:"Love",
+    text:"So sweet!",
+    anim:"pulse",
+    particles:["❤️","💕","💖","✨"]
+  },
+  {
+    emoji:"🤣",
+    name:"Big Laugh",
+    text:"Hahaha!",
+    anim:"shake",
+    particles:["😂","🤣","✨"]
+  },
+  {
+    emoji:"🤭",
+    name:"Giggle",
+    text:"Hehe…",
+    anim:"float",
+    particles:["🤭","✨","💫"]
+  },
+  {
+    emoji:"😂",
+    name:"Laugh Cry",
+    text:"Can’t stop laughing!",
+    anim:"bounce",
+    particles:["😂","💦","✨"]
+  },
+  {
+    emoji:"🥹",
+    name:"Touched",
+    text:"That’s so sweet…",
+    anim:"float",
+    particles:["🥹","💧","✨"]
+  },
+  {
+    emoji:"😭",
+    name:"Crying",
+    text:"I’m crying!",
+    anim:"shake",
+    particles:["😭","💧","💦"]
+  }
 ];
 
-const actor = document.getElementById("actor");
-const grid = document.getElementById("grid");
-const statusBox = document.getElementById("status");
+const stage=document.getElementById("stage");
+const emojiBox=document.getElementById("emoji");
+const grid=document.getElementById("grid");
+const statusBox=document.getElementById("status");
 
-const motionPreference = window.matchMedia(
-  "(prefers-reduced-motion: reduce)"
-);
+let current=-1;
+let timer=null;
 
-let frameId = 0;
-let lastIndex = 3;
-let startedAt = 0;
-let currentKind = null;
-
-const clamp = x => Math.max(0, Math.min(1, x));
-
-function ease(x) {
-  x = clamp(x);
-  return x * x * (3 - 2 * x);
+function clearStage(){
+  stage.querySelectorAll(".particle,.tear,.text")
+    .forEach(el=>el.remove());
 }
 
-function mix(a, b, t) {
-  return a + (b - a) * t;
+function stop(){
+  clearTimeout(timer);
+  timer=null;
+  current=-1;
+
+  emojiBox.className="emoji hidden";
+  emojiBox.textContent="";
+
+  clearStage();
+
+  document.querySelectorAll(".choice")
+    .forEach(b=>b.classList.remove("active"));
+
+  statusBox.textContent="Select a reaction to see the animation";
 }
 
-function path(d, fill = "none", extra = "") {
-  return `<path d="${d}" fill="${fill}" ${extra}/>`;
+function spawnParticles(reaction){
+  const symbols=reaction.particles;
+
+  for(let i=0;i<12;i++){
+    const el=document.createElement("div");
+
+    el.className=symbols.includes("💧")?"tear":"particle";
+    el.textContent=symbols[i%symbols.length];
+
+    el.style.left=(8+Math.random()*84)+"%";
+    el.style.top=(symbols.includes("💧")?"18%":"55%");
+
+    el.style.animationDelay=(Math.random()*.8)+"s";
+    el.style.fontSize=(18+Math.random()*18)+"px";
+
+    stage.appendChild(el);
+
+    setTimeout(()=>{
+      el.remove();
+    },2800);
+  }
 }
 
-function stroke(d, width = 3.5, color = "#68402c") {
-  return path(
-    d,
-    "none",
-    `stroke="${color}"
-     stroke-width="${width}"
-     stroke-linecap="round"
-     stroke-linejoin="round"`
-  );
+function play(index){
+  const reaction=reactions[index];
+
+  if(!reaction)return;
+
+  clearTimeout(timer);
+  clearStage();
+
+  current=index;
+
+  document.querySelectorAll(".choice")
+    .forEach((button,i)=>{
+      button.classList.toggle("active",i===index);
+    });
+
+  emojiBox.textContent=reaction.emoji;
+  emojiBox.className="emoji "+reaction.anim;
+
+  const text=document.createElement("div");
+  text.className="text";
+  text.textContent=reaction.text;
+
+  stage.appendChild(text);
+  spawnParticles(reaction);
+
+  statusBox.textContent=reaction.name+" reaction playing…";
+
+  timer=setTimeout(()=>{
+    stop();
+    statusBox.textContent="Finished — replay or choose another reaction";
+  },3200);
 }
 
-function ellipse(x, y, rx, ry, fill, extra = "") {
-  return `<ellipse
-    cx="${x}"
-    cy="${y}"
-    rx="${rx}"
-    ry="${ry}"
-    fill="${fill}"
-    ${extra}
-  />`;
-}
+reactions.forEach((reaction,index)=>{
+  const button=document.createElement("button");
+  button.type="button";
+  button.className="choice";
 
-function heart(x, y, scale, opacity) {
-  return `
-    <g
-      transform="translate(${x} ${y}) scale(${scale})"
-      opacity="${clamp(opacity)}"
-    >
-      ${path(
-        "M0 5C-22-8-13-27 0-15C13-27 22-8 0 5Z",
-        "#ee3155"
-      )}
-
-      ${stroke(
-        "M-10-14Q-12-19-7-20",
-        2,
-        "#ffb4bf"
-      )}
-    </g>
+  button.innerHTML=`
+    <span>${reaction.emoji}</span>
+    <span>${reaction.name}</span>
   `;
-}
 
-function tear(x, y, size = 1, opacity = 1) {
-  return `
-    <g
-      transform="translate(${x} ${y}) scale(${size})"
-      opacity="${clamp(opacity)}"
-    >
-      ${path(
-        "M0-7Q-10 5 0 10Q10 5 0-7Z",
-        "#68c9f4"
-      )}
-
-      ${stroke(
-        "M-2 0L-3 4",
-        1.5,
-        "#d1f5ff"
-      )}
-    </g>
-  `;
-}
-
-function hand(x, y, angle = 0, scale = 1) {
-  return `
-    <g
-      transform="
-        translate(${x} ${y})
-        rotate(${angle})
-        scale(${scale})
-      "
-    >
-      ${path(
-        "M-10 13L-12-1Q-13-7-9-7L-6-1V-16" +
-        "Q-6-22-2-21Q1-21 1-16V-5V-22" +
-        "Q1-27 5-26Q8-25 8-20V-5V-18" +
-        "Q8-23 12-22Q15-21 15-16V-2L19-7" +
-        "Q23-11 26-7Q29-3 24 4L17 17" +
-        "Q9 26-1 23Z",
-        "#ffd044",
-        'stroke="#df9b25" stroke-width="1.7"'
-      )}
-
-      ${stroke(
-        "M1 2Q8-2 15 3",
-        1.5,
-        "#dba02f"
-      )}
-    </g>
-  `;
-}
-
-function eye(x, y, look = 0, openness = 1, lookY = 0) {
-  const open = Math.max(0.025, openness);
-
-  return `
-    <g transform="translate(${x} ${y}) scale(1 ${open})">
-      ${ellipse(0, 0, 8, 10, "#fff6df")}
-
-      ${ellipse(
-        look,
-        lookY,
-        3.8,
-        7,
-        "#583b2c"
-      )}
-
-      ${ellipse(
-        look - 1,
-        lookY - 3,
-        1.2,
-        1.6,
-        "#fff",
-        'opacity=".7"'
-      )}
-    </g>
-  `;
-}
-
-function closedEye(x, y, up = true) {
-  return stroke(
-    `M${x - 9} ${y}
-     Q${x} ${y + (up ? -10 : 8)} ${x + 9} ${y}`
-  );
-}
-
-function smile(width = 14, depth = 10) {
-  return stroke(
-    `M${78 - width} 98
-     Q78 ${98 + depth} ${78 + width} 98`
-  );
-}
-
-function openLaugh(t, big = false) {
-  const rhythm =
-    0.5 +
-    Math.sin(t * 10) * 0.3 +
-    Math.sin(t * 17 + 0.6) * 0.12;
-
-  const strength = clamp(rhythm);
-
-  const width = mix(15, big ? 21 : 18, strength);
-  const height = mix(10, big ? 24 : 19, strength);
-
-  const top = 103 - height * 0.65;
-  const bottom = 103 + height;
-
-  return path(
-    `M${78 - width} ${top}
-     Q78 ${top + 5} ${78 + width} ${top}
-
-     C${78 + width + 2} ${bottom - 3}
-      ${78 + width * 0.45} ${bottom}
-      78 ${bottom}
-
-     C${78 - width * 0.45} ${bottom}
-      ${78 - width - 2} ${bottom - 3}
-      ${78 - width} ${top}Z`,
-    "#74313b"
-  ) +
-
-  path(
-    `M${78 - width + 3} ${top + 2}
-     Q78 ${top + 6} ${78 + width - 3} ${top + 2}
-
-     L${78 + width - 5} ${top + 7}
-     Q78 ${top + 10} ${78 - width + 5} ${top + 7}Z`,
-    "#fff9ed"
-  ) +
-
-  ellipse(
-    78,
-    bottom - 4,
-    width * 0.55,
-    3 + strength * 2,
-    "#f58e9a"
-  );
-}
-
-function getBlink(t) {
-  const blinkTime = t % 3.7;
-
-  if (blinkTime < 0.11) {
-    return ease(blinkTime / 0.11);
-  }
-
-  if (blinkTime < 0.25) {
-    return 1 - ease((blinkTime - 0.11) / 0.14);
-  }
-
-  return 0;
-}
-
-function draw(kind, t) {
-  const blink = getBlink(t);
-  const phase = t % 2.8;
-
-  let eyes =
-    eye(57, 72, 0, 1 - blink) +
-    eye(100, 72, 0, 1 - blink);
-
-  let brows =
-    stroke("M47 55Q56 51 65 55", 3) +
-    stroke("M91 55Q100 51 109 55", 3);
-
-  let mouth = smile();
-  let hands = "";
-  let effects = "";
-  let cheeks = 0.22;
-
-  // 😒 UNAMUSED
-  if (kind === "unamused") {
-    const gazeTime = t % 4;
-    const look =
-      -4 *
-      ease((gazeTime - 0.3) / 0.7) *
-      (1 - ease((gazeTime - 2.8) / 0.7));
-
-    eyes =
-      ellipse(
-        57 + look,
-        75,
-        4,
-        Math.max(0.3, 5 * (1 - blink)),
-        "#583b2c"
-      ) +
-
-      ellipse(
-        100 + look,
-        75,
-        4,
-        Math.max(0.3, 5 * (1 - blink)),
-        "#583b2c"
-      ) +
-
-      stroke("M46 69L67 70", 4) +
-      stroke("M89 70L110 69", 4);
-
-    const browLift = Math.abs(look) / 4;
-
-    brows =
-      stroke(
-        `M46 ${54 - browLift}
-         Q57 ${47 - browLift * 3}
-         68 ${52 - browLift}`,
-        3
-      ) +
-
-      stroke("M90 56L110 59", 3);
-
-    mouth = stroke(
-      "M65 104Q78 99 92 102",
-      3
-    );
-  }
-
-  // 🤗 HUG
-  if (kind === "hug") {
-    const hugTime = t % 3.6;
-
-    const opening =
-      hugTime < 1
-        ? ease(hugTime)
-        : hugTime < 2.3
-          ? 1
-          : 1 - ease((hugTime - 2.3) / 1.3);
-
-    eyes =
-      closedEye(57, 75) +
-      closedEye(100, 75);
-
-    mouth = smile(
-      15 + opening,
-      12 + opening * 5
-    );
-
-    cheeks = 0.35 + opening * 0.12;
-
-    hands =
-      hand(
-        mix(47, 19, opening),
-        mix(118, 98, opening),
-        mix(-15, -45, opening),
-        0.7
-      ) +
-
-      hand(
-        mix(109, 137, opening),
-        mix(118, 98, opening),
-        mix(15, 45, opening),
-        0.7
-      );
-
-    effects = heart(
-      78,
-      135,
-      0.22 + opening * 0.04,
-      0.45 + opening * 0.25
-    );
-  }
-
-  // 🤔 THINKING
-  if (kind === "thinking") {
-    const thinkingTime = t % 4;
-    const look =
-      ease((thinkingTime - 0.2) / 0.8) *
-      (1 - ease((thinkingTime - 2.9) / 0.8));
-
-    eyes =
-      eye(57, 70, 3 * look, 1 - blink, -2 * look) +
-      eye(100, 70, 3 * look, 1 - blink, -2 * look);
-
-    brows =
-      stroke(
-        `M46 55Q56 ${48 - look * 4} 67 50`,
-        3
-      ) +
-
-      stroke("M90 57L109 55", 3);
-
-    mouth = stroke(
-      "M70 104Q80 100 90 104",
-      3
-    );
-
-    const lift = ease(thinkingTime / 0.7);
-
-    hands = hand(
-      mix(109, 99, lift),
-      mix(139, 124, lift) - Math.sin(t * 2) * 0.7,
-      mix(-20, -40, lift),
-      0.63
-    );
-
-    const questionOpacity =
-      ease((thinkingTime - 1) / 0.5) *
-      (1 - ease((thinkingTime - 3) / 0.7));
-
-    effects = `
-      <g
-        opacity="${questionOpacity}"
-        fill="#fff2cb"
-        font-family="Arial"
-        font-size="23"
-      >
-        <text x="127" y="36">?</text>
-      </g>
-    `;
-  }
-
-  // 😘 KISS — ONE RED HEART
-  if (kind === "kiss") {
-    const prepare = ease(phase / 0.45);
-    const release = ease((phase - 1.85) / 0.55);
-    const expression = prepare * (1 - release);
-
-    eyes =
-      eye(57, 72, 0, 1 - blink) +
-
-      `<g opacity="${1 - expression}">
-        ${ellipse(
-          100,
-          72,
-          4.5,
-          Math.max(0.2, 7 * (1 - expression)),
-          "#583b2c"
-        )}
-      </g>` +
-
-      `<g opacity="${expression}">
-        ${closedEye(100, 74)}
-      </g>`;
-
-    const x = mix(65, 83, expression);
-    const y = mix(98, 94, expression);
-
-    mouth = stroke(
-      `M${x} ${y}
-
-       Q${mix(78, 98, expression)}
-        ${mix(109, 97, expression)}
-        ${mix(92, 85, expression)}
-        ${mix(98, 100, expression)}
-
-       Q${mix(78, 98, expression)}
-        ${mix(109, 103, expression)}
-        ${mix(65, 84, expression)}
-        ${mix(98, 107, expression)}`,
-      3.5
-    );
-
-    cheeks = 0.2 + expression * 0.3;
-
-    if (phase < 0.48) {
-      effects = heart(
-        108,
-        104,
-        0.42,
-        ease(phase / 0.4)
-      );
-    } else if (phase < 2.1) {
-      const flight = clamp((phase - 0.48) / 1.62);
-      const travel = ease(flight);
-
-      effects = heart(
-        108 + travel * 34,
-        104 - travel * 30,
-        0.42 + travel * 0.25,
-        flight < 0.55
-          ? 1
-          : 1 - ease((flight - 0.55) / 0.45)
-      );
-    }
-  }
-
-  // 🥰 LOVE
-  if (kind === "love") {
-    const warmth =
-      (Math.sin(t * 2.2) + 1) / 2;
-
-    eyes =
-      closedEye(57, 75 - warmth) +
-      closedEye(100, 75 - warmth);
-
-    mouth = smile(
-      15,
-      10 + warmth * 4
-    );
-
-    cheeks = 0.45 + warmth * 0.2;
-
-    const positions = [
-      [30, 60],
-      [125, 56],
-      [119, 121]
-    ];
-
-    for (let i = 0; i < positions.length; i++) {
-      const p = (t * 0.35 + i / 3) % 1;
-      const [x, y] = positions[i];
-
-      effects += heart(
-        x,
-        y - ease(p) * 10,
-        0.27 + Math.sin(p * Math.PI) * 0.07,
-        Math.sin(p * Math.PI)
-      );
-    }
-  }
-
-  // 🤣 BIG LAUGH
-  if (kind === "biglaugh") {
-    const squeeze = Math.sin(t * 10) * 1.2;
-
-    eyes =
-      stroke(
-        `M46 68L62 ${75 + squeeze}L46 81`,
-        4
-      ) +
-
-      stroke(
-        `M111 68L95 ${75 + squeeze}L111 81`,
-        4
-      );
-
-    brows = "";
-    mouth = openLaugh(t, true);
-    cheeks = 0.45;
-
-    hands =
-      hand(
-        45,
-        127 + Math.sin(t * 10) * 1.5,
-        15,
-        0.55
-      ) +
-
-      hand(
-        111,
-        127 - Math.sin(t * 10) * 1.5,
-        -15,
-        0.55
-      );
-  }
-
-  // 🤭 GIGGLE
-  if (kind === "giggle") {
-    eyes =
-      closedEye(57, 74) +
-      closedEye(100, 74);
-
-    mouth = openLaugh(t, false);
-    cheeks = 0.48;
-
-    const cover = ease((t % 3.5) / 0.55);
-
-    hands = hand(
-      mix(91, 74, cover),
-      mix(139, 112, cover) + Math.sin(t * 11) * 0.65,
-      mix(10, -12, cover),
-      0.73
-    );
-  }
-
-  // 😂 LAUGH WITH TEARS
-  if (kind === "laughcry") {
-    eyes =
-      closedEye(57, 76) +
-      closedEye(100, 76);
-
-    mouth = openLaugh(t, false);
-    cheeks = 0.35;
-    brows = "";
-
-    for (let side = 0; side < 2; side++) {
-      for (let i = 0; i < 2; i++) {
-        const p = (t * 0.9 + side * 0.22 + i * 0.5) % 1;
-        const fall = p * p;
-
-        const x = side
-          ? 109 + fall * 11
-          : 47 - fall * 11;
-
-        const y = 83 + fall * 37;
-
-        const opacity =
-          ease(p / 0.1) *
-          (1 - ease((p - 0.7) / 0.3));
-
-        effects += tear(
-          x,
-          y,
-          0.42 + p * 0.12,
-          opacity
-        );
-      }
-    }
-  }
-
-  // 🥹 TOUCHED
-  if (kind === "touched") {
-    const glisten =
-      (Math.sin(t * 2.4) + 1) / 2;
-
-    brows =
-      stroke("M46 56Q57 57 66 48", 3) +
-      stroke("M90 48Q100 57 111 56", 3);
-
-    eyes =
-      `<g transform="translate(57 75)
-        scale(1 ${Math.max(0.025, 1 - blink)})">
-
-        ${ellipse(0, 0, 10, 12, "#59402f")}
-        ${ellipse(-3, -5, 3, 4, "#fff")}
-        ${ellipse(2, 6, 6, 2.5 + glisten, "#8bd9f7")}
-      </g>` +
-
-      `<g transform="translate(100 75)
-        scale(1 ${Math.max(0.025, 1 - blink)})">
-
-        ${ellipse(0, 0, 10, 12, "#59402f")}
-        ${ellipse(-3, -5, 3, 4, "#fff")}
-        ${ellipse(2, 6, 6, 2.5 + glisten, "#8bd9f7")}
-      </g>`;
-
-    mouth = smile(10, 6);
-    cheeks = 0.43;
-
-    const touchedTime = t % 4.2;
-
-    if (touchedTime > 2.2 && touchedTime < 3.6) {
-      const p = (touchedTime - 2.2) / 1.4;
-
-      effects = tear(
-        109 + p * 2,
-        88 + p * p * 29,
-        0.35 + p * 0.1,
-        ease(p / 0.12) *
-        (1 - ease((p - 0.7) / 0.3))
-      );
-    }
-  }
-
-  // 😭 CRYING
-  if (kind === "cry") {
-    const sob =
-      (Math.sin(t * 4.5) + 1) / 2;
-
-    const tremble =
-      Math.sin(t * 19) * 0.6 * sob;
-
-    brows =
-      stroke(
-        `M46 ${56 + sob}
-         Q57 54 66 ${47 - sob}`,
-        3.5
-      ) +
-
-      stroke(
-        `M90 ${47 - sob}
-         Q100 54 110 ${56 + sob}`,
-        3.5
-      );
-
-    eyes =
-      closedEye(57, 75 + sob, false) +
-      closedEye(100, 75 + sob, false);
-
-    const mouthWidth = 9 + sob * 3;
-    const mouthHeight = 8 + sob * 6;
-
-    mouth =
-      ellipse(
-        78 + tremble,
-        106,
-        mouthWidth,
-        mouthHeight,
-        "#74313b"
-      ) +
-
-      ellipse(
-        78 + tremble,
-        110 + sob * 3,
-        mouthWidth * 0.55,
-        2.5,
-        "#ef8b9c"
-      );
-
-    effects =
-      ellipse(
-        56,
-        82,
-        7,
-        2.1,
-        "#8ddcf8",
-        'opacity=".85"'
-      ) +
-
-      ellipse(
-        100,
-        82,
-        7,
-        2.1,
-        "#8ddcf8",
-        'opacity=".85"'
-      );
-
-    for (let side = 0; side < 2; side++) {
-      for (let i = 0; i < 2; i++) {
-        const progress =
-          (t * 0.8 + i * 0.5 + side * 0.22) % 1;
-
-        const fall = progress * progress;
-
-        const x =
-          (side ? 101 : 55) +
-          (side ? 1 : -1) * fall * 3;
-
-        const y = 85 + fall * 47;
-
-        const opacity =
-          ease(progress / 0.12) *
-          (1 - ease((progress - 0.75) / 0.25));
-
-        effects += tear(
-          x,
-          y,
-          0.35 + progress * 0.2,
-          opacity
-        );
-      }
-    }
-
-    cheeks = 0.3 + sob * 0.1;
-  }
-
-  return `
-    <svg
-      viewBox="0 0 160 160"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <defs>
-        <radialGradient
-          id="faceFill"
-          cx="35%"
-          cy="25%"
-          r="80%"
-        >
-          <stop offset="0" stop-color="#ffe983"/>
-          <stop offset=".65" stop-color="#ffd13d"/>
-          <stop offset="1" stop-color="#eea31c"/>
-        </radialGradient>
-      </defs>
-
-      <circle
-        cx="78"
-        cy="79"
-        r="51"
-        fill="url(#faceFill)"
-        stroke="#dfa02c"
-        stroke-width="1.5"
-      />
-
-      ${ellipse(
-        61,
-        44,
-        18,
-        7,
-        "#fff7bd",
-        'opacity=".16"'
-      )}
-
-      ${brows}
-      ${eyes}
-
-      <g opacity="${cheeks}">
-        ${ellipse(43, 92, 10, 5, "#f38568")}
-        ${ellipse(113, 92, 10, 5, "#f38568")}
-      </g>
-
-      ${mouth}
-      ${hands}
-      ${effects}
-    </svg>
-  `;
-}
-
-function stop() {
-  cancelAnimationFrame(frameId);
-  frameId = 0;
-  currentKind = null;
-
-  actor.hidden = true;
-  actor.replaceChildren();
-
-  [...grid.children].forEach(button => {
-    button.classList.remove("active");
-    button.setAttribute("aria-pressed", "false");
-  });
-
-  statusBox.textContent =
-    "Stopped — reaction select karo.";
-}
-
-function play(index) {
-  if (!items[index]) return;
-
-  stop();
-
-  lastIndex = index;
-
-  const item = items[index];
-  currentKind = item.kind;
-
-  actor.hidden = false;
-
-  grid.children[index].classList.add("active");
-  grid.children[index].setAttribute("aria-pressed", "true");
-
-  startedAt = performance.now();
-
-  if (motionPreference.matches) {
-    actor.innerHTML = draw(item.kind, 1);
-
-    statusBox.textContent =
-      item.name + " · Reduced-motion still preview";
-
-    return;
-  }
-
-  statusBox.textContent =
-    item.name + " · Playing";
-
-  function tick(now) {
-    const elapsed = (now - startedAt) / 1000;
-
-    if (elapsed >= 8.4) {
-      stop();
-
-      statusBox.textContent =
-        "Finished — Replay ya doosra reaction select karo.";
-
-      return;
-    }
-
-    actor.innerHTML = draw(item.kind, elapsed);
-
-    frameId = requestAnimationFrame(tick);
-  }
-
-  frameId = requestAnimationFrame(tick);
-}
-
-items.forEach((item, index) => {
-  const button = document.createElement("button");
-
-  button.type = "button";
-  button.className = "choice";
-
-  button.setAttribute("aria-label", item.name);
-  button.setAttribute("aria-pressed", "false");
-
-  const icon = document.createElement("span");
-  icon.className = "icon";
-  icon.textContent = item.icon;
-
-  const label = document.createElement("span");
-  label.className = "label";
-  label.textContent = item.name;
-
-  button.append(icon, label);
-
-  button.onclick = () => play(index);
-
+  button.onclick=()=>play(index);
   grid.appendChild(button);
 });
 
-document.getElementById("replay").onclick = () => {
-  play(lastIndex);
+document.getElementById("replay").onclick=()=>{
+  if(current>=0)play(current);
 };
 
-document.getElementById("stop").onclick = stop;
-
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden && currentKind !== null) {
-    stop();
-  }
-});
+document.getElementById("stop").onclick=stop;
 </script>
 
 </body>
