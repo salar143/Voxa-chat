@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VC App - 15 Free & VIP Emojis</title>
+    <title>VC App - Fixed Emojis</title>
+    <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: #0f172a; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
         /* Header */
-        .header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); border-bottom: 1px solid #222; }
+        .header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); border-bottom: 1px solid #222; position: relative; z-index: 50;}
         .user-stats { display: flex; gap: 10px; align-items: center; }
         .stat-box { background: #222; padding: 4px 10px; border-radius: 15px; font-weight: bold; font-size: 12px; border: 1px solid #444; }
         .exp-box { color: #28a745; border-color: #28a745; }
@@ -19,17 +20,35 @@
         .btn-recharge { background: linear-gradient(45deg, #00e5ff, #007bff); border: none; padding: 5px 10px; border-radius: 15px; color: white; cursor: pointer; font-weight: bold; font-size: 11px;}
 
         /* Seats */
-        .room-grid { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 15px; justify-items: center; align-content: start; margin-top: 10px;}
+        .room-grid { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 15px; justify-items: center; align-content: start; margin-top: 20px; position: relative; z-index: 10;}
         .seat { display: flex; flex-direction: column; align-items: center; position: relative; }
-        .avatar-circle { width: 85px; height: 85px; border-radius: 50%; background: #1e1e2a; border: 2px solid rgba(255, 255, 255, 0.2); display: flex; justify-content: center; align-items: center; position: relative; transition: 0.3s; }
+        
+        /* Avatar Circle */
+        .avatar-circle { width: 90px; height: 90px; border-radius: 50%; background: #1e1e2a; border: 2px solid rgba(255, 255, 255, 0.2); display: flex; justify-content: center; align-items: center; position: relative; transition: 0.3s; }
         .avatar-circle.has-effect { border-color: #ffcc00; box-shadow: 0 0 25px rgba(255, 204, 0, 0.6); }
+        
         .user-icon { font-size: 45px; color: #555; transition: opacity 0.3s; }
-        .seat-emoji { position: absolute; top: -20px; left: -20px; width: 125px; height: 125px; object-fit: contain; filter: drop-shadow(0 15px 20px rgba(0,0,0,0.9)); opacity: 0; transform: scale(0.3); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none; z-index: 10; }
+        
+        /* FIXED Emoji Position & Animation */
+        .seat-emoji { 
+            position: absolute; 
+            top: -25px; 
+            left: -25px; 
+            width: 140px; 
+            height: 140px; 
+            object-fit: contain; 
+            filter: drop-shadow(0 15px 20px rgba(0,0,0,0.9)); 
+            opacity: 0; 
+            transform: scale(0.1); 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            pointer-events: none; 
+            z-index: 100;
+        }
         .seat-emoji.show { opacity: 1; transform: scale(1); }
         .seat-name { margin-top: 10px; font-size: 13px; color: #ddd; background: rgba(0,0,0,0.6); padding: 3px 12px; border-radius: 12px; }
 
         /* Control Panel */
-        .control-panel { background: #111; padding: 10px; border-top: 1px solid #333; max-height: 400px; overflow-y: auto; }
+        .control-panel { background: #111; padding: 10px; border-top: 1px solid #333; max-height: 400px; overflow-y: auto; position: relative; z-index: 50;}
         .category-title { font-size: 13px; font-weight: bold; margin: 12px 0 8px 10px; display: flex; justify-content: space-between; align-items: center;}
         .cat-free { color: #28a745; }
         .cat-vip2 { color: #ffd700; }
@@ -41,19 +60,19 @@
         /* Emoji Buttons */
         .select-btn { width: 55px; height: 55px; cursor: pointer; transition: transform 0.2s; border-radius: 15px; background: rgba(255,255,255,0.05); padding: 5px; border: 1px solid rgba(255,255,255,0.1); position: relative; display: flex; justify-content: center; align-items: center;}
         .select-btn:active { transform: scale(0.8); }
-        .select-btn img { width: 100%; height: 100%; object-fit: contain; }
+        .select-btn img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
         
-        /* --- VIP CRAVING EFFECTS --- */
+        /* VIP CRAVING EFFECTS */
         .vip-locked { position: relative; overflow: hidden; border: 1px solid #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
         .vip-locked img { filter: blur(2px) brightness(0.7); opacity: 0.8; }
         .crown-icon { position: absolute; top: -8px; right: -5px; font-size: 16px; z-index: 6; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.8));}
         .lock-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 20px; z-index: 5; text-shadow: 0 0 5px #000;}
         
-        /* --- MIRROR IMAGE CLASS --- */
+        /* MIRROR IMAGE CLASS */
         .mirror-image { transform: scaleX(-1) !important; }
         
         /* Premium Popup Modal */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(5px); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 999; backdrop-filter: blur(5px); }
         .modal-box { background: linear-gradient(135deg, #1e1e2a, #0f172a); padding: 25px; border-radius: 20px; width: 85%; max-width: 350px; text-align: center; border: 2px solid #ffd700; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); position: relative;}
         .modal-box h2 { color: #ffd700; font-size: 20px; margin-bottom: 10px; }
         .modal-box p { color: #ddd; font-size: 14px; margin-bottom: 20px; line-height: 1.5;}
@@ -91,7 +110,7 @@
         <div class="emoji-list">
             <div class="select-btn" onclick="applyEmoji(this.querySelector('img').src, false)"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60a/512.gif"></div>
             <div class="select-btn" onclick="applyEmoji(this.querySelector('img').src, false)"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f44d/512.gif"></div>
-            <div class="select-btn" onclick="applyEmoji(this.querySelector('img').src, false)"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f618/512.gif"></div> <!-- Normal Kiss Right -->
+            <div class="select-btn" onclick="applyEmoji(this.querySelector('img').src, false)"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f618/512.gif"></div>
             <div class="select-btn" onclick="applyEmoji(this.querySelector('img').src, false)"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f602/512.gif"></div>
             <div class="select-btn" onclick="applyEmoji(this.querySelector('img').src, false)"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60d/512.gif"></div>
             
@@ -105,7 +124,7 @@
             <div class="select-btn" onclick="applyEmoji(this.querySelector('img').src, false)"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f62d/512.gif"></div>
             <div class="select-btn" onclick="applyEmoji(this.querySelector('img').src, false)"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60e/512.gif"></div>
             <div class="select-btn" onclick="applyEmoji(this.querySelector('img').src, false)"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f971/512.gif"></div>
-            <div class="select-btn" onclick="applyEmoji(this.querySelector('img').src, false)"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f528/512.gif"></div> <!-- Normal Hammer Right -->
+            <div class="select-btn" onclick="applyEmoji(this.querySelector('img').src, false)"><img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f528/512.gif"></div>
         </div>
 
         <!-- VIP 2+ TIER (5 Emojis) -->
@@ -114,27 +133,27 @@
             <span id="vip2-status" style="color:#ffd700; font-size:10px;">Locked</span>
         </div>
         <div class="emoji-list" id="vip2-list">
-            <div class="select-btn vip-locked" onclick="showVipModal(2, this)">
+            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
                 <img class="mirror-image" src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Face%20blowing%20a%20kiss/3D/face_blowing_a_kiss_3d.png">
                 <span class="crown-icon">👑</span>
                 <div class="lock-overlay">🔒</div>
             </div>
-            <div class="select-btn vip-locked" onclick="showVipModal(2, this)">
+            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
                 <img class="mirror-image" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f528/512.gif">
                 <span class="crown-icon">👑</span>
                 <div class="lock-overlay">🔒</div>
             </div>
-            <div class="select-btn vip-locked" onclick="showVipModal(2, this)">
+            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
                 <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Disguised%20face/3D/disguised_face_3d.png">
                 <span class="crown-icon">👑</span>
                 <div class="lock-overlay">🔒</div>
             </div>
-            <div class="select-btn vip-locked" onclick="showVipModal(2, this)">
+            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
                 <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Nerd%20face/3D/nerd_face_3d.png">
                 <span class="crown-icon">👑</span>
                 <div class="lock-overlay">🔒</div>
             </div>
-            <div class="select-btn vip-locked" onclick="showVipModal(2, this)">
+            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
                 <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Star-struck/3D/star-struck_3d.png">
                 <span class="crown-icon">👑</span>
                 <div class="lock-overlay">🔒</div>
@@ -147,27 +166,27 @@
             <span id="vip6-status" style="color:#d19aff; font-size:10px;">Locked</span>
         </div>
         <div class="emoji-list" id="vip6-list">
-            <div class="select-btn vip-locked" onclick="showVipModal(6, this)">
+            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
                 <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f37f/512.gif">
                 <span class="crown-icon">💎</span>
                 <div class="lock-overlay">🔒</div>
             </div>
-            <div class="select-btn vip-locked" onclick="showVipModal(6, this)">
+            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
                 <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Prince/3D/prince_3d.png">
                 <span class="crown-icon">💎</span>
                 <div class="lock-overlay">🔒</div>
             </div>
-            <div class="select-btn vip-locked" onclick="showVipModal(6, this)">
+            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
                 <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Money-mouth%20face/3D/money-mouth_face_3d.png">
                 <span class="crown-icon">💎</span>
                 <div class="lock-overlay">🔒</div>
             </div>
-            <div class="select-btn vip-locked" onclick="showVipModal(6, this)">
+            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
                 <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Genie/3D/genie_3d.png">
                 <span class="crown-icon">💎</span>
                 <div class="lock-overlay">🔒</div>
             </div>
-            <div class="select-btn vip-locked" onclick="showVipModal(6, this)">
+            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
                 <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Lion/3D/lion_3d.png">
                 <span class="crown-icon">💎</span>
                 <div class="lock-overlay">🔒</div>
@@ -186,35 +205,30 @@
         </div>
     </div>
         <script>
-        const SUPABASE_URL = 'YOUR_SUPABASE_URL'; 
-        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        let currentUser = null;
+        // ==========================================
+        // 1. DEMO MODE SETUP
+        // ==========================================
+        let isDemoMode = true; 
+        let currentUser = { id: "demo_user_123" };
         let userData = { diamonds: 0, exp: 0 }; 
 
-        async function initApp() {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                currentUser = user;
-                await fetchUserData(user.id);
-            } else {
-                const { data, error } = await supabase.auth.signInAnonymously();
-                if (!error) {
-                    currentUser = data.user;
-                    await fetchUserData(currentUser.id);
-                }
-            }
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL'; 
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; 
+        let supabase = null;
+
+        if (SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            isDemoMode = false; 
         }
 
-        async function fetchUserData(userId) {
-            const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
-            if (data) {
-                userData = { ...data, exp: data.exp || 0 };
-                updateUI();
-            }
-        }
+        // Page load hote hi UI update karo
+        window.onload = () => {
+            updateUI();
+        };
 
+        // ==========================================
+        // 2. UI UPDATE & VIP CHECK
+        // ==========================================
         function updateUI() {
             document.getElementById('diamondDisplay').innerText = `💎 ${userData.diamonds}`;
             document.getElementById('expDisplay').innerText = `EXP: ${userData.exp}`;
@@ -236,25 +250,50 @@
             }
         }
 
+        // EXP Badhane ka button (Demo ke liye)
+        function addExp(amount) {
+            userData.exp += amount;
+            updateUI();
+            if (userData.exp >= 4000 && userData.exp < 4000 + amount) {
+                alert("🎉 VIP 2+ Unlock Ho Gaya!");
+            }
+            if (userData.exp >= 15000 && userData.exp < 15000 + amount) {
+                alert("💎 VIP 6+ Unlock Ho Gaya!");
+            }
+        }
+
+        // ==========================================
+        // 3. UNLOCK & CLICK LOGIC
+        // ==========================================
         function unlockEmojis(listId) {
             const list = document.getElementById(listId);
             const lockedEmojis = list.querySelectorAll('.vip-locked');
+            
             lockedEmojis.forEach(emoji => {
                 emoji.classList.remove('vip-locked'); 
+                
+                // Click event override
                 emoji.onclick = function() { 
                     const img = this.querySelector('img');
                     applyEmoji(img.src, img.classList.contains('mirror-image')); 
                 }; 
+                
+                // Crown aur Lock hatao
                 const crown = emoji.querySelector('.crown-icon');
                 const overlay = emoji.querySelector('.lock-overlay');
                 if (crown) crown.remove(); 
                 if (overlay) overlay.remove(); 
-                emoji.querySelector('img').style.filter = 'none'; 
-                emoji.querySelector('img').style.opacity = '1';
+                
+                // Blur hatao
+                const img = emoji.querySelector('img');
+                if(img) {
+                    img.style.filter = 'none'; 
+                    img.style.opacity = '1';
+                }
             });
         }
 
-        function showVipModal(requiredVip, element) {
+        function handleVipClick(requiredVip, element) {
             if (requiredVip === 2 && userData.exp >= 4000) { 
                 applyEmoji(element.querySelector('img').src, element.querySelector('img').classList.contains('mirror-image')); 
                 return; 
@@ -281,24 +320,9 @@
             modal.style.display = 'flex';
         }
 
-        function closeModal() {
-            document.getElementById('vipModal').style.display = 'none';
-        }
-
-        function goToRecharge() {
-            closeModal();
-            alert("Recharge page par ja rahe hain...");
-        }
-
-        async function addExp(amount) {
-            const newExp = userData.exp + amount;
-            const { error } = await supabase.from('profiles').update({ exp: newExp }).eq('id', currentUser.id);
-            if (!error) {
-                userData.exp = newExp;
-                updateUI();
-            }
-        }
-
+        // ==========================================
+        // 4. EMOJI APPLY ANIMATION (THE MAIN FIX)
+        // ==========================================
         function applyEmoji(imageSource, isMirror) {
             const emojiImg = document.getElementById('emoji1');
             const avatar = document.getElementById('seat1');
@@ -307,12 +331,13 @@
             emojiImg.src = imageSource;
             
             if (isMirror) {
-                emojiImg.style.transform = "scaleX(-1) scale(1)"; 
+                emojiImg.style.transform = "scaleX(-1)"; 
             } else {
-                emojiImg.style.transform = "scale(1)"; 
+                emojiImg.style.transform = "scaleX(1)"; 
             }
 
             setTimeout(() => {
+                emojiImg.style.transform = isMirror ? "scaleX(-1) scale(1.1)" : "scale(1.1)";
                 emojiImg.classList.add('show');
                 avatar.classList.add('has-effect');
                 icon.style.opacity = '0';
@@ -328,10 +353,21 @@
             emojiImg.style.transform = ""; 
             avatar.classList.remove('has-effect');
             icon.style.opacity = '1';
+            
             setTimeout(() => { emojiImg.src = ""; }, 400);
         }
 
-        initApp();
+        // ==========================================
+        // 5. MODAL CONTROLS
+        // ==========================================
+        function closeModal() {
+            document.getElementById('vipModal').style.display = 'none';
+        }
+
+        function goToRecharge() {
+            closeModal();
+            alert("Recharge page par ja rahe hain... (Yahan aap payment gateway laga sakte hain)");
+        }
     </script>
 </body>
 </html>
