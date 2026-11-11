@@ -1,415 +1,517 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIP 2+ & 6+ Separate Unlock</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VoxaChat Custom Reactions</title>
 
-        body {
-            background: linear-gradient(to bottom, #0f172a, #000000);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            color: white;
-            overflow: hidden;
-        }
-
-        /* Header */
-        .header {
-            padding: 10px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(0,0,0,0.7);
-            border-bottom: 1px solid #222;
-        }
-
-        .title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #4ade80;
-        }
-
-        /* VIP Buttons Container */
-        .vip-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .vip-btn {
-            border: none;
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-weight: bold;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: #000;
-        }
-
-        .btn-vip2 { background: linear-gradient(45deg, #ffd700, #ffaa00); }
-        .btn-vip6 { background: linear-gradient(45deg, #b02aed, #e066ff); color: white; }
-
-        .vip-btn.active {
-            background: #222;
-            color: #888;
-            cursor: default;
-            border: 1px solid #444;
-        }
-
-        /* Seats Area */
-        .room-grid {
-            flex: 1;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            padding: 15px;
-            justify-items: center;
-            align-content: start;
-            margin-top: 10px;
-        }
-
-        .seat {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-        }
-
-        .avatar-circle {
-            width: 85px;
-            height: 85px;
-            border-radius: 50%;
-            background: #1e1e2a;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .avatar-circle.has-effect {
-            border-color: #ffcc00;
-            box-shadow: 0 0 25px rgba(255, 204, 0, 0.6);
-        }
-
-        .user-icon {
-            font-size: 45px;
-            color: #555;
-            transition: opacity 0.3s;
-        }
-
-        /* Live GIF Emoji Layer */
-        .seat-emoji {
-            position: absolute;
-            top: -20px;
-            left: -20px;
-            width: 125px;
-            height: 125px;
-            object-fit: contain;
-            filter: drop-shadow(0px 15px 20px rgba(0,0,0,0.9));
-            opacity: 0;
-            transform: scale(0.3);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        .seat-emoji.show {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .seat-name {
-            margin-top: 10px;
-            font-size: 13px;
-            color: #ddd;
-            background: rgba(0,0,0,0.6);
-            padding: 3px 12px;
-            border-radius: 12px;
-        }
-
-        /* Control Panel */
-        .control-panel {
-            background: #111;
-            padding: 10px;
-            border-top: 1px solid #333;
-            padding-bottom: 15px;
-            max-height: 320px;
-            overflow-y: auto;
-        }
-
-        .category-title {
-            font-size: 12px;
-            font-weight: bold;
-            margin: 10px 0 5px 10px;
-        }
-        .cat-free { color: #28a745; }
-        .cat-vip2 { color: #ffd700; }
-        .cat-vip6 { color: #d19aff; }
-
-        .emoji-list {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            justify-items: center;
-            padding: 0 10px;
-            margin-bottom: 15px;
-        }
-
-        .select-btn {
-            width: 50px;
-            height: 50px;
-            cursor: pointer;
-            transition: transform 0.2s;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.05);
-            padding: 5px;
-            border: 1px solid rgba(255,255,255,0.1);
-            position: relative;
-        }
-
-        .select-btn:active {
-            transform: scale(0.8);
-        }
-
-        /* Locked Style */
-        .vip-locked {
-            opacity: 0.5;
-            filter: grayscale(100%);
-        }
-        
-        .lock-icon {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            font-size: 14px;
-            background: #000;
-            border-radius: 50%;
-            padding: 2px;
-            box-shadow: 0 0 5px #000;
-        }
-
-        .clear-btn {
-            background: #ff4444;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 20px;
-            margin: 5px auto 10px;
-            display: block;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #111; }
-        ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
-    </style>
+<style>
+*{margin:0;box-sizing:border-box}
+body{
+  height:100vh;
+  height:100dvh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  background:linear-gradient(#0f172a,#000);
+  color:white;
+  font-family:Arial,sans-serif;
+}
+.header{
+  padding:14px;
+  text-align:center;
+  color:#4ade80;
+  background:#0008;
+  border-bottom:1px solid #ffffff18;
+  font-size:15px;
+}
+.room-grid{
+  flex:1;
+  min-height:0;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  align-content:start;
+  justify-items:center;
+  gap:12px;
+  padding:35px 12px;
+}
+.seat{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.avatar-circle{
+  width:85px;
+  height:85px;
+  position:relative;
+  display:grid;
+  place-items:center;
+  background:#1e1e2a;
+  border:2px solid #ffffff35;
+  border-radius:50%;
+}
+.avatar-circle.has-effect{
+  border-color:#ffcf45;
+  box-shadow:0 0 24px #ffc40055;
+}
+.user-icon{font-size:42px}
+.has-effect .user-icon{visibility:hidden}
+#actor{
+  position:absolute;
+  width:130px;
+  height:140px;
+  left:50%;
+  top:50%;
+  margin-left:-65px;
+  margin-top:-70px;
+  pointer-events:none;
+  z-index:3;
+}
+#actor svg{width:100%;height:100%;overflow:visible}
+[hidden]{display:none!important}
+.seat-name{
+  margin-top:22px;
+  font-size:12px;
+  padding:4px 12px;
+  background:#0008;
+  border-radius:12px;
+}
+.control-panel{
+  flex-shrink:0;
+  max-height:45vh;
+  overflow:auto;
+  padding:14px 12px max(14px,env(safe-area-inset-bottom));
+  background:#111;
+  border-top:1px solid #333;
+}
+.panel-title{
+  text-align:center;
+  color:#aaa;
+  font-size:12px;
+  margin-bottom:12px;
+}
+.emoji-list{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:9px;
+}
+.select-btn{
+  min-width:0;
+  padding:4px 2px 7px;
+  border:1px solid #ffffff20;
+  border-radius:13px;
+  background:#ffffff08;
+  color:#ddd;
+  cursor:pointer;
+  touch-action:manipulation;
+}
+.select-btn svg{width:100%;height:54px}
+.select-btn span{font-size:9px}
+.select-btn.active{
+  border-color:#ffcf45;
+  background:#ffc40015;
+}
+.clear-btn{
+  display:block;
+  margin:16px auto 0;
+  border:0;
+  padding:10px 24px;
+  border-radius:20px;
+  background:#d43e50;
+  color:white;
+  cursor:pointer;
+}
+#status{
+  text-align:center;
+  min-height:18px;
+  margin-top:10px;
+  color:#b9afc8;
+  font-size:12px;
+}
+</style>
 </head>
+
 <body>
+<div class="header">Custom Animated Reactions</div>
 
-    <div class="header">
-        <div class="title">Emoji Store</div>
-        <!-- Do alag-alag VIP buttons -->
-        <div class="vip-buttons">
-            <button class="vip-btn btn-vip2" id="btnVip2" onclick="buyVip(2)">👑 Buy VIP 2+</button>
-            <button class="vip-btn btn-vip6" id="btnVip6" onclick="buyVip(6)">💎 Buy VIP 6+</button>
-        </div>
+<div class="room-grid">
+  <div class="seat">
+    <div class="avatar-circle" id="seat1">
+      <span class="user-icon">👤</span>
+      <div id="actor" hidden></div>
     </div>
+    <div class="seat-name">Owner</div>
+  </div>
 
-    <div class="room-grid">
-        <div class="seat">
-            <div class="avatar-circle" id="seat1">
-                <span class="user-icon" id="icon1">👤</span>
-                <img src="" class="seat-emoji" id="emoji1" alt="Emoji">
-            </div>
-            <div class="seat-name">Owner</div>
-        </div>
-        <div class="seat">
-            <div class="avatar-circle"><span class="user-icon">👤</span></div>
-            <div class="seat-name">No.2</div>
-        </div>
-        <div class="seat">
-            <div class="avatar-circle" style="background: rgba(0,0,0,0.6);"><span class="user-icon">🔒</span></div>
-            <div class="seat-name">No.3</div>
-        </div>
+  <div class="seat">
+    <div class="avatar-circle">
+      <span class="user-icon">👤</span>
     </div>
+    <div class="seat-name">No.2</div>
+  </div>
 
-    <div class="control-panel">
-        
-        <!-- FREE TIER -->
-        <div class="category-title cat-free">✅ 15 Free Emojis (All Users)</div>
-        <div class="emoji-list">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60a/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f44d/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f609/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f602/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60d/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f615/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f61e/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f621/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f634/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f44f/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f618/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f914/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f62d/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60e/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f971/512.gif" class="select-btn" onclick="applyEmoji(this.src)">
-        </div>
-
-        <!-- VIP 2+ TIER -->
-        <div class="category-title cat-vip2">👑 5 VIP 2+ Emojis (Premium)</div>
-        <div class="emoji-list" id="vip2-list">
-            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f92f/512.gif" style="width:100%; height:100%;">
-                <span class="lock-icon">🔒</span>
-            </div>
-            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f929/512.gif" style="width:100%; height:100%;">
-                <span class="lock-icon">🔒</span>
-            </div>
-            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f973/512.gif" style="width:100%; height:100%;">
-                <span class="lock-icon">🔒</span>
-            </div>
-            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/270c_1f3fb/512.gif" style="width:100%; height:100%;">
-                <span class="lock-icon">🔒</span>
-            </div>
-            <div class="select-btn vip-locked" onclick="handleVipClick(2, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f644/512.gif" style="width:100%; height:100%;">
-                <span class="lock-icon">🔒</span>
-            </div>
-        </div>
-
-        <!-- VIP 6+ TIER -->
-        <div class="category-title cat-vip6">💎 5 VIP 6+ Emojis (Super Premium)</div>
-        <div class="emoji-list" id="vip6-list">
-            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f608/512.gif" style="width:100%; height:100%;">
-                <span class="lock-icon">🔒</span>
-            </div>
-            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f631/512.gif" style="width:100%; height:100%;">
-                <span class="lock-icon">🔒</span>
-            </div>
-            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f924/512.gif" style="width:100%; height:100%;">
-                <span class="lock-icon">🔒</span>
-            </div>
-            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f64f/512.gif" style="width:100%; height:100%;">
-                <span class="lock-icon">🔒</span>
-            </div>
-            <div class="select-btn vip-locked" onclick="handleVipClick(6, this)">
-                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f607/512.gif" style="width:100%; height:100%;">
-                <span class="lock-icon">🔒</span>
-            </div>
-        </div>
-        
-        <button class="clear-btn" onclick="clearEmoji()">Remove Effect</button>
+  <div class="seat">
+    <div class="avatar-circle">
+      <span class="user-icon">🔒</span>
     </div>
+    <div class="seat-name">No.3</div>
+  </div>
+</div>
 
-    <script>
-        const seat1Avatar = document.getElementById('seat1');
-        const seat1EmojiImg = document.getElementById('emoji1');
-        const seat1NormalIcon = document.getElementById('icon1');
-        
-        const btnVip2 = document.getElementById('btnVip2');
-        const btnVip6 = document.getElementById('btnVip6');
+<div class="control-panel">
+  <div class="panel-title">
+    Select a character · Effect stays on Owner's avatar
+  </div>
+  <div class="emoji-list" id="list"></div>
+  <div id="status">Choose a reaction</div>
+  <button class="clear-btn" id="clear">Remove Effect</button>
+</div>
 
-        // VIP Status
-        let hasVip2 = false;
-        let hasVip6 = false;
+<script>
+"use strict";
 
-        // VIP Kharidne ka function
-        function buyVip(level) {
-            if (level === 2) {
-                if (hasVip2) return;
-                btnVip2.innerText = "Processing...";
-                
-                setTimeout(() => {
-                    hasVip2 = true;
-                    btnVip2.innerText = "VIP 2+ Active";
-                    btnVip2.classList.add('active');
-                    unlockEmojis('vip2-list');
-                    alert("🎉 VIP 2+ Activated! Aap VIP 2+ wale emojis use kar sakte hain.");
-                }, 1000);
-            } 
-            else if (level === 6) {
-                if (hasVip6) return;
-                btnVip6.innerText = "Processing...";
-                
-                setTimeout(() => {
-                    hasVip6 = true;
-                    btnVip6.innerText = "VIP 6+ Active";
-                    btnVip6.classList.add('active');
-                    unlockEmojis('vip6-list');
-                    alert("💎 VIP 6+ Activated! Aap saare Premium emojis use kar sakte hain.");
-                }, 1000);
-            }
+const reactions=[
+  ["happy","Happy"],
+  ["kiss","Kiss"],
+  ["cool","Cool"],
+  ["laugh","Laugh"],
+  ["love","Love"],
+  ["think","Think"],
+  ["sad","Touched"],
+  ["angry","Angry"],
+  ["sleep","Sleep"],
+  ["wink","Wink"],
+  ["king","King"],
+  ["angel","Angel"],
+  ["shy","Shy"],
+  ["cry","Cry"],
+  ["game","Gamer"]
+];
+
+const actor=document.getElementById("actor");
+const seat=document.getElementById("seat1");
+const list=document.getElementById("list");
+const statusBox=document.getElementById("status");
+const reduced=matchMedia("(prefers-reduced-motion: reduce)");
+
+let frame=0;
+let selected=-1;
+let start=0;
+
+const clamp=x=>Math.max(0,Math.min(1,x));
+const smooth=x=>{
+  x=clamp(x);
+  return x*x*(3-2*x);
+};
+
+function P(d,fill="none",stroke="none",w=2){
+  return `<path d="${d}" fill="${fill}" stroke="${stroke}"
+    stroke-width="${w}" stroke-linecap="round"
+    stroke-linejoin="round"/>`;
+}
+
+function E(x,y,rx,ry,fill){
+  return `<ellipse cx="${x}" cy="${y}" rx="${rx}"
+    ry="${ry}" fill="${fill}"/>`;
+}
+
+function heart(x,y,s){
+  return `<g transform="translate(${x} ${y}) scale(${s})">
+    ${P("M0 8C-25-7-16-28 0-15C16-28 25-7 0 8Z",
+      "#f23f65","#ba1745",1.2)}
+    ${P("M-11-13Q-13-19-7-20","none","#ffb9cb",2)}
+  </g>`;
+}
+
+function paw(x,y,angle=0){
+  return `<g transform="translate(${x} ${y}) rotate(${angle})">
+    ${E(0,0,9,12,"url(#glove)")}
+    ${P("M-4-6L-4 0M0-8V-1M4-6V0",
+      "none","#c9bedc",1)}
+  </g>`;
+}
+
+function blink(t){
+  const p=(t+2.1)%3.6;
+  if(p<.1)return smooth(p/.1);
+  if(p<.24)return 1-smooth((p-.1)/.14);
+  return 0;
+}
+
+function eye(x,y,open=1,gaze=0){
+  if(open<.1)
+    return P(`M${x-9} ${y}Q${x} ${y+4} ${x+9} ${y}`,
+      "none","#46243a",3);
+
+  return `<g transform="translate(${x} ${y})
+    scale(1 ${open})">
+    ${E(0,0,10,14,"#fff8f5")}
+    ${E(gaze,2,7,10,"#40233d")}
+    ${E(gaze,4,4,6,"#171329")}
+    ${E(gaze-2,-3,3,4,"white")}
+    ${E(gaze+3,6,1.3,1.6,"#d9b8ef")}
+  </g>`;
+}
+
+function closed(x,y){
+  return P(`M${x-10} ${y}Q${x} ${y-12} ${x+10} ${y}`,
+    "none","#482337",3.5);
+}
+
+function mouthOpen(h){
+  return P(
+    `M52 87Q70 92 88 87
+     C88 ${94+h} 79 ${100+h} 70 ${100+h}
+     C61 ${100+h} 52 ${94+h} 52 87Z`,
+    "#58243b"
+  )+
+  P("M55 89Q70 94 85 89L83 95Q70 98 57 95Z","#fff9f1")+
+  E(70,97+h,8,3,"#f3809d");
+}
+
+function draw(kind,t,id){
+  const b=blink(t);
+  const beat=(Math.sin(t*8)+1)/2;
+  let eyes=eye(51,65,1-b)+eye(89,65,1-b);
+  let mouth=mouthOpen(3);
+  let accessory="";
+  let extra="";
+  let hands=paw(36,112,-15)+paw(104,112,15);
+  let brows="";
+  let blush=.35;
+
+  if(kind==="kiss"){
+    eyes=eye(51,65,1-b)+closed(89,67);
+    mouth=P("M68 87Q82 88 72 93Q82 98 68 99",
+      "none","#8e3450",3.5);
+    const p=(t%2.6)/2.6;
+    extra=`<g opacity="${Math.sin(p*Math.PI)}">
+      ${heart(103+p*14,90-p*19,.36+p*.12)}
+    </g>`;
+    hands=paw(47,111,-12)+paw(101,99,-28);
+  }
+
+  if(kind==="cool"||kind==="king"){
+    eyes=P("M34 55L65 58L62 76Q45 82 37 69Z","#171525")+
+      P("M75 58L106 55L103 69Q95 82 78 76Z","#171525")+
+      P("M64 61Q70 57 76 61","none","#171525",4)+
+      P("M42 59L55 62M84 60L97 57","none","#ffffff70",2);
+    mouth=P("M60 92Q73 102 86 90","none","#703146",3);
+  }
+
+  if(kind==="laugh"){
+    eyes=closed(51,65)+closed(89,65);
+    mouth=mouthOpen(5+beat*8);
+    hands=paw(38,110+beat,-15)+paw(102,110+beat,15);
+  }
+
+  if(kind==="love"){
+    eyes=closed(51,65)+closed(89,65);
+    extra=heart(70,111,.78);
+    hands=paw(48,113,-28)+paw(92,113,28);
+    blush=.65;
+  }
+
+  if(kind==="think"){
+    const gaze=Math.sin(t*1.4)*2;
+    eyes=eye(51,65,1-b,gaze)+eye(89,65,1-b,gaze);
+    brows=P("M40 43Q51 36 61 42","none","#8b4e23",3);
+    mouth=P("M61 96Q70 91 80 94","none","#703146",3);
+    hands=paw(76,107,35);
+    extra=`<text x="113" y="46" fill="#fff1ae"
+      font-family="Arial" font-size="23">?</text>`;
+  }
+
+  if(kind==="sad"||kind==="cry"){
+    brows=P("M39 45Q51 46 60 37","none","#9a5821",3)+
+      P("M80 37Q89 46 101 45","none","#9a5821",3);
+    mouth=kind==="cry"
+      ?E(70,95,8+beat,7+beat*4,"#61283e")
+      :P("M61 95Q70 89 79 95","none","#703146",3);
+    hands=paw(60,119,-20)+paw(80,119,20);
+    if(kind==="cry"){
+      eyes=closed(51,65)+closed(89,65);
+      for(let side=0;side<2;side++){
+        for(let n=0;n<2;n++){
+          const p=(t*.65+n*.5+side*.2)%1;
+          extra+=`<g opacity="${Math.sin(p*Math.PI)}">
+            ${E(side?95:45,76+p*p*36,3,5+p*2,"#62d3ff")}
+          </g>`;
         }
+      }
+    }else{
+      extra=E(51,74,7,2,"#79d7ff")+
+        E(89,74,7,2,"#79d7ff");
+    }
+  }
 
-        // Specific list ko unlock karne ka function
-        function unlockEmojis(listId) {
-            const list = document.getElementById(listId);
-            const lockedEmojis = list.querySelectorAll('.vip-locked');
-            
-            lockedEmojis.forEach(emoji => {
-                emoji.classList.remove('vip-locked');
-                const lockIcon = emoji.querySelector('.lock-icon');
-                if (lockIcon) lockIcon.remove();
-            });
-        }
+  if(kind==="angry"){
+    eyes=eye(51,65,.65)+eye(89,65,.65);
+    brows=P("M37 45L61 55M79 55L103 45",
+      "none","#804221",5);
+    mouth=P("M58 99Q70 87 82 99","none","#703146",3);
+    hands=paw(49,117,-30)+paw(91,117,30);
+  }
 
-        // Emoji par click karne ka logic
-        function handleVipClick(requiredVip, element) {
-            // Check karo user ke paas required VIP hai ya nahi
-            if (requiredVip === 2 && !hasVip2) {
-                alert("🔒 Yeh emoji sirf VIP 2+ users ke liye hai.\nKripya upar diye gaye 'Buy VIP 2+' button par click karein.");
-                return;
-            }
-            if (requiredVip === 6 && !hasVip6) {
-                alert("🔒 Yeh emoji sirf VIP 6+ users ke liye hai.\nKripya upar diye gaye 'Buy VIP 6+' button par click karein.");
-                return;
-            }
+  if(kind==="sleep"){
+    eyes=P("M41 66Q51 75 61 66M79 66Q89 75 99 66",
+      "none","#65333b",3);
+    mouth=E(70,95,4,4+Math.sin(t*2),"#82403e");
+    accessory=P("M28 44Q45 0 96 24L115 49Q70 30 28 44Z",
+      "#6799ff","#d8e8ff",2)+
+      P("M29 44Q70 33 111 48","none","#e8f2ff",9)+
+      E(115,49,8,8,"#eef4ff");
+    extra=`<text x="114" y="31" fill="#e1eaff"
+      font-family="Arial" font-size="15">z</text>`;
+  }
 
-            // Agar VIP hai, toh emoji apply karo
-            const imgSrc = element.querySelector('img').src;
-            applyEmoji(imgSrc);
-        }
+  if(kind==="wink"){
+    eyes=eye(51,65,1-b)+closed(89,65);
+    hands=paw(35,112,-15)+paw(108,88,20);
+  }
 
-        // Normal Apply Function
-        function applyEmoji(imageSource) {
-            seat1EmojiImg.src = imageSource;
-            
-            setTimeout(() => {
-                seat1EmojiImg.classList.add('show');
-                seat1Avatar.classList.add('has-effect');
-                seat1NormalIcon.style.opacity = '0'; 
-            }, 50);
-        }
+  if(kind==="king"){
+    accessory=P(
+      "M40 32L34 10L52 22L69 3L85 22L105 10L99 34Z",
+      "#ffd24d","#b97918",2
+    )+E(69,20,4,5,"#ef4776");
+  }
 
-        // Clear Function
-        function clearEmoji() {
-            seat1EmojiImg.classList.remove('show');
-            seat1Avatar.classList.remove('has-effect');
-            seat1NormalIcon.style.opacity = '1';
+  if(kind==="angel"){
+    accessory=`<ellipse cx="70" cy="15" rx="27" ry="7"
+      fill="none" stroke="#ffe96c" stroke-width="5"/>`;
+    extra=P("M29 91Q2 71 10 55Q19 64 31 62Z","#f7efff")+
+      P("M111 91Q138 71 130 55Q121 64 109 62Z","#f7efff");
+    hands=paw(63,117,-15)+paw(77,117,15);
+  }
 
-            setTimeout(() => {
-                seat1EmojiImg.src = "";
-            }, 400);
-        }
-    </script>
+  if(kind==="shy"){
+    eyes=closed(51,65)+closed(89,65);
+    hands=paw(37,90,-15)+paw(103,90,15);
+    blush=.8;
+  }
+
+  if(kind==="game"){
+    brows=P("M39 46L61 51M79 51L101 46",
+      "none","#804221",3);
+    accessory=P("M25 69V51Q25 9 70 10Q115 9 115 51V69",
+      "none","#7875f7",7)+
+      E(26,66,8,17,"#5964e9")+
+      E(114,66,8,17,"#5964e9");
+    extra=P(
+      "M49 108Q70 101 91 108L99 125Q97 134 88 129L79 121H61L52 129Q43 134 41 125Z",
+      "#25263e","#9293ba",2
+    )+P("M51 113V121M47 117H55","none","#d3d8ff",2)+
+      E(87,115,2,2,"#ff6296");
+    hands=paw(45,120,-20)+paw(95,120,20);
+  }
+
+  const svg=`
+  <svg viewBox="0 0 140 150" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="face" cx="35%" cy="23%" r="80%">
+        <stop stop-color="#fff6b0"/>
+        <stop offset=".32" stop-color="#ffe36b"/>
+        <stop offset=".72" stop-color="#ffc72d"/>
+        <stop offset="1" stop-color="#e99211"/>
+      </radialGradient>
+      <linearGradient id="glove" x2=".8" y2="1">
+        <stop stop-color="#fff"/>
+        <stop offset="1" stop-color="#d4c8ed"/>
+      </linearGradient>
+    </defs>
+
+    ${E(70,135,32,5,"#0005")}
+    ${E(58,128,10,6,"url(#glove)")}
+    ${E(82,128,10,6,"url(#glove)")}
+
+    <circle cx="70" cy="69" r="46"
+      fill="url(#face)" stroke="#f7bc33" stroke-width="1"/>
+
+    ${E(50,34,16,6,"#fff7c050")}
+    ${brows}
+    ${eyes}
+
+    <g opacity="${blush}">
+      ${E(37,82,9,5,"#f17770")}
+      ${E(103,82,9,5,"#f17770")}
+    </g>
+
+    ${mouth}
+    ${accessory}
+    ${extra}
+    ${hands}
+  </svg>`;
+
+  // Unique gradient IDs allow multiple previews on one page.
+  return svg
+    .replaceAll('id="face"',`id="${id}-face"`)
+    .replaceAll('id="glove"',`id="${id}-glove"`)
+    .replaceAll("url(#face)",`url(#${id}-face)`)
+    .replaceAll("url(#glove)",`url(#${id}-glove)`);
+}
+
+function clearEmoji(){
+  cancelAnimationFrame(frame);
+  frame=0;
+  selected=-1;
+  actor.hidden=true;
+  actor.replaceChildren();
+  seat.classList.remove("has-effect");
+  [...list.children].forEach(b=>{
+    b.classList.remove("active");
+    b.setAttribute("aria-pressed","false");
+  });
+  statusBox.textContent="Choose a reaction";
+}
+
+function applyEmoji(index){
+  clearEmoji();
+  selected=index;
+  actor.hidden=false;
+  seat.classList.add("has-effect");
+
+  list.children[index].classList.add("active");
+  list.children[index].setAttribute("aria-pressed","true");
+
+  const [kind,name]=reactions[index];
+  statusBox.textContent=name+" · Remove Effect to restore avatar";
+  start=performance.now();
+
+  if(reduced.matches){
+    actor.innerHTML=draw(kind,1,"active");
+    return;
+  }
+
+  function tick(now){
+    actor.innerHTML=draw(kind,(now-start)/1000,"active");
+    frame=requestAnimationFrame(tick);
+  }
+
+  frame=requestAnimationFrame(tick);
+}
+
+reactions.forEach(([kind,name],index)=>{
+  const button=document.createElement("button");
+  button.type="button";
+  button.className="select-btn";
+  button.setAttribute("aria-label",name);
+  button.setAttribute("aria-pressed","false");
+  button.innerHTML=
+    draw(kind,1,"preview"+index)+`<span>${name}</span>`;
+  button.onclick=()=>applyEmoji(index);
+  list.appendChild(button);
+});
+
+document.getElementById("clear").onclick=clearEmoji;
+
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){
+    cancelAnimationFrame(frame);
+  }else if(selected>=0){
+    applyEmoji(selected);
+  }
+});
+</script>
 </body>
-                </html>
+</html>
