@@ -1590,7 +1590,8 @@ function userProfilePanel(user,seatNum){
 
   sheet.innerHTML=''
     
-    +'<div class="ps-dp" id="psDp">'+(user.pic?'<img src="'+user.pic+'" alt="">':nm.charAt(0).toUpperCase())+'</div>'
+
++'<div class="ps-dp" id="psDp">'+(profilePhoto?'<img src="'+profilePhoto+'" alt="">':nm.charAt(0).toUpperCase())+'</div>'
     +(isMuted?'<span class="ps-mute-badge" id="psMuteBadge"><svg><use href="#mic-off"/></svg></span>':'')
     +'<div class="ps-toprow">'
       +'<button type="button" class="ps-side" id="psReport" title="Report User"><svg><use href="#shield"/></svg></button>'
@@ -1604,7 +1605,10 @@ function userProfilePanel(user,seatNum){
     +'</div>'
     +'<div class="ps-stats">'
       +'<span class="ps-stat">'+gender+age+'</span>'
-      +'<span class="ps-stat">Lv.'+(lv.profile||user.level||0)+'</span>'
+      +'<span class="ps-stat">Lv.'+activeLevel+'</span>'
+      +'<span class="ps-stat">Charm Lv.'+charmLevel+'</span>'
+      +'<span class="ps-stat">Wealth Lv.'+wealthLevel+'</span>'
+      +'<span class="ps-stat">Game Lv.'+gameLevel+'</span>'
       +'<span class="ps-stat blue">💎 '+blueDia+'</span>'
       +'<span class="ps-stat gold">🏅 '+goldBadge+'</span>'
     +'</div>'
@@ -1619,6 +1623,7 @@ function userProfilePanel(user,seatNum){
       +'<button type="button" class="ps-btn3 gift" id="psGift"><svg><use href="#gift"/></svg>SEND GIFTS</button>'
     +'</div>'
     +'<div class="ps-bottom" id="psBottom"></div>';
+  
   E("psReport").onclick=()=>{toast("Report submitted for "+nm);closeProfileSlide()};
   E("psMention").onclick=()=>{
     closeProfileSlide();
