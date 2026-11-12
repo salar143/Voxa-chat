@@ -2113,12 +2113,8 @@ E("emojiBtn").onclick=()=>{
   if(!mySeatNumber){
     toast("Pehle seat join karo.");
     return;
-  }
-
-  E("emojiPicker").hidden=!E("emojiPicker").hidden;
+  document.getElementById("reactionPanel").classList.add("open");
 };
-
-E("emojiPicker").replaceChildren();
 
 [
   "❤️","😂","🤣","👏","😍","🥰",
