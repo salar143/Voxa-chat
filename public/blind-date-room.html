@@ -3001,5 +3001,33 @@ function clearRoomEmoji(){
 </script>
 
 <!-- VOXA EMOJI REACTION END -->
+  <script>
+history.pushState({voxaRoom:true}, "", location.href);
+
+window.addEventListener("popstate", function(){
+  const reactionPanel=document.getElementById("reactionPanel");
+  const emojiPicker=document.getElementById("emojiPicker");
+
+  if(reactionPanel && reactionPanel.classList.contains("open")){
+    reactionPanel.classList.remove("open");
+    history.pushState({voxaRoom:true}, "", location.href);
+    return;
+  }
+
+  if(emojiPicker && !emojiPicker.hidden){
+    emojiPicker.hidden=true;
+    history.pushState({voxaRoom:true}, "", location.href);
+    return;
+  }
+
+  const sure=confirm("Room chhod kar bahar jana hai?");
+
+  if(sure){
+    history.back();
+  }else{
+    history.pushState({voxaRoom:true}, "", location.href);
+  }
+});
+  </script>
 </body>
 </html>
