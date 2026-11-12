@@ -2146,12 +2146,12 @@ E("emojiPicker").replaceChildren();
     touchAction:"manipulation"
   });
 
-  b.onclick=()=>{
-    E("emojiPicker").hidden=true;
-    playVoxaSeatEmoji(em);
-  };
+b.onclick=()=>{
+  E("emojiPicker").hidden=true;
+  document.getElementById("reactionPanel").classList.add("open");
+};
 
-  E("emojiPicker").append(b);
+E("emojiPicker").append(b);
 });
 
 // ===== CHAT SEND =====
