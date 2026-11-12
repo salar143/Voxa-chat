@@ -1721,17 +1721,37 @@ function sendGiftTo(receiver){
   // Real purchase flow — recharge gifting box se diamonds, phir gift
   openRechargeGiftingBox(receiver);
 }
+
 function joinSeat(n){
   if(mySeatNumber){toast("Pehle apni seat leave karo.");return}
   seatStates=loadJSON(seatKey,{});
   if(seatStates[n]){toast("Seat occupied.");return}
-  seatStates[n]={id:MY_ID,uid:ME.uid||"",name:ME.name,pic:ME.pic||"",pp:ME.pp||"",muted:false,lastSeen:Date.now()};
+
+  seatStates[n]={
+    ...ME,
+    id:MY_ID,
+    uid:ME.uid||"",
+    name:ME.name||ME.nickname||"User",
+    pic:ME.photo||ME.pic||ME.dp||ME.avatar||ME.avatarUrl||ME.photoURL||ME.image||"",
+    pp:ME.photo||ME.pic||ME.dp||"",
+    active_level:ME.active_level||0,
+    charm_level:ME.charm_level||0,
+    wealth_level:ME.wealth_level||0,
+    game_level:ME.game_level||0,
+    level:ME.active_level||ME.level||0,
+    muted:false,
+    lastSeen:Date.now()
+  };
+
   mySeatNumber=n;
   saveJSON(seatKey,seatStates);
-  renderSeats();closePanel();
+  renderSeats();
+  closePanel();
   toast("Seat "+n+" joined as "+ME.name);
   ensureMic().then(s=>{if(s)connectVoiceToAll()});
 }
+  
+
 setInterval(()=>{
   if(!mySeatNumber)return;
   seatStates=loadJSON(seatKey,{});
