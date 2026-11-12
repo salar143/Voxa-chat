@@ -1557,15 +1557,27 @@ function closeProfileSlide(){
   },300);
 }
   
+
 E("psOverlay").onclick=closeProfileSlide;
+
 function userProfilePanel(user,seatNum){
   const sheet=E("psSheet");
   const nm=user.name||"User";
-const uid=String(user.uid||user.id||"guest");
+  const uid=String(user.uid||user.publicId||user.id||"guest");
   const targetRole=getRole(uid);
   const myRole=isOwner?"owner":(getRole(MY_ID));
   const seated=!!seatNum;
+
   const lv=user.levels||{};
+  const activeLevel=Number(user.active_level||user.level||lv.profile||0);
+  const charmLevel=Number(user.charm_level||lv.charm||0);
+  const wealthLevel=Number(user.wealth_level||lv.wealth||0);
+  const gameLevel=Number(user.game_level||lv.game||0);
+
+  const profilePhoto=
+    user.photo||user.pic||user.pp||user.dp||
+    user.avatar||user.avatarUrl||user.photoURL||user.image||"";
+
   const gender=user.gender||"♀";
   const age=user.age||"—";
   const intimacy=user.intimacy||0;
@@ -1575,7 +1587,9 @@ const uid=String(user.uid||user.id||"guest");
   const gifts=user.gifts||["🌹","🎁","💎"];
   const isFollowing=(user.followers||[]).includes(MY_ID);
   const isMuted=seatNum&&seatStates[seatNum]&&seatStates[seatNum].muted;
+
   sheet.innerHTML=''
+    
     +'<div class="ps-dp" id="psDp">'+(user.pic?'<img src="'+user.pic+'" alt="">':nm.charAt(0).toUpperCase())+'</div>'
     +(isMuted?'<span class="ps-mute-badge" id="psMuteBadge"><svg><use href="#mic-off"/></svg></span>':'')
     +'<div class="ps-toprow">'
