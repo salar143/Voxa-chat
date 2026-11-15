@@ -465,7 +465,7 @@ function getLoggedInUser(){
   return{id:null,uid:"",name:"Guest",pic:""};
 }
 const ME=getLoggedInUser();
-const MY_ID=String(ME.id||userPublicId(ME)||"guest");
+  let MY_ID=String(ME.id||userPublicId(ME)||"guest");
 const MY_PUBLIC_ID=String(userPublicId(ME)||"");
 const seatKey="voxa_room_seats_"+roomID;
 const roomKey="voxa_room_data_"+roomID;
