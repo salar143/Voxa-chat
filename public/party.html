@@ -316,20 +316,91 @@ function searchRoom(){
   location.href='blind-date-room-profile-fix.html?id='+id.trim();
 }
 
-function renderScreenView() {
+async function renderScreenView() {
   const container = document.getElementById('masterContentContainer');
+  
   if (currentActiveMode === 'explore') {
     container.innerHTML = `<div style="color:#9ca3af;text-align:center;padding:20px">Explore Rooms loading...</div>`;
-  } else if (currentActiveMode === 'related') {
+  } 
+  else if (currentActiveMode === 'related') {
+    
+    // Tabs UI (Recently, Following, Manage)
     container.innerHTML = `
-    <div style="display:flex;gap:8px;margin-bottom:12px">
-      <span class="top-tab active">Recently</span>
-      <span class="top-tab">Following</span>
-      <span class="top-tab">Manage</span>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <span class="top-tab ${currentSubTab === 'recent' ? 'active' : ''}" onclick="setSubTab('recent')">Recently</span>
+      <span class="top-tab ${currentSubTab === 'following' ? 'active' : ''}" onclick="setSubTab('following')">Following</span>
+      <span class="top-tab ${currentSubTab === 'manage' ? 'active' : ''}" onclick="setSubTab('manage')">Manage</span>
     </div>
-    <div style="color:#9ca3af;text-align:center;padding:20px">Recently mein abhi koi room nahi hai.</div>`;
+    <div id="roomsListContainer" style="color:#9ca3af;text-align:center;padding:20px">Loading rooms...</div>`;
+    
+    try {
+      // Saare rooms database se fetch karo
+      const { data: allRooms } = await sb.from('rooms').select('*');
+      
+      // Browser ki memory se Recently aur Following nikalo
+      let recentIds = JSON.parse(localStorage.getItem('voxa_recent_rooms') || "[]");
+      let followingIds = JSON.parse(localStorage.getItem('voxa_following_rooms') || "[]");
+
+      let roomsToShow = [];
+
+      if (currentSubTab === 'recent') {
+        roomsToShow = allRooms.filter(r => recentIds.includes(String(r.room_id)));
+      } else if (currentSubTab === 'following') {
+        roomsToShow = allRooms.filter(r => followingIds.includes(String(r.room_id)));
+      } else if (currentSubTab === 'manage') {
+        // Sirf wo rooms jinke aap owner ho
+        roomsToShow = allRooms.filter(r => String(r.owner_uid) === String(currentUserProfile?.uid));
+      }
+
+      const listContainer = document.getElementById('roomsListContainer');
+      
+      if (roomsToShow.length > 0) {
+        listContainer.innerHTML = '';
+        roomsToShow.forEach(r => {
+           const roomCard = document.createElement('div');
+           roomCard.style.cssText = "background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:12px; display:flex; align-items:center; gap:12px; margin-bottom:12px; cursor:pointer;";
+           
+           const dp = r.dp ? `<img src="${r.dp}" style="width:50px;height:50px;border-radius:12px;object-fit:cover;">` : `<div style="width:50px;height:50px;border-radius:12px;background:#7c3aed;display:flex;justify-content:center;align-items:center;font-size:24px;">🏠</div>`;
+           
+           roomCard.innerHTML = `
+              ${dp}
+              <div style="flex:1;">
+                 <div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px;">${r.name}</div>
+                 <div style="font-size:11px;color:#9ca3af;">ID: ${r.room_id} · Lv.${r.level || 1}</div>
+              </div>
+           `;
+           
+           // Click karne par Recent me save hoga aur Room khulega
+           roomCard.onclick = () => {
+               addToRecent(r.room_id);
+               window.location.href = 'blind-date-room-profile-fix.html?id=' + r.room_id;
+           };
+           
+           listContainer.appendChild(roomCard);
+        });
+      } else {
+        listContainer.innerHTML = 'Is list me abhi koi room nahi hai.';
+      }
+    } catch(e) {
+      console.log("Rooms load error:", e);
+    }
+
   } else {
     container.innerHTML = `<div style="color:#9ca3af;text-align:center;padding:20px">Events coming soon</div>`;
+  }
+}
+
+// --- Naye Helper Functions (Isko renderScreenView ke theek neeche add karo) ---
+function setSubTab(tab) {
+  currentSubTab = tab;
+  renderScreenView();
+}
+
+function addToRecent(roomId) {
+  let recent = JSON.parse(localStorage.getItem('voxa_recent_rooms') || "[]");
+  if (!recent.includes(String(roomId))) {
+    recent.unshift(String(roomId));
+    localStorage.setItem('voxa_recent_rooms', JSON.stringify(recent));
   }
 }
 
