@@ -264,7 +264,6 @@ function setRoomType(type){
   document.getElementById('btnNormal').classList.toggle('selected', type === 'normal');
   document.getElementById('btnFamily').classList.toggle('selected', type === 'family');
 }
-
 async function submitCreateRoom(){
   const name = document.getElementById('newRoomName').value.trim();
   const btn = document.getElementById('btnCreateSubmit');
@@ -272,18 +271,24 @@ async function submitCreateRoom(){
   const btnText = document.getElementById('btnText');
   
   if(!name) return alert('Please enter a room name.');
-  if(!currentUserProfile) return alert('User profile not found. Please login first.');
-
-  if(selectedType === 'normal' && myRooms.normal) return alert("Aapke paas pehle se Normal room hai. Please enter that room.");
-  if(selectedType === 'family' && myRooms.family) return alert("Aapke paas pehle se Family room hai. Please enter that room.");
 
   btn.disabled = true;
-  btnText.textContent = 'Creating...';
+  btnText.textContent = 'Checking...';
   spinner.style.display = 'block';
 
   try {
+    // Direct Supabase se user check karo, taaki purana data ka issue na ho
+    const { data: { user }, error: authErr } = await sb.auth.getUser();
+    if(authErr || !user) throw new Error("Aap login nahi hain. Please login again.");
+
+    const { data: profile, error: pErr } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
+    if(pErr || !profile) throw new Error("Profile nahi mili.");
+
+    btnText.textContent = 'Creating...';
+
+    // Room Create function call karo
     const { data, error } = await sb.rpc('create_room', {
-      p_owner_uid: String(currentUserProfile.uid),
+      p_owner_uid: String(profile.uid),
       p_name: name,
       p_type: selectedType,
       p_dp: null
@@ -294,7 +299,7 @@ async function submitCreateRoom(){
 
     btnText.textContent = 'Success!';
     
-    // Ye line aapko direct room me le jayegi
+    // Direct Room me bhej do
     location.href = 'blind-date-room-profile-fix.html?id=' + data.room.room_id + '&mode=' + selectedMode;
 
   } catch(e) {
@@ -303,7 +308,7 @@ async function submitCreateRoom(){
     btnText.textContent = 'Create Room';
     spinner.style.display = 'none';
   }
-}
+ 
 function searchRoom(){
   const id=prompt('Search Room ID:');
   if(!id)return;
