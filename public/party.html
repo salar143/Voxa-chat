@@ -464,13 +464,17 @@ function setSubTab(tab) {
   renderScreenView();
 }
 
-function addToRecent(roomId) {
+ function addToRecent(roomId) {
   let recent = JSON.parse(localStorage.getItem('voxa_recent_rooms') || "[]");
   if (!recent.includes(String(roomId))) {
     recent.unshift(String(roomId));
     localStorage.setItem('voxa_recent_rooms', JSON.stringify(recent));
   }
-}
+  // Agar abhi Recently tab khula hai, to list turant update karo
+  if (currentSubTab === 'recent') {
+      renderScreenView(); 
+  }
+ }
 
 function setMode(mode){
   currentActiveMode = mode;
