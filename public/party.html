@@ -167,6 +167,7 @@ let myRooms = { normal: null, family: null };
 let selectedMode = '';
 let selectedType = 'normal';
 let currentActiveMode = 'related';
+let currentSubTab = 'recent';
 
 async function checkAuthAndRooms() {
   const { data: { user } } = await sb.auth.getUser();
