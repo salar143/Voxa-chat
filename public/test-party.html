@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoxaChat - Party</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
+body{min-height:100vh;background:linear-gradient(160deg,#0a0a12,#1a0b2e 55%,#000);color:#fff;padding:14px;padding-bottom:110px;position:relative;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;perspective:600px}
+.heart{position:absolute;opacity:.4;animation:float 11s linear infinite;filter:drop-shadow(0 0 8px rgba(168,85,247,.7));transform-style:preserve-3d}
+.heart.big{animation:floatBig 10s linear infinite}
+@keyframes float{0%{transform:translateY(110vh) translateX(0) scale(.5) rotateZ(0deg);opacity:0}10%{opacity:.5}50%{transform:translateY(50vh) translateX(20px) scale(.8) rotateZ(15deg)}90%{opacity:.3}100%{transform:translateY(-160px) translateX(-20px) scale(1.1) rotateZ(30deg);opacity:0}}
+@keyframes floatBig{0%{transform:translateY(110vh) translateX(0) scale(.5) rotateZ(0deg);opacity:0}10%{opacity:.5}25%{transform:translateY(75vh) translateX(30px) scale(.7) rotateZ(8deg)}50%{transform:translateY(50vh) translateX(-25px) scale(.85) rotateZ(-8deg)}75%{transform:translateY(25vh) translateX(25px) scale(.95) rotateZ(6deg)}90%{opacity:.3}100%{transform:translateY(-160px) translateX(-15px) scale(1.1) rotateZ(-5deg);opacity:0}}
+.wrap{max-width:480px;margin:0 auto;position:relative;z-index:2}
+.head{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.top-tab{background:rgba(255,255,255,.08);border:1px solid rgba(168,85,247,.5);color:#c084fc;font-size:12px;font-weight:800;padding:10px 12px;border-radius:14px;cursor:pointer;white-space:nowrap;transition:0.3s}
+.top-tab.active{background:linear-gradient(135deg,#7c3aed,#ec4899);border-color:transparent;color:#fff;box-shadow:0 4px 15px rgba(236,72,153,0.4)}
+.search-icon{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(168,85,247,.5);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;margin-left:auto;flex-shrink:0}
+.home-plus-icon{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(168,85,247,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;gap:1px;transition:0.3s}
+.home-plus-icon:active{transform:scale(0.9);background:rgba(168,85,247,.3)}
+.home-plus-icon .home{font-size:14px;line-height:1}
+.home-plus-icon .plus{font-size:12px;line-height:1;color:#c084fc;font-weight:900}
+.room-card{background:rgba(255,255,255,.06);backdrop-filter:blur(12px);border:1px solid rgba(168,85,247,.35);border-radius:16px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:10px;transition:0.2s}
+.room-card:active{transform:scale(0.98)}
+.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,18,.95);border-top:1px solid rgba(168,85,247,.4);display:flex;justify-content:space-around;padding:12px 0;z-index:10;backdrop-filter:blur(10px)}
+.nav button{background:none;border:0;color:#9ca3af;font-size:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+.nav button.active{color:#c084fc;text-shadow:0 0 12px rgba(192,132,252,.9)}
+.nav .ic{font-size:22px}
+
+/* =========================================
+   PREMIUM CREATE ROOM SHEET (FANCY UI)
+   ========================================= */
+.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(5px);z-index:90;display:none;opacity:0;transition:opacity .3s}
+.sheet-overlay.show{display:block;opacity:1}
+.sheet{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg,#2a1b38,#150f21);border-radius:28px 28px 0 0;z-index:91;transform:translateY(100%);transition:transform .4s cubic-bezier(0.16, 1, 0.3, 1);max-height:92vh;overflow-y:auto;border-top:1px solid rgba(168,85,247,0.3);box-shadow:0 -10px 40px rgba(0,0,0,0.8)}
+.sheet.show{transform:translateY(0)}
+.sheet-drag{width:40px;height:5px;background:rgba(255,255,255,0.2);border-radius:10px;margin:12px auto}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;padding:10px 20px 15px}
+.sheet-head h2{font-size:22px;font-weight:800;color:#fff;letter-spacing:0.5px}
+.sheet-head .cancel{font-size:14px;color:#a78bfa;cursor:pointer;font-weight:600}
+
+/* Mode Grid */
+.sheet-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 20px 30px}
+.mode-card{border-radius:18px;padding:16px 12px;color:#fff;cursor:pointer;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;min-height:100px;box-shadow:0 8px 20px rgba(0,0,0,0.4);transition:transform 0.15s, box-shadow 0.15s}
+.mode-card:active{transform:scale(0.95);box-shadow:0 2px 10px rgba(0,0,0,0.5)}
+.mode-card .m-title{font-size:13px;font-weight:800;z-index:2;text-shadow:0 2px 4px rgba(0,0,0,0.5);line-height:1.2}
+.mode-card .m-icon{font-size:45px;position:absolute;right:-8px;bottom:-8px;z-index:1;opacity:0.9;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4))}
+.bg-chat{background:linear-gradient(135deg,#ff8a00,#e52e71)}
+.bg-video{background:linear-gradient(135deg,#11998e,#38ef7d)}
+.bg-td{background:linear-gradient(135deg,#8E2DE2,#4A00E0)}
+.bg-carrom{background:linear-gradient(135deg,#f12711,#f5af19)}
+.bg-snake{background:linear-gradient(135deg,#00b4db,#0083b0)}
+.bg-talent{background:linear-gradient(135deg,#c31432,#240b36)}
+
+/* Form Styles */
+.create-form{display:none;padding:0 20px 30px}
+.create-form.show{display:block;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.premium-input{width:100%;padding:16px;border-radius:16px;border:1px solid rgba(255,255,255,0.1);font-size:15px;background:rgba(0,0,0,0.3);color:#fff;margin-bottom:20px;outline:none;transition:0.3s}
+.premium-input:focus{border-color:#8b5cf6;box-shadow:0 0 0 3px rgba(139,92,246,0.3)}
+.type-box{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.type-btn{padding:16px 10px;border-radius:16px;border:2px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.03);color:#a1a1aa;font-weight:700;cursor:pointer;text-align:center;transition:0.3s;position:relative;overflow:hidden}
+.type-btn.selected{border-color:#8b5cf6;background:rgba(139,92,246,0.15);color:#fff;box-shadow:0 0 20px rgba(139,92,246,0.2)}
+.type-btn small{display:block;font-weight:500;font-size:11px;margin-top:4px;color:#d4d4d8}
+.type-btn.family-btn.selected{border-color:#fbbf24;background:rgba(251,191,36,0.15);box-shadow:0 0 20px rgba(251,191,36,0.2)}
+.type-btn.family-btn small{color:#fbbf24;font-weight:700}
+
+.create-btn{width:100%;padding:18px;border-radius:16px;background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;font-weight:900;font-size:16px;border:0;cursor:pointer;box-shadow:0 8px 25px rgba(236,72,153,0.4);transition:0.3s;display:flex;justify-content:center;align-items:center;gap:10px}
+.create-btn:active{transform:scale(0.97)}
+.create-btn:disabled{opacity:0.7;box-shadow:none;transform:none}
+.spinner{width:18px;height:18px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="bg">
+ <span class="heart big" style="left:3%;color:#a855f7;font-size:46px;z-index:1;animation-delay:0s">💜</span>
+ <span class="heart" style="left:12%;animation-duration:11s;color:#a855f7;font-size:18px;z-index:0">💜</span>
+ <span class="heart big" style="left:22%;color:#7e22ce;font-size:46px;z-index:2;animation-delay:2s">💜</span>
+ <span class="heart" style="left:42%;color:#a855f7;font-size:46px;z-index:1;animation-delay:4s">💜</span>
+ <span class="heart big" style="left:62%;color:#a855f7;font-size:46px;z-index:2;animation-delay:6s">💜</span>
+ <span class="heart" style="left:82%;color:#7e22ce;font-size:46px;z-index:1;animation-delay:8s">💜</span>
+</div>
+
+<div class="wrap">
+ <div class="head">
+  <div class="top-tab" onclick="setMode('related')">Related</div>
+  <div class="top-tab" onclick="setMode('explore')">Explore</div>
+  <div class="top-tab" onclick="setMode('event')">Event</div>
+  <div class="search-icon" onclick="searchRoom()">🔍</div>
+  <div class="home-plus-icon" onclick="openCreateSheet()"><span class="home">🏠</span><span class="plus">+</span></div>
+ </div>
+</div>
+
+<div class="wrap">
+ <div id="masterContentContainer"></div>
+</div>
+
+<div class="nav">
+ <button onclick="location.href='homefile3.html'"><span class="ic">🏠</span>Home</button>
+ <button class="active" onclick="location.href='party.html'"><span class="ic">🎉</span>Party Room</button>
+ <button onclick="location.href='inbox.html'"><span class="ic">📥</span>Inbox</button>
+ <button onclick="location.href='profile2.html'"><span class="ic">👤</span>Profile</button>
+</div>
+
+<!-- PREMIUM BOTTOM SHEET -->
+<div class="sheet-overlay" id="sheetOverlay" onclick="closeCreateSheet()"></div>
+<div class="sheet" id="createSheet">
+  <div class="sheet-drag"></div>
+  
+  <!-- Step 1: Modes Selection -->
+  <div id="stepModes">
+    <div class="sheet-head">
+      <h2>Create Room</h2>
+      <span class="cancel" onclick="closeCreateSheet()">Cancel</span>
+    </div>
+    <div class="sheet-grid">
+      <div class="mode-card bg-chat" onclick="selectMode('chat')">
+        <span class="m-title">Chat</span><span class="m-icon">💬</span>
+      </div>
+      <div class="mode-card bg-video" onclick="selectMode('video')">
+        <span class="m-title">Video</span><span class="m-icon">📹</span>
+      </div>
+      <div class="mode-card bg-td" onclick="selectMode('truth')">
+        <span class="m-title">Truth & Dare</span><span class="m-icon">🍾</span>
+      </div>
+      <div class="mode-card bg-carrom" onclick="selectMode('carrom')">
+        <span class="m-title">Carrom</span><span class="m-icon">🎯</span>
+      </div>
+      <div class="mode-card bg-snake" onclick="selectMode('snakes')">
+        <span class="m-title">Snakes & Ladders</span><span class="m-icon">🎲</span>
+      </div>
+      <div class="mode-card bg-talent" onclick="selectMode('talent')">
+        <span class="m-title">Talent</span><span class="m-icon">🎤</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Room Form -->
+  <div class="create-form" id="stepForm">
+    <div class="sheet-head" style="padding:0 0 15px 0">
+      <h2>Room Details</h2>
+      <span class="cancel" onclick="backToModes()">← Back</span>
+    </div>
+    
+    <input type="text" id="newRoomName" class="premium-input" placeholder="Enter Room Name..." maxlength="50" autocomplete="off">
+    
+    <div class="type-box">
+      <div class="type-btn selected" id="btnNormal" onclick="setRoomType('normal')">
+        Normal
+        <small>Free to create</small>
+      </div>
+      <div class="type-btn family-btn" id="btnFamily" onclick="setRoomType('family')">
+        Family
+        <small>10,00,000 💎</small>
+      </div>
+    </div>
+
+    <button class="create-btn" id="btnCreateSubmit" onclick="submitCreateRoom()">
+      <span class="spinner" id="btnSpinner"></span>
+      <span id="btnText">Create Room</span>
+    </button>
+  </div>
+</div>
+
+<script>
+const sb = supabase.createClient(
+  'https://mblcbygpqbogmtzacbtz.supabase.co',
+  'sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV'
+);
+
+let currentUserProfile = null;
+let selectedMode = '';
+let selectedType = 'normal';
+
+// --- Naya Premium Create Room Logic ---
+async function openCreateSheet(){
+  document.getElementById('sheetOverlay').classList.add('show');
+  document.getElementById('createSheet').classList.add('show');
+  backToModes(); // reset
+  
+  const { data: { user } } = await sb.auth.getUser();
+  if(user) {
+    const { data } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
+    currentUserProfile = data;
+  }
+}
+
+function closeCreateSheet(){
+  document.getElementById('sheetOverlay').classList.remove('show');
+  document.getElementById('createSheet').classList.remove('show');
+}
+
+function selectMode(mode){
+  selectedMode = mode;
+  document.getElementById('stepModes').style.display = 'none';
+  document.getElementById('stepForm').style.display = 'block';
+  document.getElementById('newRoomName').value = '';
+  setRoomType('normal');
+}
+
+function backToModes(){
+  document.getElementById('stepModes').style.display = 'block';
+  document.getElementById('stepForm').style.display = 'none';
+}
+
+function setRoomType(type){
+  selectedType = type;
+  document.getElementById('btnNormal').classList.toggle('selected', type === 'normal');
+  document.getElementById('btnFamily').classList.toggle('selected', type === 'family');
+}
+
+async function submitCreateRoom(){
+  const name = document.getElementById('newRoomName').value.trim();
+  const btn = document.getElementById('btnCreateSubmit');
+  const spinner = document.getElementById('btnSpinner');
+  const btnText = document.getElementById('btnText');
+  
+  if(!name) return alert('Please enter a room name.');
+  if(!currentUserProfile) return alert('User profile not found. Please login.');
+
+  btn.disabled = true;
+  btnText.textContent = 'Creating...';
+  spinner.style.display = 'block';
+
+  try {
+    const { data, error } = await sb.rpc('create_room', {
+      p_owner_uid: String(currentUserProfile.uid),
+      p_name: name,
+      p_type: selectedType,
+      p_dp: null
+    });
+
+    if(error) throw error;
+    if(!data.success) throw new Error(data.error);
+
+    btnText.textContent = 'Success!';
+    alert(data.message + "\nRoom ID: " + data.room.room_id);
+    closeCreateSheet();
+    
+    // Redirect to room with mode
+    location.href = 'blind-date-room-profile-fix.html?id=' + data.room.room_id + '&mode=' + selectedMode;
+
+  } catch(e) {
+    alert(e.message || 'Room creation failed.');
+    btn.disabled = false;
+    btnText.textContent = 'Create Room';
+    spinner.style.display = 'none';
+  }
+}
+
+// --- Purana Base Logic (Basic) ---
+function searchRoom(){
+  const id=prompt('Search Room ID:');
+  if(!id)return;
+  location.href='blind-date-room-profile-fix.html?id='+id.trim();
+}
+
+function renderScreenView() {
+  const container = document.getElementById('masterContentContainer');
+  if (currentActiveMode === 'explore') {
+    container.innerHTML = `<div style="color:#9ca3af;text-align:center;padding:20px">Explore Rooms loading...</div>`;
+  } else if (currentActiveMode === 'related') {
+    container.innerHTML = `
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <span class="top-tab active">Recently</span>
+      <span class="top-tab">Following</span>
+      <span class="top-tab">Manage</span>
+    </div>
+    <div style="color:#9ca3af;text-align:center;padding:20px">Recently mein abhi koi room nahi hai.</div>`;
+  } else {
+    container.innerHTML = `<div style="color:#9ca3af;text-align:center;padding:20px">Events coming soon</div>`;
+  }
+}
+
+function setMode(mode){
+  currentActiveMode = mode;
+  renderScreenView();
+}
+
+renderScreenView();
+</script>
+</body>
+</html>
