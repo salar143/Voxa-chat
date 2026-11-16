@@ -348,7 +348,7 @@ async function renderScreenView() {
       if (currentSubTab === 'manage') {
           const { data: { user } } = await sb.auth.getUser();
           if (user) {
-              const { data: prof } = await sb.from('profiles').select('uid, nickname, name, photo, profile_photo').eq('id', user.id).single();
+              const { data: prof } = await sb.from('profiles').select('uid, nickname, name, photo, profile_photo').eq('id', user.id).maybeSingle();
               if (prof) {
                   let myOwnRoom = allRooms.find(r => String(r.owner_uid) === String(prof.uid));
                   if (myOwnRoom) {
