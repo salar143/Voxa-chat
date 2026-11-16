@@ -272,7 +272,7 @@ async function submitCreateRoom(){
   const btnText = document.getElementById('btnText');
   
   if(!name) return alert('Please enter a room name.');
-  if(!currentUserProfile) return alert('User profile not found. Please login.');
+  if(!currentUserProfile) return alert('User profile not found. Please login first.');
 
   if(selectedType === 'normal' && myRooms.normal) return alert("Aapke paas pehle se Normal room hai. Please enter that room.");
   if(selectedType === 'family' && myRooms.family) return alert("Aapke paas pehle se Family room hai. Please enter that room.");
@@ -293,8 +293,8 @@ async function submitCreateRoom(){
     if(!data.success) throw new Error(data.error);
 
     btnText.textContent = 'Success!';
-    alert(data.message + "\nRoom ID: " + data.room.room_id);
-    closeCreateSheet();
+    
+    // Ye line aapko direct room me le jayegi
     location.href = 'blind-date-room-profile-fix.html?id=' + data.room.room_id + '&mode=' + selectedMode;
 
   } catch(e) {
@@ -304,7 +304,6 @@ async function submitCreateRoom(){
     spinner.style.display = 'none';
   }
 }
-
 function searchRoom(){
   const id=prompt('Search Room ID:');
   if(!id)return;
