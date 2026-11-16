@@ -294,10 +294,19 @@ async function submitCreateRoom(){
     });
 
     if(error || !data.success) {
+    // Agar database ne duplicate ka error diya hai
+    if(error && error.message.includes("unique_user_room_type")) {
+        alert("Aapke paas pehle se ek Normal Room hai! Naya banane ke liye pehle wala delete karein.");
+    } else {
+        // Koi aur error aaye to dikhao
         alert("Room nahi bana: " + (error?.message || data?.error));
-        btn.disabled = false;
-        btn.innerText = 'Create Room';
-        return;
+    }
+    
+    // Button ko wapas normal karo
+    btn.disabled = false;
+    btn.innerText = 'Create Room';
+    document.getElementById('btnSpinner').style.display = 'none';
+    return
     }
 
     // Agar sab theek hai, to seedha room me jao
