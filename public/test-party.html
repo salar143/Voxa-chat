@@ -22,8 +22,6 @@ body{min-height:100vh;background:linear-gradient(160deg,#0a0a12,#1a0b2e 55%,#000
 .home-plus-icon:active{transform:scale(0.9);background:rgba(168,85,247,.3)}
 .home-plus-icon .home{font-size:14px;line-height:1}
 .home-plus-icon .plus{font-size:12px;line-height:1;color:#c084fc;font-weight:900}
-.room-card{background:rgba(255,255,255,.06);backdrop-filter:blur(12px);border:1px solid rgba(168,85,247,.35);border-radius:16px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:10px;transition:0.2s}
-.room-card:active{transform:scale(0.98)}
 .nav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,18,.95);border-top:1px solid rgba(168,85,247,.4);display:flex;justify-content:space-around;padding:12px 0;z-index:10;backdrop-filter:blur(10px)}
 .nav button{background:none;border:0;color:#9ca3af;font-size:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
 .nav button.active{color:#c084fc;text-shadow:0 0 12px rgba(192,132,252,.9)}
@@ -43,16 +41,26 @@ body{min-height:100vh;background:linear-gradient(160deg,#0a0a12,#1a0b2e 55%,#000
 
 /* Mode Grid */
 .sheet-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 20px 30px}
-.mode-card{border-radius:18px;padding:16px 12px;color:#fff;cursor:pointer;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;min-height:100px;box-shadow:0 8px 20px rgba(0,0,0,0.4);transition:transform 0.15s, box-shadow 0.15s}
+.mode-card{border-radius:18px;padding:16px 12px;color:#fff;cursor:pointer;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;min-height:100px;box-shadow:0 8px 20px rgba(0,0,0,0.4);transition:transform 0.15s, box-shadow 0.15s;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05)}
 .mode-card:active{transform:scale(0.95);box-shadow:0 2px 10px rgba(0,0,0,0.5)}
 .mode-card .m-title{font-size:13px;font-weight:800;z-index:2;text-shadow:0 2px 4px rgba(0,0,0,0.5);line-height:1.2}
-.mode-card .m-icon{font-size:45px;position:absolute;right:-8px;bottom:-8px;z-index:1;opacity:0.9;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4))}
-.bg-chat{background:linear-gradient(135deg,#ff8a00,#e52e71)}
-.bg-video{background:linear-gradient(135deg,#11998e,#38ef7d)}
-.bg-td{background:linear-gradient(135deg,#8E2DE2,#4A00E0)}
-.bg-carrom{background:linear-gradient(135deg,#f12711,#f5af19)}
-.bg-snake{background:linear-gradient(135deg,#00b4db,#0083b0)}
-.bg-talent{background:linear-gradient(135deg,#c31432,#240b36)}
+/* Premium SVG Icons */
+.mode-card .m-icon{position:absolute;right:10px;bottom:10px;z-index:1;width:40px;height:40px;opacity:0.9;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.5))}
+.mode-card .m-icon svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* Gradient Backgrounds for Cards */
+.bg-chat{background:linear-gradient(135deg,rgba(255,138,0,0.15),rgba(229,46,113,0.15));border-color:rgba(255,138,0,0.3)}
+.bg-chat .m-icon{color:#ff8a00}
+.bg-video{background:linear-gradient(135deg,rgba(17,153,142,0.15),rgba(56,239,125,0.15));border-color:rgba(56,239,125,0.3)}
+.bg-video .m-icon{color:#38ef7d}
+.bg-td{background:linear-gradient(135deg,rgba(142,45,226,0.15),rgba(74,0,224,0.15));border-color:rgba(142,45,226,0.3)}
+.bg-td .m-icon{color:#b966ff}
+.bg-carrom{background:linear-gradient(135deg,rgba(241,39,17,0.15),rgba(245,175,25,0.15));border-color:rgba(241,39,17,0.3)}
+.bg-carrom .m-icon{color:#f5af19}
+.bg-snake{background:linear-gradient(135deg,rgba(0,180,219,0.15),rgba(0,131,176,0.15));border-color:rgba(0,180,219,0.3)}
+.bg-snake .m-icon{color:#00b4db}
+.bg-talent{background:linear-gradient(135deg,rgba(195,20,50,0.15),rgba(36,11,54,0.15));border-color:rgba(195,20,50,0.3)}
+.bg-talent .m-icon{color:#ff4b6a}
 
 /* Form Styles */
 .create-form{display:none;padding:0 20px 30px}
@@ -118,23 +126,47 @@ body{min-height:100vh;background:linear-gradient(160deg,#0a0a12,#1a0b2e 55%,#000
       <span class="cancel" onclick="closeCreateSheet()">Cancel</span>
     </div>
     <div class="sheet-grid">
+      <!-- Chat -->
       <div class="mode-card bg-chat" onclick="selectMode('chat')">
-        <span class="m-title">Chat</span><span class="m-icon">💬</span>
+        <span class="m-title">Chat</span>
+        <span class="m-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        </span>
       </div>
+      <!-- Video -->
       <div class="mode-card bg-video" onclick="selectMode('video')">
-        <span class="m-title">Video</span><span class="m-icon">📹</span>
+        <span class="m-title">Video</span>
+        <span class="m-icon">
+          <svg viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="3"/><path d="M16 10l6-3v10l-6-3"/></svg>
+        </span>
       </div>
+      <!-- Truth & Dare -->
       <div class="mode-card bg-td" onclick="selectMode('truth')">
-        <span class="m-title">Truth & Dare</span><span class="m-icon">🍾</span>
+        <span class="m-title">Truth & Dare</span>
+        <span class="m-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM8 12l2 2 4-4"/></svg>
+        </span>
       </div>
+      <!-- Carrom -->
       <div class="mode-card bg-carrom" onclick="selectMode('carrom')">
-        <span class="m-title">Carrom</span><span class="m-icon">🎯</span>
+        <span class="m-title">Carrom</span>
+        <span class="m-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>
+        </span>
       </div>
+      <!-- Snakes & Ladders -->
       <div class="mode-card bg-snake" onclick="selectMode('snakes')">
-        <span class="m-title">Snakes & Ladders</span><span class="m-icon">🎲</span>
+        <span class="m-title">Snakes</span>
+        <span class="m-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 4h4v4H4zM12 4h4v4h-4zM20 4h4v4h-4zM4 12h4v4H4zM12 12h4v4h-4zM20 12h4v4h-4zM4 20h4v4H4zM12 20h4v4h-4zM20 20h4v4h-4z"/></svg>
+        </span>
       </div>
+      <!-- Talent -->
       <div class="mode-card bg-talent" onclick="selectMode('talent')">
-        <span class="m-title">Talent</span><span class="m-icon">🎤</span>
+        <span class="m-title">Talent</span>
+        <span class="m-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3zM19 10v1a7 7 0 0 1-14 0v-1M12 18v4M8 22h8"/></svg>
+        </span>
       </div>
     </div>
   </div>
@@ -175,18 +207,26 @@ const sb = supabase.createClient(
 let currentUserProfile = null;
 let selectedMode = '';
 let selectedType = 'normal';
+let currentActiveMode = 'related';
+
+// --- Check Login Status ---
+async function checkAuth() {
+  const { data: { user } } = await sb.auth.getUser();
+  if(user) {
+    const { data } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
+    currentUserProfile = data;
+  } else {
+    // Agar login nahi hai, to alert karega
+    console.log("User not logged in. Room creation might fail.");
+  }
+}
+checkAuth();
 
 // --- Naya Premium Create Room Logic ---
 async function openCreateSheet(){
   document.getElementById('sheetOverlay').classList.add('show');
   document.getElementById('createSheet').classList.add('show');
   backToModes(); // reset
-  
-  const { data: { user } } = await sb.auth.getUser();
-  if(user) {
-    const { data } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
-    currentUserProfile = data;
-  }
 }
 
 function closeCreateSheet(){
@@ -220,7 +260,7 @@ async function submitCreateRoom(){
   const btnText = document.getElementById('btnText');
   
   if(!name) return alert('Please enter a room name.');
-  if(!currentUserProfile) return alert('User profile not found. Please login.');
+  if(!currentUserProfile) return alert('User profile not found. Please login first.');
 
   btn.disabled = true;
   btnText.textContent = 'Creating...';
@@ -252,7 +292,7 @@ async function submitCreateRoom(){
   }
 }
 
-// --- Purana Base Logic (Basic) ---
+// --- Purana Base Logic ---
 function searchRoom(){
   const id=prompt('Search Room ID:');
   if(!id)return;
