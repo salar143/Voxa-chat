@@ -157,7 +157,7 @@ body{min-height:100vh;background:#05040a;color:#fff;padding:14px;padding-bottom:
 </div>
 
 <script>
- const sb = supabase.createClient(
+const sb = supabase.createClient(
   'https://mblcbygpqbogmtzacbtz.supabase.co',
   'sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV'
 );
@@ -185,8 +185,8 @@ async function checkAuthAndRooms() {
   }
 }
 checkAuthAndRooms();
- 
- async function openCreateSheet(){
+
+async function openCreateSheet(){
   document.getElementById('sheetOverlay').classList.add('show');
   document.getElementById('createSheet').classList.add('show');
   try {
@@ -195,7 +195,7 @@ checkAuthAndRooms();
     console.log("Auth error: ", e);
   }
   backToModes();
- }
+}
 
 function closeCreateSheet(){
   document.getElementById('sheetOverlay').classList.remove('show');
@@ -268,6 +268,7 @@ function setRoomType(type){
   document.getElementById('btnNormal').classList.toggle('selected', type === 'normal');
   document.getElementById('btnFamily').classList.toggle('selected', type === 'family');
 }
+
 async function submitCreateRoom(){
   const name = document.getElementById('newRoomName').value.trim();
   const btn = document.getElementById('btnCreateSubmit');
@@ -281,7 +282,6 @@ async function submitCreateRoom(){
   spinner.style.display = 'block';
 
   try {
-    // Direct Supabase se user check karo, taaki purana data ka issue na ho
     const { data: { user }, error: authErr } = await sb.auth.getUser();
     if(authErr || !user) throw new Error("Aap login nahi hain. Please login again.");
 
@@ -290,7 +290,6 @@ async function submitCreateRoom(){
 
     btnText.textContent = 'Creating...';
 
-    // Room Create function call karo
     const { data, error } = await sb.rpc('create_room', {
       p_owner_uid: String(profile.uid),
       p_name: name,
@@ -302,8 +301,6 @@ async function submitCreateRoom(){
     if(!data.success) throw new Error(data.error);
 
     btnText.textContent = 'Success!';
-    
-    // Direct Room me bhej do
     location.href = 'blind-date-room-profile-fix.html?id=' + data.room.room_id + '&mode=' + selectedMode;
 
   } catch(e) {
@@ -312,7 +309,8 @@ async function submitCreateRoom(){
     btnText.textContent = 'Create Room';
     spinner.style.display = 'none';
   }
- 
+}
+
 function searchRoom(){
   const id=prompt('Search Room ID:');
   if(!id)return;
@@ -337,11 +335,4 @@ function renderScreenView() {
 }
 
 function setMode(mode){
-  currentActiveMode = mode;
-  renderScreenView();
-}
-
-renderScreenView();
-</script>
-</body>
-</html>
+  
