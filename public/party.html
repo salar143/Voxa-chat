@@ -324,7 +324,6 @@ function searchRoom(){
   if(!id)return;
   location.href='blind-date-room-profile-fix.html?id='+id.trim();
 }
-
 async function renderScreenView() {
   const container = document.getElementById('masterContentContainer');
   
@@ -333,7 +332,7 @@ async function renderScreenView() {
   } 
   else if (currentActiveMode === 'related') {
     
-    // Tabs UI (Screenshot style)
+    // Tabs UI
     container.innerHTML = `
     <div style="display:flex;gap:20px;margin-bottom:16px;padding:0 10px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:10px;">
       <span style="font-size:14px;font-weight:600;color:${currentSubTab==='recent'?'#fff':'#9ca3af'};cursor:pointer;position:relative;" onclick="setSubTab('recent')">
@@ -346,12 +345,47 @@ async function renderScreenView() {
         Managed ${currentSubTab==='manage'?'<div style="position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);width:20px;height:2px;background:#8754f6;border-radius:2px;"></div>':''}
       </span>
     </div>
+    <div id="myRoomContainer" style="margin-bottom:16px;"></div>
     <div id="roomsListContainer" style="color:#9ca3af;text-align:center;padding:20px">Loading rooms...</div>`;
     
     try {
       const { data: allRooms } = await sb.from('rooms').select('*');
       let recentIds = JSON.parse(localStorage.getItem('voxa_recent_rooms') || "[]");
       let followingIds = JSON.parse(localStorage.getItem('voxa_following_rooms') || "[]");
+
+      // --- AAPKE KHUD KE ROOM KA PREMIUM CARD (Sabse Upar) ---
+      const { data: { user } } = await sb.auth.getUser();
+      if (user) {
+          const { data: prof } = await sb.from('profiles').select('uid, nickname, name, photo, profile_photo').eq('id', user.id).single();
+          if (prof) {
+              let myOwnRoom = allRooms.find(r => String(r.owner_uid) === String(prof.uid));
+              if (myOwnRoom) {
+                  const myDp = prof.profile_photo || prof.photo || "https://i.pravatar.cc/150?img=12";
+                  const myName = prof.nickname || prof.name || "My Room";
+                  
+                  document.getElementById('myRoomContainer').innerHTML = `
+                  <div style="background:#fff; border-radius:20px; padding:16px; box-shadow:0 8px 25px rgba(0,0,0,0.15); position:relative; cursor:pointer;" onclick="addToRecent('${myOwnRoom.room_id}'); window.location.href='blind-date-room-profile-fix.html?id=${myOwnRoom.room_id}'">
+                     <!-- Mine Tag -->
+                     <div style="position:absolute; top:0; right:0; background:#fbbf24; color:#000; font-size:10px; font-weight:800; padding:4px 12px; border-radius:0 20px 0 10px;">Mine</div>
+                     
+                     <div style="display:flex; align-items:center; gap:14px;">
+                        <img src="${myDp}" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid #8754f6;">
+                        <div style="flex:1;">
+                           <div style="font-size:16px; font-weight:800; color:#333;">${myName}</div>
+                           <div style="font-size:11px; color:#666; background:#f3f4f6; display:inline-block; padding:4px 10px; border-radius:10px; margin-top:6px; border:1px solid #e5e7eb;">
+                              ${myOwnRoom.mode === 'video' ? '📹 Video' : myOwnRoom.mode === 'truth' ? '🍾 Truth & Dare' : myOwnRoom.mode === 'carrom' ? '🎯 Carrom' : '💬 Chat'}
+                           </div>
+                        </div>
+                        <div style="color:#8754f6; font-size:12px; display:flex; align-items:center; gap:4px;">
+                           <span>📊</span> 0
+                        </div>
+                     </div>
+                  </div>
+                  `;
+              }
+          }
+      }
+      // ----------------------------------------------------
 
       let roomsToShow = [];
 
@@ -368,7 +402,7 @@ async function renderScreenView() {
       if (roomsToShow.length > 0) {
         listContainer.innerHTML = '';
         roomsToShow.forEach(r => {
-           // Mode Icon Setup (Screenshot jaisa)
+           // Mode Icon Setup
            let modeIcon = "💬"; 
            let modeColor = "#e0e7ff"; 
            let modeTextColor = "#4f46e5";
@@ -380,7 +414,6 @@ async function renderScreenView() {
            else if(r.mode === 'talent' || r.name.toLowerCase().includes('talent')) { modeIcon = "🎤"; modeText = "Talent"; modeColor="#fef08a"; modeTextColor="#ca8a04"; }
 
            const roomCard = document.createElement('div');
-           // White Premium Card Design
            roomCard.style.cssText = "background:#fff; border-radius:16px; padding:12px; display:flex; align-items:center; gap:12px; margin-bottom:12px; cursor:pointer; box-shadow:0 4px 15px rgba(0,0,0,0.1);";
            
            const dp = r.dp ? `<img src="${r.dp}" style="width:55px;height:55px;border-radius:12px;object-fit:cover;">` : `<div style="width:55px;height:55px;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#ec4899);display:flex;justify-content:center;align-items:center;font-size:24px;color:#fff;">🏠</div>`;
@@ -415,7 +448,7 @@ async function renderScreenView() {
            listContainer.appendChild(roomCard);
         });
       } else {
-        listContainer.innerHTML = 'Is list me abhi koi room nahi hai.';
+        listContainer.innerHTML = '<div style="padding:20px; color:#9ca3af; font-size:12px;">Is list me abhi koi room nahi hai.</div>';
       }
     } catch(e) {
       console.log("Rooms load error:", e);
@@ -426,7 +459,7 @@ async function renderScreenView() {
   }
 }
 
-// --- Naye Helper Functions ---
+// --- Helper Functions ---
 function setSubTab(tab) {
   currentSubTab = tab;
   renderScreenView();
@@ -449,4 +482,3 @@ renderScreenView();
 </script>
 </body>
 </html>
-
