@@ -156,7 +156,7 @@ body{min-height:100vh;background:#05040a;color:#fff;padding:14px;padding-bottom:
   </div>
 </div>
 
-<script>
+<!-- Yahan Part 2 ka <script> tag shuru hota hai --><script>
 const sb = supabase.createClient(
   'https://mblcbygpqbogmtzacbtz.supabase.co',
   'sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV'
@@ -190,11 +190,7 @@ checkAuthAndRooms();
 async function openCreateSheet(){
   document.getElementById('sheetOverlay').classList.add('show');
   document.getElementById('createSheet').classList.add('show');
-  try {
-    await checkAuthAndRooms();
-  } catch(e) {
-    console.log("Auth error: ", e);
-  }
+  try { await checkAuthAndRooms(); } catch(e) { console.log("Auth error: ", e); }
   backToModes();
 }
 
@@ -281,7 +277,7 @@ async function submitCreateRoom(){
 
   try {
     const { data: { user } } = await sb.auth.getUser();
-    if(!user) return window.location.href = 'index.html'; // Agar login nahi hai to login page pe bhej do
+    if(!user) return window.location.href = 'index.html';
 
     const { data: profile } = await sb.from('profiles').select('uid').eq('id', user.id).maybeSingle();
     if(!profile) return alert('Profile nahi mili.');
@@ -294,36 +290,32 @@ async function submitCreateRoom(){
     });
 
     if(error || !data.success) {
-    // Agar database ne duplicate ka error diya hai
-    if(error && error.message.includes("unique_user_room_type")) {
-        alert("Aapke paas pehle se ek Normal Room hai! Naya banane ke liye pehle wala delete karein.");
-    } else {
-        // Koi aur error aaye to dikhao
-        alert("Room nahi bana: " + (error?.message || data?.error));
-    }
-    
-    // Button ko wapas normal karo
-    btn.disabled = false;
-    btn.innerText = 'Create Room';
-    document.getElementById('btnSpinner').style.display = 'none';
-    return;
+        if(error && error.message.includes("unique_user_room_type")) {
+            alert("Aapke paas pehle se ek room hai! Naya banane ke liye pehle wala manage karein.");
+        } else {
+            alert("Room nahi bana: " + (error?.message || data?.error));
+        }
+        btn.disabled = false;
+        btn.innerText = 'Create Room';
+        return;
     }
 
-    // Agar sab theek hai, to seedha room me jao
-    window.location.href = 'blind-date-room-profile-fix.html?id=' + data.room.room_id + '&mode=' + selectedMode;
+    btn.innerText = 'Success!';
+    location.href = 'blind-date-room-profile-fix.html?id=' + data.room.room_id + '&mode=' + selectedMode;
 
   } catch(e) {
-    alert("Error aaya: " + e.message);
+    alert("Error: " + e.message);
     btn.disabled = false;
     btn.innerText = 'Create Room';
   }
 }
-   
+
 function searchRoom(){
   const id=prompt('Search Room ID:');
   if(!id)return;
   location.href='blind-date-room-profile-fix.html?id='+id.trim();
 }
+
 async function renderScreenView() {
   const container = document.getElementById('masterContentContainer');
   
@@ -332,7 +324,6 @@ async function renderScreenView() {
   } 
   else if (currentActiveMode === 'related') {
     
-    // Tabs UI
     container.innerHTML = `
     <div style="display:flex;gap:20px;margin-bottom:16px;padding:0 10px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:10px;">
       <span style="font-size:14px;font-weight:600;color:${currentSubTab==='recent'?'#fff':'#9ca3af'};cursor:pointer;position:relative;" onclick="setSubTab('recent')">
@@ -352,39 +343,39 @@ async function renderScreenView() {
       const { data: allRooms } = await sb.from('rooms').select('*');
       let recentIds = JSON.parse(localStorage.getItem('voxa_recent_rooms') || "[]");
       let followingIds = JSON.parse(localStorage.getItem('voxa_following_rooms') || "[]");
-// --- AAPKE KHUD KE ROOM KA PREMIUM CARD (Sirf Manage tab me) ---
-if (currentSubTab === 'manage') {
-    const { data: { user } } = await sb.auth.getUser();
-    if (user) {
-        const { data: prof } = await sb.from('profiles').select('uid, nickname, name, photo, profile_photo').eq('id', user.id).single();
-        if (prof) {
-            let myOwnRoom = allRooms.find(r => String(r.owner_uid) === String(prof.uid));
-            if (myOwnRoom) {
-                const myDp = prof.profile_photo || prof.photo || "https://i.pravatar.cc/150?img=12";
-                const myName = prof.nickname || prof.name || "My Room";
-                
-                document.getElementById('myRoomContainer').innerHTML = `
-                <div style="background:#fff; border-radius:20px; padding:16px; box-shadow:0 8px 25px rgba(0,0,0,0.15); position:relative; cursor:pointer;" onclick="addToRecent('${myOwnRoom.room_id}'); window.location.href='blind-date-room-profile-fix.html?id=${myOwnRoom.room_id}'">
-                   <div style="position:absolute; top:0; right:0; background:#fbbf24; color:#000; font-size:10px; font-weight:800; padding:4px 12px; border-radius:0 20px 0 10px;">Mine</div>
-                   <div style="display:flex; align-items:center; gap:14px;">
-                      <img src="${myDp}" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid #8754f6;">
-                      <div style="flex:1;">
-                         <div style="font-size:16px; font-weight:800; color:#333;">${myName}</div>
-                         <div style="font-size:11px; color:#666; background:#f3f4f6; display:inline-block; padding:4px 10px; border-radius:10px; margin-top:6px; border:1px solid #e5e7eb;">
-                            ${myOwnRoom.mode === 'video' ? '📹 Video' : myOwnRoom.mode === 'truth' ? '🍾 Truth & Dare' : myOwnRoom.mode === 'carrom' ? '🎯 Carrom' : '💬 Chat'}
+
+      // --- AAPKE KHUD KE ROOM KA PREMIUM CARD (Sirf Manage tab me) ---
+      if (currentSubTab === 'manage') {
+          const { data: { user } } = await sb.auth.getUser();
+          if (user) {
+              const { data: prof } = await sb.from('profiles').select('uid, nickname, name, photo, profile_photo').eq('id', user.id).single();
+              if (prof) {
+                  let myOwnRoom = allRooms.find(r => String(r.owner_uid) === String(prof.uid));
+                  if (myOwnRoom) {
+                      const myDp = prof.profile_photo || prof.photo || "https://i.pravatar.cc/150?img=12";
+                      const myName = prof.nickname || prof.name || "My Room";
+                      
+                      document.getElementById('myRoomContainer').innerHTML = `
+                      <div style="background:#fff; border-radius:20px; padding:16px; box-shadow:0 8px 25px rgba(0,0,0,0.15); position:relative; cursor:pointer;" onclick="addToRecent('${myOwnRoom.room_id}'); window.location.href='blind-date-room-profile-fix.html?id=${myOwnRoom.room_id}'">
+                         <div style="position:absolute; top:0; right:0; background:#fbbf24; color:#000; font-size:10px; font-weight:800; padding:4px 12px; border-radius:0 20px 0 10px;">Mine</div>
+                         <div style="display:flex; align-items:center; gap:14px;">
+                            <img src="${myDp}" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid #8754f6;">
+                            <div style="flex:1;">
+                               <div style="font-size:16px; font-weight:800; color:#333;">${myName}</div>
+                               <div style="font-size:11px; color:#666; background:#f3f4f6; display:inline-block; padding:4px 10px; border-radius:10px; margin-top:6px; border:1px solid #e5e7eb;">
+                                  ${myOwnRoom.mode === 'video' ? '📹 Video' : myOwnRoom.mode === 'truth' ? '🍾 Truth & Dare' : myOwnRoom.mode === 'carrom' ? '🎯 Carrom' : '💬 Chat'}
+                               </div>
+                            </div>
+                            <div style="color:#8754f6; font-size:12px; display:flex; align-items:center; gap:4px;">
+                               <span>📊</span> 0
+                            </div>
                          </div>
                       </div>
-                      <div style="color:#8754f6; font-size:12px; display:flex; align-items:center; gap:4px;">
-                         <span>📊</span> 0
-                      </div>
-                   </div>
-                </div>
-                `;
-            }
-        }
-    }
-}
-      // ----------------------------------------------------
+                      `;
+                  }
+              }
+          }
+      }
 
       let roomsToShow = [];
 
@@ -393,7 +384,11 @@ if (currentSubTab === 'manage') {
       } else if (currentSubTab === 'following') {
         roomsToShow = allRooms.filter(r => followingIds.includes(String(r.room_id)));
       } else if (currentSubTab === 'manage') {
-        roomsToShow = allRooms.filter(r => String(r.owner_uid) === String(currentUserProfile?.uid));
+        const { data: { user } } = await sb.auth.getUser();
+        if(user) {
+            const { data: prof } = await sb.from('profiles').select('uid').eq('id', user.id).single();
+            if(prof) roomsToShow = allRooms.filter(r => String(r.owner_uid).trim() === String(prof.uid).trim());
+        }
       }
 
       const listContainer = document.getElementById('roomsListContainer');
@@ -401,11 +396,7 @@ if (currentSubTab === 'manage') {
       if (roomsToShow.length > 0) {
         listContainer.innerHTML = '';
         roomsToShow.forEach(r => {
-           // Mode Icon Setup
-           let modeIcon = "💬"; 
-           let modeColor = "#e0e7ff"; 
-           let modeTextColor = "#4f46e5";
-           let modeText = "Chat";
+           let modeIcon = "💬"; let modeColor = "#e0e7ff"; let modeTextColor = "#4f46e5"; let modeText = "Chat";
            if(r.mode === 'video' || r.name.toLowerCase().includes('video')) { modeIcon = "📹"; modeText = "Video"; modeColor="#ffedd5"; modeTextColor="#ea580c"; }
            else if(r.mode === 'truth' || r.name.toLowerCase().includes('truth')) { modeIcon = "🍾"; modeText = "Truth & Dare"; modeColor="#f3e8ff"; modeTextColor="#9333ea"; }
            else if(r.mode === 'carrom' || r.name.toLowerCase().includes('carrom')) { modeIcon = "🎯"; modeText = "Carrom"; modeColor="#fce7f3"; modeTextColor="#db2777"; }
@@ -464,17 +455,16 @@ function setSubTab(tab) {
   renderScreenView();
 }
 
- function addToRecent(roomId) {
+function addToRecent(roomId) {
   let recent = JSON.parse(localStorage.getItem('voxa_recent_rooms') || "[]");
   if (!recent.includes(String(roomId))) {
     recent.unshift(String(roomId));
     localStorage.setItem('voxa_recent_rooms', JSON.stringify(recent));
   }
-  // Agar abhi Recently tab khula hai, to list turant update karo
   if (currentSubTab === 'recent') {
       renderScreenView(); 
   }
- }
+}
 
 function setMode(mode){
   currentActiveMode = mode;
