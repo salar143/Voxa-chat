@@ -185,13 +185,17 @@ async function checkAuthAndRooms() {
   }
 }
 checkAuthAndRooms();
-
-async function openCreateSheet(){
+ 
+ async function openCreateSheet(){
   document.getElementById('sheetOverlay').classList.add('show');
   document.getElementById('createSheet').classList.add('show');
-  await checkAuthAndRooms();
+  try {
+    await checkAuthAndRooms();
+  } catch(e) {
+    console.log("Auth error: ", e);
+  }
   backToModes();
-}
+ }
 
 function closeCreateSheet(){
   document.getElementById('sheetOverlay').classList.remove('show');
