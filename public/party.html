@@ -268,27 +268,22 @@ function setRoomType(type){
   document.getElementById('btnNormal').classList.toggle('selected', type === 'normal');
   document.getElementById('btnFamily').classList.toggle('selected', type === 'family');
 }
-
+ 
 async function submitCreateRoom(){
   const name = document.getElementById('newRoomName').value.trim();
   const btn = document.getElementById('btnCreateSubmit');
-  const spinner = document.getElementById('btnSpinner');
-  const btnText = document.getElementById('btnText');
   
   if(!name) return alert('Please enter a room name.');
 
   btn.disabled = true;
-  btnText.textContent = 'Checking...';
-  spinner.style.display = 'block';
+  btn.innerText = 'Loading...';
 
   try {
-    const { data: { user }, error: authErr } = await sb.auth.getUser();
-    if(authErr || !user) throw new Error("Aap login nahi hain. Please login again.");
+    const { data: { user } } = await sb.auth.getUser();
+    if(!user) return window.location.href = 'index.html'; // Agar login nahi hai to login page pe bhej do
 
-    const { data: profile, error: pErr } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
-    if(pErr || !profile) throw new Error("Profile nahi mili.");
-
-    btnText.textContent = 'Creating...';
+    const { data: profile } = await sb.from('profiles').select('uid').eq('id', user.id).maybeSingle();
+    if(!profile) return alert('Profile nahi mili.');
 
     const { data, error } = await sb.rpc('create_room', {
       p_owner_uid: String(profile.uid),
@@ -297,20 +292,23 @@ async function submitCreateRoom(){
       p_dp: null
     });
 
-    if(error) throw error;
-    if(!data.success) throw new Error(data.error);
+    if(error || !data.success) {
+        alert("Room nahi bana: " + (error?.message || data?.error));
+        btn.disabled = false;
+        btn.innerText = 'Create Room';
+        return;
+    }
 
-    btnText.textContent = 'Success!';
-    location.href = 'blind-date-room-profile-fix.html?id=' + data.room.room_id + '&mode=' + selectedMode;
+    // Agar sab theek hai, to seedha room me jao
+    window.location.href = 'blind-date-room-profile-fix.html?id=' + data.room.room_id + '&mode=' + selectedMode;
 
   } catch(e) {
-    alert(e.message || 'Room creation failed.');
+    alert("Error aaya: " + e.message);
     btn.disabled = false;
-    btnText.textContent = 'Create Room';
-    spinner.style.display = 'none';
+    btn.innerText = 'Create Room';
   }
 }
-
+   
 function searchRoom(){
   const id=prompt('Search Room ID:');
   if(!id)return;
