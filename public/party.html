@@ -92,7 +92,6 @@ body{min-height:100vh;background:#05040a;color:#fff;padding:14px;padding-bottom:
 </style>
 </head>
 <body>
-
 <div class="bg">
  <span class="heart big" style="left:3%;color:#a855f7;font-size:46px;z-index:1;animation-delay:0s">💜</span>
  <span class="heart" style="left:12%;animation-duration:11s;color:#a855f7;font-size:18px;z-index:0">💜</span>
@@ -274,7 +273,7 @@ async function submitCreateRoom(){
 
   btn.disabled = true;
   btn.innerText = 'Loading...';
-
+ 
   try {
     const { data: { user } } = await sb.auth.getUser();
     if(!user) return window.location.href = 'index.html';
