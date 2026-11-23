@@ -146,7 +146,7 @@ body{background:#fff!important;color:#171717!important;padding:14px 18px 100px!i
 <div class="sheet-overlay" id="sheetOverlay" onclick="closeCreateSheet()"></div>
 <div class="sheet" id="createSheet">
   <div class="sheet-drag"></div>
-  
+
   <div id="stepModes">
     <div class="sheet-head">
       <h2>Create Room</h2>
@@ -187,7 +187,7 @@ let myRooms = { normal: null, family: null };
 let selectedMode = '';
 let selectedType = 'normal';
 let currentActiveMode = 'related';
-let currentSubTab = 'following';
+let currentSubTab = 'manage';
 
 async function checkAuthAndRooms() {
   const { data: { user } } = await sb.auth.getUser();
@@ -258,11 +258,11 @@ function updateTypeButtonsUI() {
           document.getElementById('btnCreateSubmit').disabled = true;
           return;
       }
-  } else {
+     } else {
       document.getElementById('txtFamily').innerText = "Family";
       document.getElementById('subTxtFamily').innerText = "10,00,000 💎";
   }
-  
+
   document.getElementById('btnCreateSubmit').innerText = "Create Room";
   document.getElementById('btnCreateSubmit').disabled = false;
   setRoomType(selectedType);
@@ -270,11 +270,11 @@ function updateTypeButtonsUI() {
 
 function handleTypeClick(type) {
     if(type === 'normal' && myRooms.normal) {
-        location.href = 'blind-date-room-profile-fix.html?id=' + myRooms.normal.room_id;
+        location.href = 'blind-date-room.html?id=' + myRooms.normal.room_id;
         return;
     }
     if(type === 'family' && myRooms.family) {
-        location.href = 'blind-date-room-profile-fix.html?id=' + myRooms.family.room_id;
+        location.href = 'blind-date-room.html?id=' + myRooms.family.room_id;
         return;
     }
     setRoomType(type);
@@ -285,22 +285,31 @@ function setRoomType(type){
   document.getElementById('btnNormal').classList.toggle('selected', type === 'normal');
   document.getElementById('btnFamily').classList.toggle('selected', type === 'family');
 }
- 
+
 async function submitCreateRoom(){
   const name = document.getElementById('newRoomName').value.trim();
   const btn = document.getElementById('btnCreateSubmit');
-  
+
   if(!name) return alert('Please enter a room name.');
 
   btn.disabled = true;
   btn.innerText = 'Loading...';
- 
+
   try {
     const { data: { user } } = await sb.auth.getUser();
-    if(!user) return window.location.href = 'index.html';
+    if(!user) {
+      window.location.href = 'index.html';
+      return;
+    }
 
-    const { data: profile } = await sb.from('profiles').select('uid').eq('id', user.id).maybeSingle();
-    if(!profile) return alert('Profile nahi mili.');
+    const { data: profile, error: profileError } = await sb.from('profiles').select('uid').eq('id', user.id).maybeSingle();
+    if(profileError) throw profileError;
+    if(!profile) {
+      alert('Profile nahi mili.');
+      btn.disabled = false;
+      btn.innerText = 'Create Room';
+      return;
+    }
 
     const { data, error } = await sb.rpc('create_room', {
       p_owner_uid: String(profile.uid),
@@ -309,11 +318,11 @@ async function submitCreateRoom(){
       p_dp: null
     });
 
-    if(error || !data.success) {
-        if(error && error.message.includes("unique_user_room_type")) {
+    if(error || !data || data.success !== true) {
+        if(error && error.message && error.message.includes("unique_user_room_type")) {
             alert("Aapke paas pehle se ek room hai! Naya banane ke liye pehle wala manage karein.");
         } else {
-            alert("Room nahi bana: " + (error?.message || data?.error));
+            alert("Room nahi bana: " + (error?.message || data?.error || 'Unknown error'));
         }
         btn.disabled = false;
         btn.innerText = 'Create Room';
@@ -321,7 +330,7 @@ async function submitCreateRoom(){
     }
 
     btn.innerText = 'Success!';
-    location.href = 'blind-date-room-profile-fix.html?id=' + data.room.room_id + '&mode=' + selectedMode;
+    location.href = 'blind-date-room.html?id=' + data.room.room_id + '&mode=' + selectedMode;
 
   } catch(e) {
     alert("Error: " + e.message);
@@ -333,7 +342,7 @@ async function submitCreateRoom(){
 function searchRoom(){
   const id=prompt('Search Room ID:');
   if(!id)return;
-  location.href='blind-date-room-profile-fix.html?id='+id.trim();
+  location.href='blind-date-room.html?id='+id.trim();
 }
 
 async function renderScreenView() {
@@ -388,32 +397,12 @@ async function renderScreenView() {
       profile = profileResult.data || null;
     }
 
-    // The room profile page stores follows in each room's own localStorage record
-    // (voxa_room_data_<roomID>.followers), rather than voxa_following_rooms.
-    // Read that existing format too, so Following works without requiring a second key.
-    if (profile) {
-      const myFollowIds = [profile.uid, profile.id].filter(v => v != null).map(String);
-      rooms.forEach(r => {
-        const roomId = String(r.room_id ?? '');
-        if (!roomId) return;
-        try {
-          const roomData = JSON.parse(localStorage.getItem('voxa_room_data_' + roomId) || 'null');
-          const followers = Array.isArray(roomData?.followers) ? roomData.followers.map(String) : [];
-          if (myFollowIds.some(id => followers.includes(id)) && !followingIds.includes(roomId)) {
-            followingIds.push(roomId);
-          }
-        } catch (_) {}
-      });
-    }
-
     let roomsToShow = [];
     if (currentActiveMode === 'explore') {
       roomsToShow = rooms;
     } else if (currentSubTab === 'recent') {
-      // Show most recently visited first, using saved room IDs.
       roomsToShow = recentIds.map(id => rooms.find(r => String(r.room_id) === id)).filter(Boolean);
     } else if (currentSubTab === 'following') {
-      // This list is populated by the room Follow button via localStorage.
       roomsToShow = followingIds.map(id => rooms.find(r => String(r.room_id) === id)).filter(Boolean);
     } else if (currentSubTab === 'manage') {
       if (profile) {
@@ -431,7 +420,7 @@ async function renderScreenView() {
         const myDp = profile.profile_photo || profile.photo || 'https://i.pravatar.cc/150?img=12';
         const myName = profile.nickname || profile.name || ownRoom.name || 'My Room';
         myRoomContainer.innerHTML = `
-          <div style="background:#fff;border-radius:20px;padding:16px;box-shadow:0 8px 25px rgba(0,0,0,.10);position:relative;cursor:pointer" onclick="addToRecent('${String(ownRoom.room_id)}');window.location.href='blind-date-room-profile-fix.html?id=${encodeURIComponent(String(ownRoom.room_id))}'">
+          <div style="background:#fff;border-radius:20px;padding:16px;box-shadow:0 8px 25px rgba(0,0,0,.10);position:relative;cursor:pointer" onclick="addToRecent('${String(ownRoom.room_id)}');window.location.href='blind-date-room.html?id=${encodeURIComponent(String(ownRoom.room_id))}'">
             <div style="position:absolute;top:0;right:0;background:#fbbf24;color:#000;font-size:10px;font-weight:800;padding:4px 12px;border-radius:0 20px 0 10px">Mine</div>
             <div style="display:flex;align-items:center;gap:14px">
               <img src="${myDp}" onerror="this.style.display='none'" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid #8754f6">
@@ -446,7 +435,7 @@ async function renderScreenView() {
     }
 
     if (!roomsToShow.length) {
-      listContainer.innerHTML = `<div style="padding:20px;color:#777;font-size:13px">${currentActiveMode === 'explore' ? 'Abhi koi room available nahi hai (ya database access blocked hai).' : 'Is list me abhi koi room nahi hai.'}</div>`;
+      listContainer.innerHTML = `<div style="padding:20px;color:#777;font-size:13px">${currentActiveMode === 'explore' ? 'Abhi koi room available nahi hai.' : 'Is list me abhi koi room nahi hai.'}</div>`;
       return;
     }
 
@@ -473,7 +462,7 @@ async function renderScreenView() {
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0"><div style="background:${modeColor};color:${modeTextColor};font-size:10px;font-weight:800;padding:4px 8px;border-radius:10px;display:flex;align-items:center;gap:4px">${modeIcon} ${modeText}</div><div style="font-size:12px;color:#666">📊 0</div></div>`;
       roomCard.onclick = () => {
         addToRecent(r.room_id);
-        window.location.href = 'blind-date-room-profile-fix.html?id=' + encodeURIComponent(String(r.room_id));
+        window.location.href = 'blind-date-room.html?id=' + encodeURIComponent(String(r.room_id));
       };
       listContainer.appendChild(roomCard);
     });
@@ -498,7 +487,6 @@ function updateTopTabs() {
   });
 }
 
-// --- Helper Functions ---
 function setSubTab(tab) {
   currentSubTab = tab;
   renderScreenView();
@@ -519,7 +507,7 @@ function setMode(mode){
   currentActiveMode = mode;
   renderScreenView();
 }
- 
+
 renderScreenView();
 </script>
 </body>
