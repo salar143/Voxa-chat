@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoxaChat - Premium Party</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+body{min-height:100vh;background:#05040a;color:#fff;padding:14px;padding-bottom:110px;position:relative;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;perspective:600px}
+.heart{position:absolute;opacity:.4;animation:float 11s linear infinite;filter:drop-shadow(0 0 8px rgba(168,85,247,.7));transform-style:preserve-3d}
+.heart.big{animation:floatBig 10s linear infinite}
+@keyframes float{0%{transform:translateY(110vh) translateX(0) scale(.5) rotateZ(0deg);opacity:0}10%{opacity:.5}50%{transform:translateY(50vh) translateX(20px) scale(.8) rotateZ(15deg)}90%{opacity:.3}100%{transform:translateY(-160px) translateX(-20px) scale(1.1) rotateZ(30deg);opacity:0}}
+@keyframes floatBig{0%{transform:translateY(110vh) translateX(0) scale(.5) rotateZ(0deg);opacity:0}10%{opacity:.5}25%{transform:translateY(75vh) translateX(30px) scale(.7) rotateZ(8deg)}50%{transform:translateY(50vh) translateX(-25px) scale(.85) rotateZ(-8deg)}75%{transform:translateY(25vh) translateX(25px) scale(.95) rotateZ(6deg)}90%{opacity:.3}100%{transform:translateY(-160px) translateX(-15px) scale(1.1) rotateZ(-5deg);opacity:0}}
+
+.wrap{max-width:480px;margin:0 auto;position:relative;z-index:2}
+.head{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.top-tab{background:rgba(255,255,255,.03);border:1px solid rgba(168,85,247,.2);color:#c084fc;font-size:12px;font-weight:800;padding:10px 14px;border-radius:14px;cursor:pointer;white-space:nowrap;transition:0.3s;letter-spacing:0.5px}
+.top-tab.active{background:linear-gradient(135deg,#7c3aed,#ec4899);border-color:transparent;color:#fff;box-shadow:0 4px 15px rgba(236,72,153,0.4)}
+.search-icon{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(168,85,247,.3);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;margin-left:auto;flex-shrink:0;backdrop-filter:blur(10px)}
+.home-plus-icon{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(168,85,247,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;gap:1px;transition:0.3s;backdrop-filter:blur(10px)}
+.home-plus-icon:active{transform:scale(0.9);background:rgba(168,85,247,.2)}
+.home-plus-icon .home{font-size:14px;line-height:1}
+.home-plus-icon .plus{font-size:12px;line-height:1;color:#c084fc;font-weight:900}
+.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(5,4,10,.8);border-top:1px solid rgba(168,85,247,.2);display:flex;justify-content:space-around;padding:12px 0;z-index:10;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.nav button{background:none;border:0;color:#9ca3af;font-size:10px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:0.2s}
+.nav button.active{color:#c084fc;text-shadow:0 0 12px rgba(192,132,252,.9)}
+.nav .ic{font-size:22px}
+
+/* PREMIUM CREATE ROOM SHEET */
+.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:90;display:none;opacity:0;transition:opacity .3s}
+.sheet-overlay.show{display:block;opacity:1}
+.sheet{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg,#130c1c,#0a0610);border-radius:32px 32px 0 0;z-index:91;transform:translateY(100%);transition:transform .4s cubic-bezier(0.16, 1, 0.3, 1);max-height:92vh;overflow-y:auto;border-top:1px solid rgba(168,85,247,0.3);box-shadow:0 -15px 50px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.1)}
+.sheet.show{transform:translateY(0)}
+.sheet-drag{width:44px;height:5px;background:rgba(255,255,255,0.15);border-radius:10px;margin:12px auto}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;padding:10px 24px 20px}
+.sheet-head h2{font-size:24px;font-weight:900;color:#fff;letter-spacing:0.5px;background:linear-gradient(90deg,#fff,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sheet-head .cancel{font-size:14px;color:#a78bfa;cursor:pointer;font-weight:600;padding:6px 12px;background:rgba(168,85,247,0.1);border-radius:20px;transition:0.2s}
+.sheet-head .cancel:active{background:rgba(168,85,247,0.3)}
+
+/* Mode Grid */
+.sheet-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:0 20px 30px}
+.mode-card{border-radius:20px;padding:16px 12px;color:#fff;cursor:pointer;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;min-height:110px;transition:transform 0.15s, box-shadow 0.2s, border-color 0.2s;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);backdrop-filter:blur(10px)}
+.mode-card:hover{border-color:rgba(255,255,255,0.2)}
+.mode-card:active{transform:scale(0.94);box-shadow:0 0 20px rgba(255,255,255,0.1)}
+.mode-card .m-title{font-size:13px;font-weight:800;z-index:2;text-shadow:0 2px 4px rgba(0,0,0,0.8);line-height:1.3}
+.mode-card .m-icon{position:absolute;right:10px;bottom:10px;z-index:1;width:44px;height:44px;opacity:0.85;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.6));transition:0.3s}
+.mode-card:hover .m-icon{opacity:1;transform:scale(1.1) rotate(-5deg)}
+.mode-card .m-icon svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* Individual Card Themes & Glows */
+.bg-chat{background:linear-gradient(135deg,rgba(255,138,0,0.15),rgba(229,46,113,0.1));border-color:rgba(255,138,0,0.2)}
+.bg-chat:hover{box-shadow:0 0 20px rgba(255,138,0,0.2);border-color:rgba(255,138,0,0.5)}
+.bg-chat .m-icon{color:#ff8a00}
+.bg-video{background:linear-gradient(135deg,rgba(17,153,142,0.15),rgba(56,239,125,0.1));border-color:rgba(56,239,125,0.2)}
+.bg-video:hover{box-shadow:0 0 20px rgba(56,239,125,0.2);border-color:rgba(56,239,125,0.5)}
+.bg-video .m-icon{color:#38ef7d}
+.bg-td{background:linear-gradient(135deg,rgba(142,45,226,0.15),rgba(74,0,224,0.1));border-color:rgba(142,45,226,0.2)}
+.bg-td:hover{box-shadow:0 0 20px rgba(142,45,226,0.2);border-color:rgba(142,45,226,0.5)}
+.bg-td .m-icon{color:#b966ff}
+.bg-carrom{background:linear-gradient(135deg,rgba(241,39,17,0.15),rgba(245,175,25,0.1));border-color:rgba(241,39,17,0.2)}
+.bg-carrom:hover{box-shadow:0 0 20px rgba(241,39,17,0.2);border-color:rgba(241,39,17,0.5)}
+.bg-carrom .m-icon{color:#f5af19}
+.bg-snake{background:linear-gradient(135deg,rgba(0,180,219,0.15),rgba(0,131,176,0.1));border-color:rgba(0,180,219,0.2)}
+.bg-snake:hover{box-shadow:0 0 20px rgba(0,180,219,0.2);border-color:rgba(0,180,219,0.5)}
+.bg-snake .m-icon{color:#00b4db}
+.bg-talent{background:linear-gradient(135deg,rgba(195,20,50,0.15),rgba(36,11,54,0.1));border-color:rgba(195,20,50,0.2)}
+.bg-talent:hover{box-shadow:0 0 20px rgba(195,20,50,0.2);border-color:rgba(195,20,50,0.5)}
+.bg-talent .m-icon{color:#ff4b6a}
+
+/* Form Styles */
+.create-form{display:none;padding:0 24px 40px}
+.create-form.show{display:block;animation:fadeIn .4s cubic-bezier(0.16, 1, 0.3, 1)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.premium-input{width:100%;padding:18px;border-radius:16px;border:1px solid rgba(255,255,255,0.08);font-size:16px;background:rgba(0,0,0,0.4);color:#fff;margin-bottom:24px;outline:none;transition:0.3s;box-shadow:inset 0 2px 5px rgba(0,0,0,0.5)}
+.premium-input:focus{border-color:#8b5cf6;box-shadow:0 0 0 3px rgba(139,92,246,0.2), inset 0 2px 5px rgba(0,0,0,0.5)}
+.premium-input::placeholder{color:rgba(255,255,255,0.3)}
+
+.type-box{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px}
+.type-btn{padding:18px 10px;border-radius:16px;border:2px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.02);color:#a1a1aa;font-weight:800;cursor:pointer;text-align:center;transition:0.3s;position:relative;overflow:hidden}
+.type-btn.selected{border-color:#8b5cf6;background:rgba(139,92,246,0.15);color:#fff;box-shadow:0 0 25px rgba(139,92,246,0.2)}
+.type-btn small{display:block;font-weight:500;font-size:11px;margin-top:6px;color:#d4d4d8;letter-spacing:0.5px}
+.type-btn.family-btn.selected{border-color:#fbbf24;background:rgba(251,191,36,0.15);box-shadow:0 0 25px rgba(251,191,36,0.2)}
+.type-btn.family-btn small{color:#fbbf24;font-weight:700}
+
+.create-btn{width:100%;padding:18px;border-radius:16px;background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;font-weight:900;font-size:16px;border:0;cursor:pointer;box-shadow:0 8px 30px rgba(236,72,153,0.4);transition:0.3s;display:flex;justify-content:center;align-items:center;gap:10px;letter-spacing:0.5px}
+.create-btn:active{transform:scale(0.97)}
+.create-btn:disabled{opacity:0.7;box-shadow:none;transform:none}
+.spinner{width:20px;height:20px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Screenshot-style light layout override */
+body{background:#fff!important;color:#171717!important;padding:14px 18px 100px!important}
+.bg{display:none!important}
+.wrap{max-width:680px}
+.head{gap:8px;margin:4px 0 18px;overflow:visible;align-items:center}
+.tabs-scroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.tabs-scroll::-webkit-scrollbar{display:none}
+.head .search-icon{margin-left:0}
+.head .top-tab{flex:0 0 auto}
+.head::-webkit-scrollbar{display:none}
+.top-tab{background:#fff!important;border:0!important;border-radius:0!important;color:#171717!important;font-size:16px!important;font-weight:700!important;padding:12px 7px!important;letter-spacing:0!important;box-shadow:none!important}
+.top-tab.active{border-bottom:3px solid #8754f6!important}
+.sub-tabs{display:flex;align-items:center;justify-content:space-around;margin:6px 0 12px;color:#9a9aa5;font-size:15px;font-weight:600}
+.sub-tab{padding:8px 2px;position:relative;cursor:pointer;white-space:nowrap}
+.sub-tab.active{color:#171717;font-weight:800}
+.sub-tab.active:after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:-2px;width:22px;height:3px;border-radius:3px;background:#8754f6}
+.sub-sep{width:1px;height:16px;background:#e7e7ee}
+.rooms-list{display:flex;flex-direction:column;text-align:left!important;padding:0!important}
+.room-row{display:flex;align-items:center;gap:14px;padding:11px 2px;cursor:pointer}
+.room-row:active{background:#faf8ff}
+.room-row .thumb{width:112px;height:92px;border-radius:14px;overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,#7c3aed,#ec4899);display:grid;place-items:center;font-size:34px;color:#fff}
+.room-row .thumb img{width:100%;height:100%;object-fit:cover}
+.room-row .thumb-icon{width:100%;height:100%;display:grid;place-items:center}
+.mode-chip{display:grid;place-items:center;width:30px;height:30px;border-radius:10px;border:1px solid #eee}
+.mine-card .pill svg{vertical-align:-2px}
+.room-row .meta{flex:1;min-width:0}
+.room-row .rname{font-size:16px;font-weight:700;color:#171717;line-height:1.3;overflow-wrap:anywhere}
+.room-row .rbadges{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.room-row .rb{background:#f4f1ff;color:#6d28d9;font-size:10px;font-weight:800;padding:3px 7px;border-radius:7px}
+.room-row .right{display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0;min-width:44px}
+.room-row .rc{display:flex;align-items:center;gap:3px;color:#8a8a97;font-size:12px;font-weight:600}
+.mine-card{position:relative;background:#fff;border-radius:18px;box-shadow:0 8px 26px rgba(23,23,23,.10);padding:14px;display:flex;align-items:center;gap:14px;margin:2px 0 14px;cursor:pointer;overflow:hidden}
+.mine-card .thumb{width:78px;height:66px;border-radius:12px;overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,#7c3aed,#ec4899);display:grid;place-items:center;font-size:26px;color:#fff}
+.mine-card .thumb img{width:100%;height:100%;object-fit:cover}
+.mine-card .ribbon{position:absolute;top:10px;right:-34px;transform:rotate(45deg);background:#f5b731;color:#3a2a00;font-size:10px;font-weight:800;padding:4px 40px;letter-spacing:.4px}
+.mine-card .mname{font-size:17px;font-weight:800;color:#171717;line-height:1.25;overflow-wrap:anywhere}
+.mine-card .pill{display:inline-flex;align-items:center;gap:5px;border:1px solid #ded7f4;color:#6b7280;font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;margin-top:8px;background:#fff}
+.mine-card .mright{margin-left:auto;display:flex;flex-direction:column;align-items:center;gap:6px;color:#8a8a97;font-size:13px;font-weight:600}
+.empty-note{padding:26px 12px;color:#777;font-size:13px;text-align:center}
+.search-icon,.home-plus-icon{background:#f8f8fc!important;border:0!important;border-radius:50%!important;color:#171717!important;width:44px!important;height:44px!important}
+.home-plus-icon{border-radius:14px!important}
+.home-plus-icon .plus{color:#8754f6!important}
+.nav{background:rgba(255,255,255,.96)!important;border-top:1px solid #eee!important;box-shadow:0 -4px 16px rgba(0,0,0,.04);padding:12px 0!important}
+.nav button{color:#999!important;font-size:12px!important}
+.nav button.active{color:#8754f6!important;text-shadow:none!important}
+.nav .ic{font-size:24px!important}
+#masterContentContainer{color:#171717}
+#myRoomContainer>div{box-shadow:0 5px 20px rgba(0,0,0,.08)!important}
+#roomsListContainer{color:#777!important}
+@media(max-width:380px){.head{gap:6px}.top-tab{font-size:14px!important;padding:10px 5px!important}.search-icon,.home-plus-icon{width:38px!important;height:38px!important}}
+
+</style>
+</head>
+<body>
+<div class="bg">
+ <span class="heart big" style="left:3%;color:#a855f7;font-size:46px;z-index:1;animation-delay:0s">💜</span>
+ <span class="heart" style="left:12%;animation-duration:11s;color:#a855f7;font-size:18px;z-index:0">💜</span>
+ <span class="heart big" style="left:22%;color:#7e22ce;font-size:46px;z-index:2;animation-delay:2s">💜</span>
+ <span class="heart" style="left:42%;color:#a855f7;font-size:46px;z-index:1;animation-delay:4s">💜</span>
+ <span class="heart big" style="left:62%;color:#a855f7;font-size:46px;z-index:2;animation-delay:6s">💜</span>
+ <span class="heart" style="left:82%;color:#7e22ce;font-size:46px;z-index:1;animation-delay:8s">💜</span>
+</div>
+
+<div class="wrap">
+ <div class="head">
+  <div class="tabs-scroll">
+   <div class="top-tab" onclick="setMode('related')">Related</div>
+   <div class="top-tab" onclick="setMode('explore')">Explore</div>
+   <div class="top-tab" onclick="setMode('event')">Event</div>
+   <div class="top-tab" onclick="setMode('discover')">Discover</div>
+  </div>
+  <div class="search-icon" onclick="searchRoom()">🔍</div>
+  <div class="home-plus-icon" onclick="openCreateSheet()"><span class="home">🏠</span><span class="plus">+</span></div>
+ </div>
+</div>
+
+<div class="wrap">
+ <div id="masterContentContainer"></div>
+</div>
+
+<div class="nav">
+ <button onclick="location.href='homefile3.html'"><span class="ic">🏠</span>Home</button>
+ <button class="active" onclick="location.href='party.html'"><span class="ic">🎉</span>Party</button>
+ <button onclick="location.href='inbox.html'"><span class="ic">📥</span>Inbox</button>
+ <button onclick="location.href='profile2.html'"><span class="ic">👤</span>Profile</button>
+</div>
+
+<div class="sheet-overlay" id="sheetOverlay" onclick="closeCreateSheet()"></div>
+<div class="sheet" id="createSheet">
+  <div class="sheet-drag"></div>
+
+  <div id="stepModes">
+    <div class="sheet-head">
+      <h2>Create Room</h2>
+      <span class="cancel" onclick="closeCreateSheet()">Cancel</span>
+    </div>
+    <div id="modeLimitNote" style="font-size:12px;line-height:1.5;color:#d6c8ff;margin:0 20px 14px;background:rgba(139,92,246,.14);border:1px solid rgba(139,92,246,.35);border-radius:12px;padding:10px 12px"></div>
+    <div class="sheet-grid">
+      <div class="mode-card bg-chat" onclick="selectMode('chat')"><span class="m-title">Chat</span><span class="m-icon"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span></div>
+      <div class="mode-card bg-video" onclick="selectMode('video')"><span class="m-title">Video</span><span class="m-icon"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="3"/><path d="M16 10l6-3v10l-6-3"/></svg></span></div>
+      <div class="mode-card bg-td" onclick="selectMode('truth')"><span class="m-title">Truth & Dare</span><span class="m-icon"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM8 12l2 2 4-4"/></svg></span></div>
+      <div class="mode-card bg-carrom" onclick="selectMode('carrom')"><span class="m-title">Carrom</span><span class="m-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg></span></div>
+      <div class="mode-card bg-snake" onclick="selectMode('snakes')"><span class="m-title">Snakes</span><span class="m-icon"><svg viewBox="0 0 24 24"><path d="M4 4h4v4H4zM12 4h4v4h-4zM20 4h4v4h-4zM4 12h4v4H4zM12 12h4v4h-4zM20 12h4v4h-4zM4 20h4v4H4zM12 20h4v4h-4zM20 20h4v4h-4z"/></svg></span></div>
+      <div class="mode-card bg-talent" onclick="selectMode('talent')"><span class="m-title">Talent</span><span class="m-icon"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3zM19 10v1a7 7 0 0 1-14 0v-1M12 18v4M8 22h8"/></svg></span></div>
+    </div>
+  </div>
+
+  <div class="create-form" id="stepForm">
+    <div class="sheet-head" style="padding:0 0 20px 0">
+      <h2>Details</h2>
+      <span class="cancel" onclick="backToModes()">← Back</span>
+    </div>
+    <input type="text" id="newRoomName" class="premium-input" placeholder="Give your room a name..." maxlength="50" autocomplete="off">
+    <div class="type-box">
+      <div class="type-btn selected" id="btnNormal" onclick="handleTypeClick('normal')"><span id="txtNormal">Normal</span><small id="subTxtNormal">Free to create</small></div>
+      <div class="type-btn family-btn" id="btnFamily" onclick="handleTypeClick('family')"><span id="txtFamily">Family</span><small id="subTxtFamily">10,00,000 💎</small></div>
+    </div>
+    <div id="roomLimitNote" style="font-size:12px;line-height:1.5;color:#6b7280;margin:0 0 12px;background:#f7f5ff;border:1px solid #ece7ff;border-radius:12px;padding:10px 12px">Aapke rooms: 0/2 (1 Normal + 1 Family).</div>
+    <div id="familyCostNote" style="display:none;font-size:12.5px;line-height:1.5;color:#6b7280;margin:0 0 12px;background:#fff8ec;border:1px solid #ffe7bf;border-radius:12px;padding:10px 12px"></div>
+    <button class="create-btn" id="btnCreateSubmit" onclick="submitCreateRoom()"><span class="spinner" id="btnSpinner"></span><span id="btnText">Create Room</span></button>
+  </div>
+</div>
+
+<!-- Yahan Part 2 ka <script> tag shuru hota hai --><script>
+const sb = supabase.createClient(
+  'https://mblcbygpqbogmtzacbtz.supabase.co',
+  'sb_publishable_d0jKzXs_b-tBVzhusjYKJw_ZdPkMxdV'
+);
+
+let currentUserProfile = null;
+let myRooms = { normal: null, family: null };
+/* user ne jo room banaya, wo har haal me list me dikhe (chahe server list na de) */
+function localMyRooms(){try{const a=JSON.parse(localStorage.getItem('voxa_my_rooms')||'[]');return Array.isArray(a)?a:[]}catch(_){return[]}}
+function saveMyRoom(r){if(!r||!r.room_id)return;const a=localMyRooms().filter(x=>String(x.room_id)!==String(r.room_id));a.unshift(r);try{localStorage.setItem('voxa_my_rooms',JSON.stringify(a.slice(0,10)))}catch(_){}}
+function mergeMyRooms(list){
+  const out=Array.isArray(list)?list.slice():[];
+  localMyRooms().forEach(m=>{if(!out.some(r=>String(r.room_id||r.id)===String(m.room_id||m.id)))out.push(m)});
+  return out;
+}
+/* Family room ka price — wallet (profiles.diamonds) se katega */
+const FAMILY_ROOM_PRICE = 1000000;
+let selectedMode = '';
+let selectedType = 'normal';
+let currentActiveMode = 'related';
+let currentSubTab = 'recent';
+
+async function checkAuthAndRooms() {
+  const { data: { user } } = await sb.auth.getUser();
+  if(user) {
+    const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
+    currentUserProfile = profile;
+    if(currentUserProfile) {
+        const { data: rooms } = await sb.from('rooms').select('*').eq('owner_uid', String(currentUserProfile.uid));
+        if(rooms) {
+            rooms.forEach(r => {
+                if(r.type === 'normal') myRooms.normal = r;
+                if(r.type === 'family') myRooms.family = r;
+            });
+        }
+        /* server se na mile to device par save kiya hua room yaad rakho */
+        localMyRooms().forEach(r => {
+            if(r.type === 'family') { if(!myRooms.family) myRooms.family = r; }
+            else if(!myRooms.normal) myRooms.normal = r;
+        });
+    }
+  }
+}
+checkAuthAndRooms();
+
+async function openCreateSheet(){
+  document.getElementById('sheetOverlay').classList.add('show');
+  document.getElementById('createSheet').classList.add('show');
+  try { await checkAuthAndRooms(); } catch(e) { console.log("Auth error: ", e); }
+  backToModes();
+  try { updateTypeButtonsUI(); } catch(_) {}
+}
+
+function closeCreateSheet(){
+  document.getElementById('sheetOverlay').classList.remove('show');
+  document.getElementById('createSheet').classList.remove('show');
+}
+
+function selectMode(mode){
+  if (myRooms.normal && myRooms.family) {
+    alert('Aapke 2/2 rooms ban chuke hain (1 Normal + 1 Family). Naya room nahi bana sakte.');
+    return;
+  }
+  selectedMode = mode;
+  document.getElementById('stepModes').style.display = 'none';
+  document.getElementById('stepForm').style.display = 'block';
+  document.getElementById('newRoomName').value = '';
+  updateTypeButtonsUI();
+}
+
+function backToModes(){
+  document.getElementById('stepModes').style.display = 'block';
+  document.getElementById('stepForm').style.display = 'none';
+}
+
+function updateTypeButtonsUI() {
+  const btnNormal = document.getElementById('btnNormal');
+  const btnFamily = document.getElementById('btnFamily');
+  const submit = document.getElementById('btnCreateSubmit');
+  const hasNormal = !!myRooms.normal;
+  const hasFamily = !!myRooms.family;
+
+  document.getElementById('txtNormal').innerText = hasNormal ? 'Enter Room' : 'Normal';
+  document.getElementById('subTxtNormal').innerText = hasNormal ? 'Already created (1/1)' : 'Free to create';
+  document.getElementById('txtFamily').innerText = hasFamily ? 'Enter Family' : 'Family';
+  document.getElementById('subTxtFamily').innerText = hasFamily ? 'Already created (1/1)' : '10,00,000 💎';
+
+  /* har user max 2 room: 1 Normal + 1 Family */
+  const available = !hasNormal ? 'normal' : (!hasFamily ? 'family' : null);
+
+  if (available) {
+    setRoomType(available);
+    submit.disabled = false;
+    submit.innerText = 'Create Room';
+  } else {
+    btnNormal.classList.remove('selected');
+    btnFamily.classList.remove('selected');
+    submit.disabled = true;
+    submit.innerText = 'Limit reached — 2/2 rooms';
+  }
+
+  const modeNote = document.getElementById('modeLimitNote');
+  if (modeNote) {
+    const count2 = (hasNormal ? 1 : 0) + (hasFamily ? 1 : 0);
+    modeNote.textContent = `Aapke rooms: ${count2}/2 · Ek user sirf 1 Normal + 1 Family room bana sakta hai.` +
+      (count2 === 2 ? ' Limit poori — naya room nahi bana sakte.' : '');
+    modeNote.style.color = count2 === 2 ? '#ffd48a' : '#d6c8ff';
+  }
+  const lock = document.getElementById('roomLimitNote');
+  if (lock) {
+    const count = (hasNormal ? 1 : 0) + (hasFamily ? 1 : 0);
+    lock.textContent = `Aapke rooms: ${count}/2 (1 Normal + 1 Family). ` +
+      (count === 2 ? 'Naya room nahi bana sakte — dono limit poori.' : (hasNormal ? 'Family room bana sakte ho.' : (hasFamily ? 'Normal room bana sakte ho.' : 'Dono me se ek chuno.')));
+    lock.style.color = count === 2 ? '#b45309' : '#6b7280';
+  }
+  try{ refreshFamilyCostNote(); }catch(_) {}
+}
+
+function handleTypeClick(type) {
+    if(type === 'normal' && myRooms.normal) {
+        location.href = 'blind-date-room.html?id=' + myRooms.normal.room_id;
+        return;
+    }
+    if(type === 'family' && myRooms.family) {
+        location.href = 'blind-date-room.html?id=' + myRooms.family.room_id;
+        return;
+    }
+    setRoomType(type);
+}
+
+function setRoomType(type){
+  selectedType = type;
+  try{ refreshFamilyCostNote(); }catch(_) {}
+  document.getElementById('btnNormal').classList.toggle('selected', type === 'normal');
+  document.getElementById('btnFamily').classList.toggle('selected', type === 'family');
+}
+
+function inr(n){return Number(n||0).toLocaleString('en-IN')}
+
+async function myDiamonds(){
+  try{
+    const { data: { user } } = await sb.auth.getUser();
+    if(!user) return null;
+    const { data, error } = await sb.from('profiles').select('diamonds').eq('id', user.id).maybeSingle();
+    if(error) return null;
+    return Number(data && data.diamonds) || 0;
+  }catch(_){ return null }
+}
+
+async function refreshFamilyCostNote(){
+  const el = document.getElementById('familyCostNote');
+  if(!el) return;
+  if(selectedType !== 'family' || myRooms.family){ el.style.display='none'; return }
+  el.style.display='block';
+  el.style.color='#92400e';
+  el.innerHTML = 'Family room banane ke liye <b>' + inr(FAMILY_ROOM_PRICE) + ' 💎</b> wallet se katege.';
+  const have = await myDiamonds();
+  if(have === null) return;
+  if(have >= FAMILY_ROOM_PRICE){
+    el.innerHTML += '<br>Wallet: <b>' + inr(have) + ' 💎</b> — kaafi hai, room ban jayega.';
+  }else{
+    el.style.color='#b91c1c';
+    el.innerHTML += '<br>Wallet: <b>' + inr(have) + ' 💎</b> — ' + inr(FAMILY_ROOM_PRICE - have) + ' 💎 kam hai. Pehle diamonds recharge karo.';
+  }
+}
+
+async function submitCreateRoom(){
+  const name = document.getElementById('newRoomName').value.trim();
+  const btn = document.getElementById('btnCreateSubmit');
+
+  if(!name) return alert('Please enter a room name.');
+
+  btn.disabled = true;
+  btn.innerText = 'Loading...';
+
+  try {
+    /* limit: 1 Normal + 1 Family = max 2 rooms per user */
+    await checkAuthAndRooms();
+    if (selectedType === 'normal' && myRooms.normal) {
+      alert('Aapke paas pehle se Normal room hai. Ek user sirf 1 Normal + 1 Family room bana sakta hai.');
+      location.href = 'blind-date-room.html?id=' + myRooms.normal.room_id;
+      return;
+    }
+    if (selectedType === 'family' && myRooms.family) {
+      alert('Aapke paas pehle se Family room hai. Ek user sirf 1 Normal + 1 Family room bana sakta hai.');
+      location.href = 'blind-date-room.html?id=' + myRooms.family.room_id;
+      return;
+    }
+    if (myRooms.normal && myRooms.family) {
+      alert('Limit poori (2/2 rooms). Naya room nahi bana sakte.');
+      btn.disabled = false;
+      btn.innerText = 'Limit reached — 2/2 rooms';
+      return;
+    }
+
+    const { data: { user } } = await sb.auth.getUser();
+    if(!user) {
+      window.location.href = 'index.html';
+      return;
+    }
+
+    const { data: profile, error: profileError } = await sb.from('profiles').select('uid').eq('id', user.id).maybeSingle();
+    if(profileError) throw profileError;
+    if(!profile) {
+      alert('Profile nahi mili.');
+      btn.disabled = false;
+      btn.innerText = 'Create Room';
+      return;
+    }
+
+    /* ---------- FAMILY ROOM: wallet se 10,00,000 diamonds ---------- */
+    let paidFamily = false, paidFrom = 0;
+    if (selectedType === 'family') {
+      const { data: walletRow, error: walletErr } = await sb.from('profiles').select('diamonds').eq('id', user.id).maybeSingle();
+      if (walletErr) throw walletErr;
+      const have = Number(walletRow && walletRow.diamonds) || 0;
+      if (have < FAMILY_ROOM_PRICE) {
+        alert('Family room ke liye ' + inr(FAMILY_ROOM_PRICE) + ' 💎 chahiye.\nAapke paas ' + inr(have) + ' 💎 hain.\n' + inr(FAMILY_ROOM_PRICE - have) + ' 💎 kam hai — pehle recharge karo, phir room banega.');
+        btn.disabled = false;
+        btn.innerText = 'Create Room';
+        updateTypeButtonsUI();
+        return;
+      }
+      const { data: upd, error: updErr } = await sb.from('profiles')
+        .update({ diamonds: have - FAMILY_ROOM_PRICE })
+        .eq('id', user.id).eq('diamonds', have)
+        .select('diamonds');
+      if (updErr) throw updErr;
+      if (!upd || !upd.length) {
+        alert('Diamonds nahi kate (balance beech me badal gaya). Dobara try karo.');
+        btn.disabled = false;
+        btn.innerText = 'Create Room';
+        return;
+      }
+      paidFamily = true; paidFrom = have;
+      try {
+        await sb.from('wallet_transactions').insert({
+          user_id: user.id, type: 'family_room_fee',
+          amount: -FAMILY_ROOM_PRICE, currency: 'diamonds', status: 'completed'
+        });
+      } catch(_) {}
+      btn.innerText = 'Diamonds kate…';
+    }
+
+    const { data, error } = await sb.rpc('create_room', {
+      p_owner_uid: String(profile.uid),
+      p_name: name,
+      p_type: selectedType,
+      p_dp: null
+    });
+
+    if(error || !data || data.success !== true) {
+        if(error && error.message && error.message.includes("unique_user_room_type")) {
+            alert("Aapke paas pehle se ek room hai! Naya banane ke liye pehle wala manage karein.");
+        } else {
+            alert("Room nahi bana: " + (error?.message || data?.error || 'Unknown error'));
+        }
+        if (paidFamily) {
+          try {
+            await sb.from('profiles').update({ diamonds: paidFrom }).eq('id', user.id);
+            await sb.from('wallet_transactions').insert({
+              user_id: user.id, type: 'family_room_refund',
+              amount: FAMILY_ROOM_PRICE, currency: 'diamonds', status: 'completed'
+            });
+            alert('Room nahi bana, isliye ' + inr(FAMILY_ROOM_PRICE) + ' 💎 wallet me wapas kar diye gaye.');
+          } catch(_) {}
+        }
+        btn.disabled = false;
+        btn.innerText = 'Create Room';
+        return;
+    }
+
+    btn.innerText = 'Success!';
+    if (paidFamily) {
+      try{ localStorage.setItem('voxa_flash', 'Family room ban gaya · ' + inr(FAMILY_ROOM_PRICE) + ' 💎 wallet se kate'); }catch(_) {}
+    }
+    saveMyRoom(data.room);
+    location.href = 'blind-date-room.html?id=' + data.room.room_id + '&mode=' + selectedMode;
+
+  } catch(e) {
+    alert("Error: " + e.message);
+    btn.disabled = false;
+    btn.innerText = 'Create Room';
+  }
+}
+
+function searchRoom(){
+  const id=prompt('Search Room ID:');
+  if(!id)return;
+  location.href='blind-date-room.html?id='+id.trim();
+}
+
+function modeMeta(r){
+  const t = String(r.type || r.mode || 'normal').toLowerCase();
+  const map = {
+    video: { c:'#ef4444', label:'Video', svg:'<rect x="2" y="6" width="13" height="12" rx="3"/><path d="M15 10l6-3v10l-6-3"/>' },
+    truth: { c:'#9333ea', label:'Truth', svg:'<path d="M10 3h4v3l-1.5 1.5V19a2.5 2.5 0 0 1-5 0V7.5L10 6z"/><path d="M8 12h4"/>' },
+    carrom:{ c:'#db2777', label:'Carrom', svg:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/>' },
+    snakes:{ c:'#16a34a', label:'Game', svg:'<rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.4"/><circle cx="15.5" cy="15.5" r="1.4"/><circle cx="12" cy="12" r="1.4"/>' },
+    talent:{ c:'#ca8a04', label:'Talent', svg:'<rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/>' },
+    family:{ c:'#d97706', label:'Family', svg:'<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3 20v-1a5 5 0 0 1 5-5h2a5 5 0 0 1 5 5v1M17 14a4 4 0 0 1 4 4v2"/>' },
+    normal:{ c:'#6d28d9', label:'Chat', svg:'<path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L4 20l1.2-4.2A8.5 8.5 0 1 1 21 11.5z"/>' }
+  };
+  return map[t] || map.normal;
+}
+function iconSvg(meta, size, color){
+  return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="${color || meta.c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${meta.svg}</svg>`;
+}
+const SPEAKER_SVG = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#8a8a97" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h3l4 3V7L7 10H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5"/><path d="M18 7a7 7 0 0 1 0 10"/></svg>';
+
+async function renderScreenView() {
+  const container = document.getElementById('masterContentContainer');
+
+  if (currentActiveMode === 'event') {
+    container.innerHTML = `
+    <div style="background:linear-gradient(135deg,#8754f6,#ec4899);border-radius:16px;padding:18px;color:#fff;margin-bottom:16px">
+      <div style="font-size:20px;font-weight:700;margin-bottom:6px">🎉 Room Events</div>
+      <div style="font-size:13px;line-height:1.5;opacity:.95">Event room ke andar banta hai — room open karo, phir room photo/naam pe tap karo. Wahan Events, timing, leaderboard aur gift ranking sab milega.</div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:16px">
+      <button onclick="setMode('related')" style="flex:1;padding:11px;border:0;border-radius:12px;background:#8754f6;color:#fff;font-weight:600;font-size:13px">Browse Rooms</button>
+      <button onclick="openCreateSheet()" style="flex:1;padding:11px;border:0;border-radius:12px;background:#fff;color:#8754f6;border:1px solid #8754f6;font-weight:600;font-size:13px">+ Create Room</button>
+    </div>
+    <div style="font-weight:600;color:#171717;margin:0 4px 8px;font-size:14px">Live rooms</div>
+    <div id="eventRooms" style="color:#777;font-size:13px;padding:8px 4px">Loading rooms…</div>`;
+    updateTopTabs();
+    loadEventRooms();
+    return;
+  }
+
+  updateTopTabs();
+
+  container.innerHTML = `
+    <div id="myRoomContainer"></div>
+    <div class="sub-tabs">
+      <span class="sub-tab ${currentSubTab==='recent'?'active':''}" onclick="setSubTab('recent')">Recently</span>
+      <span class="sub-sep"></span>
+      <span class="sub-tab ${currentSubTab==='following'?'active':''}" onclick="setSubTab('following')">Following</span>
+      <span class="sub-sep"></span>
+      <span class="sub-tab ${currentSubTab==='manage'?'active':''}" onclick="setSubTab('manage')">Managed</span>
+    </div>
+    <div id="roomsListContainer" class="rooms-list">Loading rooms...</div>`;
+
+  const listContainer = document.getElementById('roomsListContainer');
+  try {
+    const { data: allRooms, error } = await sb.from('rooms').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    const rooms = mergeMyRooms(allRooms);   /* sirf asli rooms — koi fake/demo nahi */
+    let _modeMap={}; try{_modeMap=JSON.parse(localStorage.getItem('voxa_room_modes')||'{}')||{}}catch(_){}
+    rooms.forEach(r=>{const k=String(r.room_id||r.id); if(_modeMap[k]) r.type=_modeMap[k];});
+
+    let recentIds = [], followingIds = [];
+    try { recentIds = JSON.parse(localStorage.getItem('voxa_recent_rooms') || '[]'); } catch (_) {}
+    try { followingIds = JSON.parse(localStorage.getItem('voxa_following_rooms') || '[]'); } catch (_) {}
+    recentIds = Array.isArray(recentIds) ? recentIds.map(String) : [];
+    followingIds = Array.isArray(followingIds) ? followingIds.map(String) : [];
+
+    let profile = null, user = null;
+    const authResult = await sb.auth.getUser();
+    user = authResult?.data?.user || null;
+    if (user) {
+      const profileResult = await sb.from('profiles').select('id, uid, nickname, name, photo, profile_photo').eq('id', user.id).maybeSingle();
+      profile = profileResult.data || null;
+    }
+
+    const isAdminOf = (r) => {
+      if (!user) return false;
+      const uid = String(user.id);
+      const list = Array.isArray(r.admins) ? r.admins.map(String) : [];
+      return list.includes(uid) || (profile && profile.uid != null && list.includes(String(profile.uid)));
+    };
+    const isOwnerOf = (r) => (profile && (
+        (r.owner_uid != null && String(r.owner_uid).trim() === String(profile.uid).trim()) ||
+        (r.owner_id != null && String(r.owner_id).trim() === String(profile.id).trim())
+      )) || (user && r.owner_id != null && String(r.owner_id) === String(user.id));
+    const isMyRoom = (r) => isOwnerOf(r) || isAdminOf(r) || localMyRooms().some(m => String(m.room_id) === String(r.room_id || r.id));
+
+    const thumbOf = (r) => {
+      if (r.dp) return `<img src="${escapeRoomText(r.dp)}" onerror="this.style.display='none'" alt="">`;
+      const m = modeMeta(r);
+      return `<div class="thumb-icon" style="background:linear-gradient(135deg,${m.c},#8754f6)">${iconSvg(m,34,'#fff')}</div>`;
+    };
+    const modeChip = (r) => {
+      const m = modeMeta(r);
+      return `<span class="mode-chip" style="background:${m.c}14;border-color:${m.c}33">${iconSvg(m,17)}</span>`;
+    };
+
+    /* ===== Mine card (aapka apna room) ===== */
+    const myBox = document.getElementById('myRoomContainer');
+    const mineRooms = rooms.filter(isMyRoom);
+    const mineRoom = mineRooms.find(r => String(r.type||'').toLowerCase() !== 'family') || mineRooms[0] || null;
+    if (myBox && mineRoom) {
+      const mid = encodeURIComponent(String(mineRoom.room_id || mineRoom.id));
+      myBox.innerHTML = `
+        <div class="mine-card" onclick="addToRecent('${mid}');window.location.href='blind-date-room.html?id=${mid}'">
+          <div class="thumb">${thumbOf(mineRoom)}</div>
+          <div style="min-width:0">
+            <div class="mname">${escapeRoomText(mineRoom.name || 'My Room')}</div>
+            <div class="pill">${iconSvg(modeMeta(mineRoom),14)} Chat</div>
+          </div>
+          <div class="mright">${SPEAKER_SVG}<span>${Number(mineRoom.listeners || mineRoom.online || 0)}</span></div>
+          <div class="ribbon">Mine</div>
+        </div>`;
+    }
+
+    let roomsToShow = [], emptyMsg = '';
+    if (currentActiveMode === 'explore' || currentActiveMode === 'discover') {
+      roomsToShow = rooms;
+      emptyMsg = 'Abhi koi live room nahi hai — pehla room aap banao!';
+    } else if (currentSubTab === 'manage') {
+      roomsToShow = rooms.filter(isMyRoom);
+      emptyMsg = 'Aapka koi room nahi hai (na owner, na admin) — 🏠 + se naya room banao.';
+    } else if (currentSubTab === 'following') {
+      roomsToShow = followingIds.map(id => rooms.find(r => String(r.room_id || r.id) === String(id))).filter(Boolean);
+      emptyMsg = 'Abhi koi room follow nahi kiya — room ke andar ♥ Follow dabao, wo yahan aa jayega.';
+    } else {
+      roomsToShow = recentIds.map(id => rooms.find(r => String(r.room_id || r.id) === String(id))).filter(Boolean);
+      emptyMsg = 'Abhi kisi room me gaye nahi ho — koi bhi room kholo, wo yahan Recently me dikhega.';
+    }
+
+    if (!roomsToShow.length) {
+      listContainer.innerHTML = `<div class="empty-note">${emptyMsg}</div>`;
+      return;
+    }
+
+    listContainer.innerHTML = '';
+    roomsToShow.forEach(r => {
+      const name = String(r.name || 'Unnamed Room');
+      const mine = isMyRoom(r);
+      const admin = isAdminOf(r) && !isOwnerOf(r);
+      const row = document.createElement('div');
+      row.className = 'room-row';
+      row.innerHTML = `
+        <div class="thumb">${thumbOf(r)}</div>
+        <div class="meta">
+          <div class="rname">${escapeRoomText(name)}</div>
+          <div class="rbadges">
+            <span class="rb">Lv.${Number(r.level) || 1}</span>
+            <span class="rb">${escapeRoomText(modeMeta(r).label)}</span>
+            ${admin ? '<span class="rb">Admin</span>' : ''}
+            ${mine && !admin ? '<span class="rb">Mine</span>' : ''}
+          </div>
+        </div>
+        <div class="right">
+          ${modeChip(r)}
+          <span class="rc">${SPEAKER_SVG}${Number(r.listeners || r.online || 0)}</span>
+        </div>`;
+      row.onclick = () => {
+        addToRecent(r.room_id || r.id);
+        window.location.href = 'blind-date-room.html?id=' + encodeURIComponent(String(r.room_id || r.id));
+      };
+      listContainer.appendChild(row);
+    });
+  } catch (e) {
+    console.error('Rooms load error:', e);
+    listContainer.innerHTML = '<div class="empty-note" style="color:#b91c1c">Rooms load nahi hue. Page refresh karke try karein.</div>';
+  }
+}
+
+function escapeRoomText(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[ch]));
+}
+
+function updateTopTabs() {
+  const modes = ['related', 'explore', 'event', 'discover'];
+  document.querySelectorAll('.head .top-tab').forEach((tab, index) => {
+    const active = modes[index] === currentActiveMode;
+    tab.classList.toggle('active', active);
+    tab.style.borderBottom = active ? '3px solid #8754f6' : '3px solid transparent';
+  });
+}
+
+function setSubTab(tab) {
+  currentSubTab = tab;
+  renderScreenView();
+}
+
+function addToRecent(roomId) {
+  if (roomId == null) return;
+  let recent = [];
+  try { recent = JSON.parse(localStorage.getItem('voxa_recent_rooms') || '[]'); } catch (_) {}
+  if (!Array.isArray(recent)) recent = [];
+  const id = String(roomId);
+  recent = [id, ...recent.map(String).filter(existing => existing !== id)].slice(0, 100);
+  localStorage.setItem('voxa_recent_rooms', JSON.stringify(recent));
+  if (currentSubTab === 'recent' && currentActiveMode === 'related') renderScreenView();
+}
+
+function setMode(mode){
+  currentActiveMode = mode;
+  renderScreenView();
+}
+
+async function loadEventRooms(){
+  const box = document.getElementById('eventRooms');
+  if (!box) return;
+  try {
+    const { data, error } = await sb.from('rooms').select('*').order('created_at', { ascending: false }).limit(15);
+    if (error) throw error;
+    const rooms = Array.isArray(data) ? data : [];
+    box.innerHTML = rooms.map(r => {
+      const id = encodeURIComponent(String(r.room_id || r.id || ''));
+      const nm = String(r.name || 'VoxaChat Room');
+      return `<div onclick="location.href='blind-date-room.html?id=${id}'" style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:12px;padding:10px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,.06);cursor:pointer">
+        <div style="width:38px;height:38px;border-radius:10px;background:#f3edff;display:grid;place-items:center;font-size:18px">🎤</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;color:#171717;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${nm}</div>
+          <div style="font-size:11px;color:#777">Room ID: ${r.room_id || r.id}</div>
+        </div>
+        <div style="font-size:12px;color:#8754f6;font-weight:600">Open ›</div>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    box.innerHTML = 'Rooms load nahi hue: ' + (e && e.message ? e.message : 'error');
+  }
+}
+
+renderScreenView();
+</script>
+</body>
+</html>
